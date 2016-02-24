@@ -256,7 +256,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             holder.mAuthorView.setText("" + s.sng.artistPrimary);
 
 
-            Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
+            //Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
             Picasso.with(holder.mContainer.getContext()).load(s.sng.album_image.url).into(holder.mImageView);
 
 

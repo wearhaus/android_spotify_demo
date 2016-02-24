@@ -26,6 +26,43 @@
 
 
 
+        <LinearLayout
+            android:id="@+id/shuffle_layout"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+
+
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            >
+
+
+
+            <ImageButton
+                android:id="@+id/shuffle"
+
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_action_shuffle_w"
+                android:background="@drawable/button_bg_transparent_tocyan"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                />
+            <ImageButton
+                android:id="@+id/repeat"
+
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_action_repeat_w"
+                android:background="@drawable/button_bg_transparent_tocyan"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                />
+        </LinearLayout>
 
 
         <LinearLayout
@@ -37,8 +74,9 @@
             android:layout_alignParentBottom="true"
 
             android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/shuffle_layout"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="0dp"
             >
 
 
@@ -90,41 +128,97 @@
         </LinearLayout>
 
 
-        <LinearLayout
-            android:id="@+id/shuffle_layout"
+        <!--<LinearLayout-->
+            <!--android:id="@+id/shuffle_layout"-->
 
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:gravity="center_horizontal"-->
 
-            android:layout_above="@+id/track_stuff"
-            android:layout_marginBottom="10dp"
-            >
+            <!--android:layout_above="@+id/track_stuff"-->
+            <!--android:layout_marginBottom="10dp"-->
+            <!-->-->
 
 
 
-            <ImageButton
-                android:id="@+id/shuffle"
+            <!--<ImageButton-->
+                <!--android:id="@+id/shuffle"-->
 
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_action_shuffle_w"
-                android:background="@drawable/button_bg_transparent_tocyan"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                />
-            <ImageButton
-                android:id="@+id/repeat"
+                <!--android:layout_width="32dp"-->
+                <!--android:layout_height="32dp"-->
+                <!--android:src="@drawable/ic_action_shuffle_w"-->
+                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
+                <!--android:layout_marginLeft="20dp"-->
+                <!--android:layout_marginRight="20dp"-->
+                <!--/>-->
+            <!--<ImageButton-->
+                <!--android:id="@+id/repeat"-->
 
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_action_repeat_w"
-                android:background="@drawable/button_bg_transparent_tocyan"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                />
-        </LinearLayout>
+                <!--android:layout_width="32dp"-->
+                <!--android:layout_height="32dp"-->
+                <!--android:src="@drawable/ic_action_repeat_w"-->
+                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
+                <!--android:layout_marginLeft="20dp"-->
+                <!--android:layout_marginRight="20dp"-->
+                <!--/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/playback_buttons_layout"-->
+
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:gravity="center"-->
+
+            <!--android:layout_above="@+id/shuffle_layout"-->
+            <!--android:layout_marginBottom="10dp"-->
+            <!-->-->
+
+            <!--<ImageButton-->
+                <!--android:id="@+id/skip_back"-->
+
+                <!--android:layout_width="32dp"-->
+                <!--android:layout_height="32dp"-->
+                <!--android:src="@drawable/ic_action_rewind_w"-->
+
+                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
+                <!--android:layout_marginLeft="10dp"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--/>-->
+
+            <!--<ImageButton-->
+                <!--android:id="@+id/play_pause"-->
+
+                <!--android:layout_width="64dp"-->
+                <!--android:layout_height="64dp"-->
+
+                <!--android:src="@drawable/ic_action_play_over_video_w"-->
+                <!--android:scaleType="fitCenter"-->
+                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
+
+                <!--android:layout_marginLeft="20dp"-->
+                <!--android:layout_marginRight="20dp"-->
+
+                <!--/>-->
+
+            <!--<ImageButton-->
+                <!--android:id="@+id/skip_forward"-->
+
+                <!--android:layout_width="32dp"-->
+                <!--android:layout_height="32dp"-->
+                <!--android:src="@drawable/ic_action_fast_forward_w"-->
+                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
+                <!--android:layout_marginLeft="10dp"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--/>-->
+
+        <!--</LinearLayout>-->
+
+
+
+
 
         <LinearLayout
             android:id="@+id/playback_buttons_layout"
@@ -134,7 +228,7 @@
             android:orientation="horizontal"
             android:gravity="center"
 
-            android:layout_above="@+id/shuffle_layout"
+            android:layout_above="@+id/track_stuff"
             android:layout_marginBottom="10dp"
             >
 
