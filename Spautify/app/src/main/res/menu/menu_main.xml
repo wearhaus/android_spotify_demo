@@ -1,0 +1,40 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".MainActivity">
+
+
+    <item android:id="@+id/action_settings"
+          android:title="@string/action_settings"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+
+
+
+    <item
+        android:id="@+id/action_list1"
+        android:title="List 1"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_list2"
+        android:title="List 2"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_playlists_search"
+        android:title="search playlists"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_playlists_me"
+        android:title="my playlists"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_kill_player"
+        android:title="Close Player"
+        app:showAsAction="never"/>
+
+
+</menu>

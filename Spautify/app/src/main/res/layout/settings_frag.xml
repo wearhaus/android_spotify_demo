@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/bg_black_really_dark_grey"   
+	>
+
+
+	<LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    >
+	    	
+	    <!--  android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" -->
+
+    	<!--  App stuff  -->
+
+
+    	<!--  Accounts  -->
+    	<TextView 
+    	    android:text="Accounts"
+    	    android:id="@+id/account_title"
+	        style="@style/Settings_Header"
+    	    />
+
+    	
+    	<Button 
+    	    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_bg_transparent_tolightgrey"
+            
+            android:id="@+id/logout"
+            android:text="Logout(nonfunctional)"
+            android:textColor="@color/white_grey"
+            android:textSize="18sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+    	    />
+	        
+    	    
+        
+    	<View style="@style/Divider_Grey_Style" />
+
+
+        <ImageButton
+            android:id="@+id/spotify_auth"
+            android:layout_below="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:maxHeight="48dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/spotify_log_in_mobile"
+            android:scaleType="fitCenter"
+            android:background="@android:color/transparent"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:text="Link your Spotify Account to do ____"
+            android:id="@+id/spotify_auth_subtitle"
+            android:textColor="@color/cyanminus"
+            android:textSize="14sp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="10dp"
+            />
+	
+	    
+    	
+    	
+    	
+    	
+    	
+	    <!--  Headphones   -->
+	    
+    	<TextView 
+    	    android:text="Headphone stuffs"
+    	    android:id="@+id/headphone_title"
+	        style="@style/Settings_Header"
+    	    />
+
+    	
+    	
+		    	    
+		    	    
+    	
+    	<LinearLayout
+    	    android:id="@+id/headphone_stuff" 
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+            android:layout_marginBottom="20dp"
+		    >
+		    	
+    	    
+	    	    <View style="@style/Divider_Grey_Style" />
+		    	<Switch 
+		    	    android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            
+		            android:id="@+id/checkbox_touch_on"
+		            android:text="example switch button"
+		            android:textColor="@color/white_grey"
+		            android:textSize="18sp"
+		            android:layout_marginTop="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+		    	    />
+		    	
+		    	    	<TextView 
+				    	    android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				            
+				    	    android:text="description of stuffs"
+				    	    android:id="@+id/checkbox_touch_on_subtitle"
+				    	    android:textColor="@color/cyanminus"
+				    	    android:textSize="14sp"
+				    	    android:layout_marginBottom="5dp"
+                            android:layout_marginLeft="50dp"
+                            android:layout_marginRight="10dp"
+				    	    />
+
+
+		    	 
+			    <View style="@style/Divider_Grey_Style" /> 
+
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_bg_transparent_tolightgrey"
+
+                    android:id="@+id/update_firmware_no_highlight"
+                    android:text="a button"
+                    android:textColor="@color/white_grey"
+                    android:textSize="18sp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    />
+
+                <View style="@style/Divider_Grey_Style" />
+
+
+			    
+	    </LinearLayout>
+
+	
+	</LinearLayout>
+
+</ScrollView>

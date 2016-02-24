@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:background="?attr/colorPrimary"
+    android:elevation="6dp"
+    android:minHeight="?attr/actionBarSize">
+
+    <ImageView
+        android:id="@+id/toolbar_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="left"
+        android:src="@drawable/arc_icon"
+        />
+
+    <TextView
+        android:id="@+id/toolbar_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        style="@style/Text_Medium_White_Style"
+        />
+
+
+    <com.wearhaus.frontend.widgets.ArcColorMenuItem
+        android:id="@+id/toolbar_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        />
+
+
+
+</android.support.v7.widget.Toolbar>

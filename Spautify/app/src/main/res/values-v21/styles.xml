@@ -1,0 +1,38 @@
+<resources>
+
+
+
+    <style name="AppTheme" parent="Theme.AppCompat"> <!-- NPE on getActionBar() -->
+        <!-- TabLayout REQUIRES -->
+        <!-- Main theme colors -->
+        <!--   your app branding color for the app bar -->
+        <item name="android:colorPrimary">@color/bg_black_really_dark_grey</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+        <item name="android:colorPrimaryDark">@color/bg_black_really_dark_grey</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="android:colorAccent">@color/cyan</item>
+
+        <item name="android:textAllCaps">false</item>
+
+
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <!-- reason for seeming duplicates: http://stackoverflow.com/a/26515159/3784968 -->
+
+
+
+        <!-- Nav Bar Drawer Icon spin animation -->
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+
+
+
+        <!-- Added this to make the Dark Action Bar not have the solid cyan line
+                // Commented out for toolbar
+        <item name="android:actionBarStyle">@android:style/Widget.Holo.ActionBar.Solid</item>  -->
+        <item name="android:icon">@android:color/transparent</item>
+    </style>
+
+
+</resources>

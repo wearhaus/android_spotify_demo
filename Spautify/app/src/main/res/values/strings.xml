@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">Spautify</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+
+    <color name="spotify_green">#638e00</color>
+    <color name="spotify_green_brighter">#b4cb82</color>
+    <color name="spotify_neon_green">#84bd00</color>
+
+
+    <color name="light_cyan">#e9f8fa</color>
+    <color name="cyanplus">#2bd1e0</color>
+    <color name="cyan">#27bfcd</color>
+    <color name="cyan_trans50">#8827bfcd</color>
+    <color name="cyan_trans25">#4427bfcd</color>
+    <color name="cyan_halved_with_white">#93dfe6</color>
+    <color name="cyanminus">#24aebb</color>
+    <color name="cyan_dark">#ff2594a1</color>
+    <color name="cyan_website_style">#00bccc</color>
+    <color name="cyan_inverted">#d84032</color>
+    <color name="basebar_bg">#d0e9f8fa</color>
+    <color name="valid">#2db10e</color>
+    <color name="invalid">#e31212</color>
+    <color name="green">#52b44c</color>
+    <color name="pink">#ed5099</color>
+    <color name="facebook_white">#eff1f5</color>
+    <color name="facebook_blueminus">#364c7c</color>
+    <color name="facebook_blue">#405d9b</color>
+    <color name="facebook_blueplus">#4b67a1</color>
+    <color name="facebook_blueplusplus">#6286d2</color>
+    <color name="facebook_blueplus3">#82a2e3</color>
+    <color name="backwards_red_minus">#c3413b</color>
+    <color name="backwards_red">#e72e2e</color>
+
+    <color name="editprofile_view_bg">#08ffffff</color>
+    <color name="editprofile_view_bg_checked">#4427bfcd</color>
+
+
+    <color name="bbbb">#11000000</color>
+
+
+    <color name="white">#ffffff</color>
+    <color name="white_trans75">#ccffffff</color>
+    <color name="white_trans50">#88ffffff</color>
+    <color name="white_trans25">#44ffffff</color>
+    <color name="white_minus">#e5eeee</color>
+    <color name="white_grey">#ffcbd5d5</color>
+    <color name="white_grey_trans75">#bbcbd5d5</color>
+    <color name="white_greyminus">#b5bebe</color>
+    <color name="light_grey">#A0AAAA</color>
+    <color name="light_grey_trans50">#88A0AAAA</color>
+    <color name="med_greyplus">#8A8F8F</color>
+    <color name="med_grey">#656666</color>
+    <color name="med_grey_trans50">#88656666</color>
+    <color name="med_greyminus">#424646</color>
+    <color name="med_greyminus_trans50">#88424646</color>
+    <color name="dark_grey">#333333</color>
+    <color name="bg_black_really_dark_grey_lite">#2C2C2C</color>
+    <color name="bg_black_really_dark_grey">#222222</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+    <string name="title_activity_current_song">CurrentSongActivity</string>
+    <string name="title_activity_music">MusicActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+
+    <color name="blue_dark_grey">#3f4242</color>
+
+
+</resources>

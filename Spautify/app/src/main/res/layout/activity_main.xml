@@ -1,0 +1,93 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+
+    <ImageButton
+        android:id="@+id/auth"
+        android:layout_below="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:maxHeight="48dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/spotify_log_in_mobile"
+        android:scaleType="fitCenter"
+        android:background="@android:color/transparent"
+        />
+
+
+
+
+
+    <LinearLayout
+        android:id="@+id/controls"
+        android:layout_below="@+id/auth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        =
+
+        <TextView
+            android:id="@+id/text_dbg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <EditText
+                android:id="@+id/ms"
+                android:hint="search by track name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:id="@+id/search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="search"/>
+        </LinearLayout>
+
+
+
+
+
+
+
+    </LinearLayout>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/queue_recycler"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_above="@+id/spotify_bar"
+        android:layout_below="@+id/controls"
+        />
+
+
+
+    <com.example.steven.spautify.MusicPlayerBar
+        android:id="@+id/spotify_bar"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        />
+
+
+
+
+</RelativeLayout>

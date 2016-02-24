@@ -1,0 +1,32 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_black_really_dark_grey"
+    >
+
+    <include layout="@layout/toolbar_leaf"/>
+
+    <FrameLayout
+        android:id="@+id/main_fragment_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_below="@+id/toolbar"
+
+        android:layout_above="@+id/music_player_bar"
+
+        />
+
+
+    <com.example.steven.spautify.MusicPlayerBar
+        android:id="@+id/music_player_bar"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        />
+    
+
+</RelativeLayout>

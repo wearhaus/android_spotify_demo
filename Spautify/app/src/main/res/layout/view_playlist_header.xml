@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_black_really_dark_grey"
+
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    >
+
+    <!--<TextView-->
+        <!--android:id="@+id/other"-->
+
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+
+        <!--style="@style/Text_Medium_White_Style"-->
+        <!--/>-->
+
+    <Button
+        android:id="@+id/play_button"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_bg_cyan"
+        android:drawableLeft="@drawable/ic_action_play_w"
+        style="@style/Text_Medium_White_Style"
+        android:text="Play All"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        />
+
+</LinearLayout>
+
+

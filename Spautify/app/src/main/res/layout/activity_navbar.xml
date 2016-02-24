@@ -1,0 +1,52 @@
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_black_really_dark_grey"
+    >
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bg_black_really_dark_grey"
+        >
+
+        <include layout="@layout/toolbar_navbar"/>
+
+
+        <!-- The fragment is added as a child to this Frame Layout -->
+        <FrameLayout
+            android:id="@+id/main_fragment_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_below="@+id/toolbar"
+
+            />
+    </RelativeLayout>
+
+
+
+    <!-- The navigation drawer
+    	 Should be last so it can be drawn with highest z value
+    	 Added marginTop during the ToolBar shift.
+    -->
+    <ListView
+        android:id="@+id/left_drawer"
+        android:paddingTop="?attr/actionBarSize"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:listSelector="@drawable/button_bg_toolbar_default"
+
+        android:divider="@color/transparent"
+        android:dividerHeight="0dp"
+        android:background="@color/bg_black_really_dark_grey"/>
+
+
+</android.support.v4.widget.DrawerLayout>
+
