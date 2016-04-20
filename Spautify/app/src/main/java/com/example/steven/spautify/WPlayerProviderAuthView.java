@@ -3,20 +3,15 @@ package com.example.steven.spautify;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.Notifier;
-import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.WPlayer;
-
-import java.util.Random;
 
 /**
  * Created by Steven on 2/8/2016.
@@ -56,7 +51,7 @@ public class WPlayerProviderAuthView extends RelativeLayout {
 
     private void init() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.widget_spotify_bar, this, true);
+        inflater.inflate(R.layout.widget_music_player_bar, this, true);
 
 
 
@@ -115,6 +110,8 @@ public class WPlayerProviderAuthView extends RelativeLayout {
         @Override
         public void onChange(WPlayer.Notif type) {
             if (type == WPlayer.Notif.PlaybackAndQueue || type == WPlayer.Notif.Playback || type == WPlayer.Notif.PlaybackPosition) {
+
+
                 refreshUI();
             }
         }

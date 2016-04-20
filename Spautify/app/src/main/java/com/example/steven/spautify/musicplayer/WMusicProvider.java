@@ -43,6 +43,11 @@ public abstract class WMusicProvider {
         //wplayer = wp;
     }
 
+    /**True if during the constructor, async tasks are launched and callback is required
+     * to notify WPlayer that the provider is ready.  False if provider is ready
+     * right as constructor is done. */
+    abstract boolean constructorAsync();
+
 
     /**
      * Called when this player is no longer the current provider.  Essentially pause and maybe free up memory.

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
 import com.example.steven.spautify.ViewPlaylistActivity;
+import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
 import com.squareup.picasso.Picasso;
@@ -58,7 +59,7 @@ public abstract class AlbumsFragment extends DynamicRecycleListFragment {
 //
 //    }
 
-    public class PLAdapter extends RecyclerView.Adapter<PlaylistsFragment.PLViewHolder>
+    public class PLAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
             implements ItemTouchHelperAdapter {
         private ArrayList<Album> mDataset;
 
@@ -91,19 +92,19 @@ public abstract class AlbumsFragment extends DynamicRecycleListFragment {
 
         // Create new views (invoked by the layout manager)
         @Override
-        public PlaylistsFragment.PLViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public WPlayerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
             // create a new view
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_queue_item, parent, false);
             // set the view's size, margins, paddings and layout parameters
 
-            PlaylistsFragment.PLViewHolder vh = new PlaylistsFragment.PLViewHolder(v);
+            WPlayerViewHolder vh = new WPlayerViewHolder(v);
             return vh;
         }
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
-        public void onBindViewHolder(PlaylistsFragment.PLViewHolder holder, final int position) {
+        public void onBindViewHolder(WPlayerViewHolder holder, final int position) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
 

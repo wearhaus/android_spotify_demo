@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -64,7 +63,7 @@ public class MusicPlayerBar extends RelativeLayout {
 
     private void init() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.widget_spotify_bar, this, true);
+        inflater.inflate(R.layout.widget_music_player_bar, this, true);
 
 
         //mLikedTrue = (ImageView) findViewById(R.id.liked_true);
@@ -162,7 +161,12 @@ public class MusicPlayerBar extends RelativeLayout {
         @Override
         public void onChange(WPlayer.Notif type) {
             if (type == WPlayer.Notif.PlaybackAndQueue || type == WPlayer.Notif.Playback || type == WPlayer.Notif.PlaybackPosition) {
-                refreshUI();
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshUI();
+                    }
+                });
             }
         }
     };
@@ -296,10 +300,9 @@ public class MusicPlayerBar extends RelativeLayout {
                     } else {
                         mTrackUriDisplayed = sng.name; // TODO change to song id
                         mTrackTitle.setText(sng.name);
-                        mTrackAuthor.setText(sng.artistPrimary + " / " + sng.album_name);
+                        mTrackAuthor.setText(sng.artistPrimaryName + " / " + sng.albumName);
 
-                        Picasso.with(getContext()).load(sng.album_image.url).into(mImageView);
-                        //Picasso.with(getContext()).load(sng.album_image.url).into(mImageBGView);
+                        Picasso.with(getContext()).load(sng.artworkUrl).into(mImageView);
                     }
 
                     break;

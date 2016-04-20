@@ -18,8 +18,6 @@ import kaaes.spotify.webapi.android.models.Track;
  * Created by Steven on 1/22/2016.
  */
 public class SpotifyProvider extends WMusicProvider {
-
-
     private final static String TAG = "SpotifyProvider";
 
 
@@ -66,8 +64,14 @@ public class SpotifyProvider extends WMusicProvider {
         });
 
 
-
     }
+
+    @Override
+    boolean constructorAsync() {
+        return true;
+    }
+
+
 
     @Override
     void closeProvider(Context c) {

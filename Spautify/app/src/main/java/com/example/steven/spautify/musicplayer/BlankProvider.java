@@ -28,6 +28,11 @@ public class BlankProvider extends WMusicProvider {
         super(c);
     }
 
+    @Override
+    boolean constructorAsync() {
+        return false;
+    }
+
 
     @Override
     void standby() {

@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
+import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
@@ -46,46 +47,7 @@ public abstract class PlaylistsFragment extends DynamicRecycleListFragment {
 
 
 
-
-    //////////////////
-
-
-    public static class PLViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public View mContainer;
-        public TextView mTitleView;
-        public TextView mAuthorView;
-        public ImageButton mImageButton;
-        public ImageView mImageView;
-
-        public PLViewHolder(View v) {
-            super(v);
-            mContainer =  itemView.findViewById(R.id.container);
-            mTitleView = (TextView) itemView.findViewById(R.id.track_title);
-            mAuthorView = (TextView) itemView.findViewById(R.id.track_author);
-            mImageButton = (ImageButton) itemView.findViewById(R.id.stuffs);
-            mImageView = (ImageView) itemView.findViewById(R.id.img);
-
-            mAuthorView.setSelected(true);
-            mAuthorView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            mAuthorView.setSingleLine(true);
-            mTitleView.setSelected(true);
-            mTitleView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            mTitleView.setSingleLine(true);
-        }
-
-    }
-
-//    public static class PLItem {
-//        public Playlst playlst;
-//        //public Type type;
-//        public PLItem (Playlst s) {
-//            playlst = s;
-//        }
-//
-//    }
-
-    public class PLAdapter extends RecyclerView.Adapter<PLViewHolder>
+    public class PLAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
             implements ItemTouchHelperAdapter {
         private ArrayList<Playlst> mDataset;
 
@@ -118,19 +80,19 @@ public abstract class PlaylistsFragment extends DynamicRecycleListFragment {
 
         // Create new views (invoked by the layout manager)
         @Override
-        public PLViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public WPlayerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
             // create a new view
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_queue_item, parent, false);
             // set the view's size, margins, paddings and layout parameters
 
-            PLViewHolder vh = new PLViewHolder(v);
+            WPlayerViewHolder vh = new WPlayerViewHolder(v);
             return vh;
         }
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
-        public void onBindViewHolder(PLViewHolder holder, final int position) {
+        public void onBindViewHolder(WPlayerViewHolder holder, final int position) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
 

@@ -26,6 +26,7 @@ import com.example.steven.spautify.Fragments.QueueFragment;
 import com.example.steven.spautify.Fragments.SongListFragment;
 import com.example.steven.spautify.Fragments.SongSearchResultFragment;
 import com.example.steven.spautify.musicplayer.Sng;
+import com.example.steven.spautify.musicplayer.SoundCloudApiHandler;
 import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
@@ -205,7 +206,8 @@ public class MusicActivity extends BluetoothActivityMOD {
                 @Override
                 public void onClick(View v) {
                     startAniOpenSearch();
-                    searchSpotifyApi("" + mSearchText.getText());
+                    //searchSpotifyApi("" + mSearchText.getText());
+                    searchSoundCloudApi("" + mSearchText.getText());
                     mFragResult.setResultingLoading();
                 }
             });
@@ -431,7 +433,28 @@ public class MusicActivity extends BluetoothActivityMOD {
         return Layout.Custom;
     }
 
+    private void searchSoundCloudApi(final String query) {
+        // this only does track title, not author, or smart features like soundclouds
+        SoundCloudApiHandler.searchTrack(query, new SoundCloudApiHandler.GotItemArray() {
+            @Override
+            public void gotItem(SoundCloudApiHandler.TrackJson[] trackJsons) {
 
+                ArrayList<SongListFragment.SngItem> songs = new ArrayList<>();
+                for (SoundCloudApiHandler.TrackJson t : trackJsons) {
+                    Log.d("createSearchResults", t.title);
+                    songs.add(new SongListFragment.SngItem(new Sng(t), SongListFragment.SngItem.Type.NotInQueue));
+                }
+
+                mFragResult.setResult(songs);
+            }
+
+            @Override
+            public void failure() {
+                mFragResult.setResultingError("Server Error!");
+            }
+        });
+
+    }
 
     private void searchSpotifyApi(final String query) {
         // calls mFragResult

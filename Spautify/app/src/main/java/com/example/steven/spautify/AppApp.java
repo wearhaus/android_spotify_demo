@@ -2,6 +2,7 @@ package com.example.steven.spautify;
 
 import android.app.Application;
 
+import com.example.steven.spautify.musicplayer.SoundCloudApiHandler;
 import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -32,6 +33,9 @@ public class AppApp extends Application {
 
         //SpotifyController.init(getApplicationContext());
         SpotifyWebApiHandler.init();
+
+        SoundCloudApiHandler.init();
+
 
     }
 

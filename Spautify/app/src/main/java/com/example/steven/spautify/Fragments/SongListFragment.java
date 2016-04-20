@@ -17,8 +17,8 @@ import android.widget.TextView;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
+import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
 import com.example.steven.spautify.musicplayer.WPlayer;
 import com.squareup.picasso.Picasso;
 
@@ -120,7 +120,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
         if (act != null) {
 
             Intent intent = new Intent(act, ViewAlbumActivity.class);
-            intent.putExtra(ViewAlbumActivity.TAG_ID, song.album_id);
+            intent.putExtra(ViewAlbumActivity.TAG_ID, song.spotifyAlbumId);
             act.startActivity(intent);
 
         }
@@ -130,34 +130,6 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
 
     //////////////////
-
-
-    public static class QueueViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public View mContainer;
-        public TextView mTitleView;
-        public TextView mAuthorView;
-        public ImageButton mImageButton;
-        public ImageView mImageView;
-
-        public QueueViewHolder(View v) {
-            super(v);
-            mContainer =  itemView.findViewById(R.id.container);
-            mTitleView = (TextView) itemView.findViewById(R.id.track_title);
-            mAuthorView = (TextView) itemView.findViewById(R.id.track_author);
-            mImageButton = (ImageButton) itemView.findViewById(R.id.stuffs);
-            mImageView = (ImageView) itemView.findViewById(R.id.img);
-
-            mAuthorView.setSelected(true);
-            mAuthorView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            mAuthorView.setSingleLine(true);
-            mTitleView.setSelected(true);
-            mTitleView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-            mTitleView.setSingleLine(true);
-
-        }
-
-    }
 
     public static class SngItem {
         public Sng sng;
@@ -178,7 +150,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
     }
 
-    public class QueueAdapter extends RecyclerView.Adapter<QueueViewHolder>
+    public class QueueAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
             implements ItemTouchHelperAdapter {
         private ArrayList<SngItem> mDataset;
 
@@ -223,19 +195,19 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
         // Create new views (invoked by the layout manager)
         @Override
-        public QueueViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public WPlayerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
             // create a new view
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_queue_item, parent, false);
             // set the view's size, margins, paddings and layout parameters
 
-            QueueViewHolder vh = new QueueViewHolder(v);
+            WPlayerViewHolder vh = new WPlayerViewHolder(v);
             return vh;
         }
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
-        public void onBindViewHolder(QueueViewHolder holder, final int position) {
+        public void onBindViewHolder(WPlayerViewHolder holder, final int position) {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
 
@@ -253,11 +225,20 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             }
 
             holder.mTitleView.setText("" + s.sng.name);
-            holder.mAuthorView.setText("" + s.sng.artistPrimary);
+            holder.mAuthorView.setText("" + s.sng.artistPrimaryName);
+
+
+            if (s.sng.source == Sng.Source.Spotify) {
+                holder.mSourceSplashView.setImageResource(R.drawable.spotify_icon);
+            } else if (s.sng.source == Sng.Source.Soundcloud) {
+                holder.mSourceSplashView.setImageResource(R.drawable.soundcloud_icon_small);
+            } else  {
+                holder.mSourceSplashView.setImageResource(0);
+            }
 
 
             //Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
-            Picasso.with(holder.mContainer.getContext()).load(s.sng.album_image.url).into(holder.mImageView);
+            Picasso.with(holder.mContainer.getContext()).load(s.sng.artworkUrl).into(holder.mImageView);
 
 
 

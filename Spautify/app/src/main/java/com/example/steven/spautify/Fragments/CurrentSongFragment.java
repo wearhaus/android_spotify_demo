@@ -11,10 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -155,7 +153,12 @@ public class CurrentSongFragment extends Fragment {
         @Override
         public void onChange(WPlayer.Notif type) {
             if (type == WPlayer.Notif.PlaybackAndQueue || type == WPlayer.Notif.Playback || type == WPlayer.Notif.PlaybackPosition) {
-                refreshUI();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshUI();
+                    }
+                });
             }
         }
     };
@@ -273,9 +276,9 @@ public class CurrentSongFragment extends Fragment {
                     } else {
                         mTrackUriDisplayed = sng.name; // TODO change to song id
                         mTrackTitle.setText(sng.name);
-                        mTrackAuthor.setText(sng.artistPrimary + " / " + sng.album_name);
+                        mTrackAuthor.setText(sng.artistPrimaryName + " / " + sng.albumName);
 
-                        Picasso.with(getActivity()).load(sng.album_image.url).into(mImageView);
+                        Picasso.with(getActivity()).load(sng.artworkUrl).into(mImageView);
                     }
 
                     break;

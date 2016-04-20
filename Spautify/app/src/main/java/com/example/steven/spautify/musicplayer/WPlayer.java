@@ -93,20 +93,9 @@ public class WPlayer {
         SpotifyWebApiHandler.init();
     }
 
-    //private static WPlayer sWPlayer;
 
     public static void createPlayer() {
-//        if (sWPlayer == null) {
-//            sWPlayer = new WPlayer();
-//        } else {
-//            Log.w(TAG, "Warning, WPlayer already created.  Only 1 may exist at once");
-//        }
-//
-//        return sWPlayer;
-
         Log.i(TAG, "start WPlayer");
-
-        //mNotifier.unregisterAllListeners();
 
         mQueue = new ArrayList<>();
         mQueueBack = new ArrayList<>();
@@ -129,10 +118,6 @@ public class WPlayer {
 
     }
 
-    /** Returns the WPlayer or null if there is none created.*/
-//    public static WPlayer getPlayer() {
-//        return sWPlayer;
-//    }
 
 
     public static void closePlayer() {
@@ -196,17 +181,17 @@ public class WPlayer {
 
 
 
-    protected ServiceConnection mServerConn = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d(TAG, "onServiceConnected");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected");
-        }
-    };
+//    protected ServiceConnection mServerConn = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder binder) {
+//            Log.d(TAG, "onServiceConnected");
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            Log.d(TAG, "onServiceDisconnected");
+//        }
+//    };
 
 
 
@@ -273,6 +258,7 @@ public class WPlayer {
     private static int positionInMs;
 
     private static ScheduledFuture mScheduledService;
+    private static ScheduledExecutorService mScheduledExecutor = Executors.newScheduledThreadPool(1);
     private static Hashtable<Integer, Boolean> mScheduledHash;
 
 
@@ -316,6 +302,8 @@ public class WPlayer {
 
     /** Returns true if mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerReady*/
     private static boolean checkProviderReady() {
+        Log.v(TAG, "mCurrentProvider: " + mCurrentProvider);
+        //if (mCurrentProvider != null)Log.e(TAG, "     checkProviderReady: " + (mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerReady));
         return mCurrentProvider != null && mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerReady;
     }
 
@@ -349,6 +337,11 @@ public class WPlayer {
                     mProviders.put(mCurrentSng.source.providerClass, wp);
                     mCurrentProvider = wp;
                     mCurrentProviderClass = mCurrentSng.source.providerClass;
+                    if (!wp.constructorAsync()) {
+                        // force a refresh here
+                        internalPlay();
+                        return;
+                    }
 
                     // Waits for fpProviderReady to be called. In th meantime, UI knows we have a LoadingProvider.
                     // If they want to do something else before that, it's fine.
@@ -362,7 +355,8 @@ public class WPlayer {
 
                 checkScheduled(); // turn off scheduled while player loading.
 
-                //mNotifier.notifyListeners(notifType);
+
+
                 return;
 
 
@@ -384,6 +378,8 @@ public class WPlayer {
             mPlaying = true;
             mCurrentErrorSng = null;
             mCurrentProvider.playSong(mCurrentSng);
+
+            checkScheduled();
 
         } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.Loading){
             Log.e(TAG, "Error, Provider already existed, but is still loading. Waiting for it to finish");
@@ -439,6 +435,7 @@ public class WPlayer {
      *
      * */
     static void fpProviderState(WMusicProvider prov, boolean dontInterruptIfPlaying) {
+        Log.e(TAG, "fpProviderState: " + mCurrentProvider.getProviderState());
         if (!dontInterruptIfPlaying && prov == mCurrentProvider) {
             // So we don't actually use the success param; that info is already encoded into the provider state...
 
@@ -568,30 +565,37 @@ public class WPlayer {
     }
 
     private static void checkScheduled() {
+        Log.d(TAG, "checkScheduled()");
         if (checkProviderReady() && mPlaying && mScheduledHash.entrySet().size() > 0) {
             // This keeps our SeekBar and the time accurate
             if (mScheduledService == null) {
                 int delay = 250; // TODO for slow devices, use only 1, for fast devices, even as low as 100 is fine.
-                ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-                mScheduledService = service.scheduleWithFixedDelay(new Runnable() {
+
+                mScheduledService = mScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {
-                        //Log.d("sched", "running");
-                        if (checkProviderReady()) {
-                            mCurrentProvider.requestPositionUpdate();
-                        }
+                        Log.e("sched", "running   playing?" + mPlaying);
+                        try {
+                            if (checkProviderReady()) {
+                                mCurrentProvider.requestPositionUpdate();
+                            }
 
-                        checkScheduled();
+                            checkScheduled();
+                        } catch (Exception e) {
+                            Log.e("sched", "Exception!!" + e);
+                        }
 
                         // this will call notifiers which calls refreshUI over again
                     }
                 }, 1, delay, TimeUnit.MILLISECONDS);
 
+                Log.e("sched", "created");
+
             }
 
 
         } else {
-            Log.w(TAG, "checkScheduled false");
+            Log.e("sched", "checkScheduled To be cancelled");
 
             if (mScheduledService != null) {
                 mScheduledService.cancel(false);
@@ -600,6 +604,8 @@ public class WPlayer {
         }
 
     }
+
+
 
     public static void playManyClearQueue(ArrayList<Sng> sngs) {
         mQueue.clear();
@@ -881,18 +887,6 @@ public class WPlayer {
         }
 
     }
-
-
-
-
-    //void fpSetPlaying(boolean b) {
-    //    mPlaying = b;
-    //    mNotifier.notifyListeners();
-    //    // When going to the next song in the queue,
-    //}
-
-
-
 
 
 

@@ -263,7 +263,7 @@ public class WPlayerService extends Service {
             // TODO service shouldn't exist without a song loaded?
             if (WPlayer.getCurrentSng() != null) {
                 title = WPlayer.getCurrentSng().name;
-                artist = WPlayer.getCurrentSng().artistPrimary;
+                artist = WPlayer.getCurrentSng().artistPrimaryName;
             }
 
 

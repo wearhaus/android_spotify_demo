@@ -402,8 +402,8 @@ public class SpotifyWebApiHandler {
 
         //spotify.getAlbum("2dIGnmEIy1WZIcZCFSj6i8", new Callback<Album>() {
         //    @Override
-        //    public void success(Album album_name, Response response) {
-        //        Log.d("Album success", album_name.name + album_name);
+        //    public void success(Album albumName, Response response) {
+        //        Log.d("Album success", albumName.name + albumName);
         //    }
         //
         //    @Override
@@ -426,7 +426,7 @@ public class SpotifyWebApiHandler {
 //            public void success(TracksPager trackspager, Response response) {
 //                Log.d("TracksPager success", "" + trackspager.tracks.items);
 //                for (Track t : trackspager.tracks.items) {
-//                    Log.d("", t.name + "" + ", " + t.uri + ", " + t.album_name.name);
+//                    Log.d("", t.name + "" + ", " + t.uri + ", " + t.albumName.name);
 //
 //                }
 //            }
@@ -529,7 +529,7 @@ public class SpotifyWebApiHandler {
                     mTrackCache.put(trackUri, track);
                     l.gotTrack(track);
 
-                    //mSongText2.setText("" + track.name + ", " + track.album_name.name + ", " + track.artists.get(0).name);
+                    //mSongText2.setText("" + track.name + ", " + track.albumName.name + ", " + track.artists.get(0).name);
                     Log.d("Track success", track.name + track);
                 }
 
