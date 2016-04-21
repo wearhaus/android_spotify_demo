@@ -617,14 +617,14 @@
 //        public View mContainer;
 //        public TextView mTitleView;
 //        public TextView mAuthorView;
-//        public ImageButton mImageButton;
+//        public ImageButton mExtendedMenuButton;
 //
 //        public QueueViewHolder(View v) {
 //            super(v);
 //            mContainer =  itemView.findViewById(R.id.container);
 //            mTitleView = (TextView) itemView.findViewById(R.id.track_title);
 //            mAuthorView = (TextView) itemView.findViewById(R.id.track_author);
-//            mImageButton = (ImageButton) itemView.findViewById(R.id.stuffs);
+//            mExtendedMenuButton = (ImageButton) itemView.findViewById(R.id.stuffs);
 //
 //        }
 //
@@ -747,7 +747,7 @@
 //            }*/
 //
 //
-//            holder.mImageButton.setOnClickListener(new View.OnClickListener() {
+//            holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
 //                    // We shouldn't allow add to Queue, only jump queue to this... which is a weird operation

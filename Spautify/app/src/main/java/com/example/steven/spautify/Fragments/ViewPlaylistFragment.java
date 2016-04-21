@@ -176,7 +176,7 @@ public class ViewPlaylistFragment extends SongListFragment {
 
     @Override
     protected String checkIfBad() {
-        if (WPlayer.getState() == WPlayer.State.Off) {
+        if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
         } else if (mPageIsLoading) {
             return "loading";

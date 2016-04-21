@@ -3,6 +3,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:dots="http://schemas.android.com/apk/res-auto"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -128,6 +129,17 @@
         android:layout_centerHorizontal="true"
         android:padding="10dp"
         android:layout_margin="10dp"
+        />
+
+    <pl.tajchert.sample.DotsTextView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+
+        android:id="@+id/dots"
+        android:textSize="50dp"
+        android:textColor="#DDFFFFFF"
+        dots:autoplay="true"
+        dots:period="1000"
         />
 
 

@@ -38,7 +38,7 @@ public class SoundCloudApiHandler {
 
         mTrackCache = new LruCache<Integer, TrackJson>(150); // 150 track entries max limit.
         // Don't need account logged in?
-        tests();
+        //tests();
     }
 
     private static void tests() {
@@ -56,7 +56,7 @@ public class SoundCloudApiHandler {
 
         getTrack(156909581, gg);
         getTrack(3, gg);
-        getTrack(156909581, gg);
+        //getTrack(156909581, gg);
 
 
         searchTrack("hello", null);

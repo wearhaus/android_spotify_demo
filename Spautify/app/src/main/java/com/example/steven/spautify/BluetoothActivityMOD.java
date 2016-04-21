@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 
 import com.example.Notifier;
@@ -62,7 +61,7 @@ abstract class BluetoothActivityMOD extends AppCompatActivity {
 //            return;
 //        }
 
-        if (exitWhenNoWPlayer() && WPlayer.getState() == WPlayer.State.Off) {
+        if (exitWhenNoWPlayer() && WPlayer.getState() == WPlayer.WPlayerState.Off) {
             whenNoWPlayer();
             return;
         }
@@ -139,7 +138,7 @@ abstract class BluetoothActivityMOD extends AppCompatActivity {
 
         //Util.logd("BluetoothActivity", "onResume()");
 
-        if (exitWhenNoWPlayer() && WPlayer.getState() == WPlayer.State.Off) {
+        if (exitWhenNoWPlayer() && WPlayer.getState() == WPlayer.WPlayerState.Off) {
             whenNoWPlayer();
             return;
         }
@@ -246,7 +245,7 @@ abstract class BluetoothActivityMOD extends AppCompatActivity {
                 }
             });
 
-            if (exitWhenNoWPlayer() && WPlayer.getState() == WPlayer.State.Off) {
+            if (exitWhenNoWPlayer() && WPlayer.getState() == WPlayer.WPlayerState.Off) {
                 whenNoWPlayer();
             }
         }

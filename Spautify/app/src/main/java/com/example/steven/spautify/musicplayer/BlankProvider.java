@@ -60,11 +60,6 @@ public class BlankProvider extends WMusicProvider {
     }
 
     @Override
-    void skipToPrevious() {
-
-    }
-
-    @Override
     void pause() {
 
     }

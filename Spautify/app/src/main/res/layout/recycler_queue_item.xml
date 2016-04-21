@@ -4,7 +4,7 @@
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="55dp"
+    android:layout_height="50dp"
     >
 
     <ImageView
@@ -36,10 +36,10 @@
         />
 
     <ImageButton
-        android:id="@+id/stuffs"
+        android:id="@+id/extended_menu_button"
 
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
 
@@ -55,9 +55,10 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="left"
-        android:layout_marginLeft="8dp"
-        android:layout_toLeftOf="@+id/stuffs"
+        android:layout_marginLeft="6dp"
+        android:layout_toLeftOf="@+id/extended_menu_button"
         android:layout_toRightOf="@+id/img"
+        android:layout_centerVertical="true"
 
         android:clickable="false"
         >
@@ -66,17 +67,17 @@
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
+            android:singleLine="true"
 
             style="@style/Text_Medium_White_Style"
-            android:textSize="17sp"
+            android:textSize="15sp"
             />
         <TextView
             android:id="@+id/track_author"
 
             style="@style/Text_Small_Subtitle_White_Style"
-            android:textSize="14sp"
-            android:layout_marginBottom="2dp"
+            android:textSize="12sp"
+            android:singleLine="true"
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

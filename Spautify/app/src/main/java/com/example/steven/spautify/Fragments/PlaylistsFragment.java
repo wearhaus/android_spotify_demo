@@ -2,27 +2,19 @@ package com.example.steven.spautify.Fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Playlst;
-import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
-import com.example.steven.spautify.musicplayer.WPlayer;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -139,7 +131,7 @@ public abstract class PlaylistsFragment extends DynamicRecycleListFragment {
                 }
             });
 
-            holder.mImageButton.setOnClickListener(new View.OnClickListener() {
+            holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())

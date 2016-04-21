@@ -121,100 +121,8 @@
                 android:layout_marginBottom="10dp"
                 >
             </SeekBar>
-
-
-
-
         </LinearLayout>
 
-
-        <!--<LinearLayout-->
-            <!--android:id="@+id/shuffle_layout"-->
-
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="horizontal"-->
-            <!--android:gravity="center_horizontal"-->
-
-            <!--android:layout_above="@+id/track_stuff"-->
-            <!--android:layout_marginBottom="10dp"-->
-            <!-->-->
-
-
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/shuffle"-->
-
-                <!--android:layout_width="32dp"-->
-                <!--android:layout_height="32dp"-->
-                <!--android:src="@drawable/ic_action_shuffle_w"-->
-                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
-                <!--android:layout_marginLeft="20dp"-->
-                <!--android:layout_marginRight="20dp"-->
-                <!--/>-->
-            <!--<ImageButton-->
-                <!--android:id="@+id/repeat"-->
-
-                <!--android:layout_width="32dp"-->
-                <!--android:layout_height="32dp"-->
-                <!--android:src="@drawable/ic_action_repeat_w"-->
-                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
-                <!--android:layout_marginLeft="20dp"-->
-                <!--android:layout_marginRight="20dp"-->
-                <!--/>-->
-        <!--</LinearLayout>-->
-
-        <!--<LinearLayout-->
-            <!--android:id="@+id/playback_buttons_layout"-->
-
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="horizontal"-->
-            <!--android:gravity="center"-->
-
-            <!--android:layout_above="@+id/shuffle_layout"-->
-            <!--android:layout_marginBottom="10dp"-->
-            <!-->-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/skip_back"-->
-
-                <!--android:layout_width="32dp"-->
-                <!--android:layout_height="32dp"-->
-                <!--android:src="@drawable/ic_action_rewind_w"-->
-
-                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
-                <!--android:layout_marginLeft="10dp"-->
-                <!--android:layout_marginRight="10dp"-->
-                <!--/>-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/play_pause"-->
-
-                <!--android:layout_width="64dp"-->
-                <!--android:layout_height="64dp"-->
-
-                <!--android:src="@drawable/ic_action_play_over_video_w"-->
-                <!--android:scaleType="fitCenter"-->
-                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
-
-                <!--android:layout_marginLeft="20dp"-->
-                <!--android:layout_marginRight="20dp"-->
-
-                <!--/>-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/skip_forward"-->
-
-                <!--android:layout_width="32dp"-->
-                <!--android:layout_height="32dp"-->
-                <!--android:src="@drawable/ic_action_fast_forward_w"-->
-                <!--android:background="@drawable/button_bg_transparent_tocyan"-->
-                <!--android:layout_marginLeft="10dp"-->
-                <!--android:layout_marginRight="10dp"-->
-                <!--/>-->
-
-        <!--</LinearLayout>-->
 
 
 
@@ -235,8 +143,8 @@
             <ImageButton
                 android:id="@+id/skip_back"
 
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/ic_action_rewind_w"
 
                 android:background="@drawable/button_bg_transparent_tocyan"
@@ -244,26 +152,23 @@
                 android:layout_marginRight="10dp"
                 />
 
-            <ImageButton
-                android:id="@+id/play_pause"
+
+            <com.example.steven.spautify.PlayButtonView
+                android:id="@+id/play_button"
 
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-
-                android:src="@drawable/ic_action_play_over_video_w"
-                android:scaleType="fitCenter"
-                android:background="@drawable/button_bg_transparent_tocyan"
-
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-
                 />
+
+
 
             <ImageButton
                 android:id="@+id/skip_forward"
 
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
                 android:src="@drawable/ic_action_fast_forward_w"
                 android:background="@drawable/button_bg_transparent_tocyan"
                 android:layout_marginLeft="10dp"

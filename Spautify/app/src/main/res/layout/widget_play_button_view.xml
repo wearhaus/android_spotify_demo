@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+
+    xmlns:dots="http://schemas.android.com/apk/res-auto"
+    >
+
+    <ImageButton
+        android:id="@+id/button_circle"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="1dp"
+
+        android:scaleType="fitCenter"
+        android:background="@drawable/button_bg_cyan_circle"
+
+        android:layout_gravity="center"
+        />
+
+
+    <ImageView
+        android:id="@+id/playing"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+
+        android:src="@drawable/ic_action_pause_w"
+        android:scaleType="fitCenter"
+        android:background="@drawable/button_bg_transparent_tocyan"
+
+
+        android:layout_centerInParent="true"
+        android:clickable="false"
+        />
+
+    <ImageView
+        android:id="@+id/paused"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+
+        android:src="@drawable/ic_action_play_w"
+        android:scaleType="fitCenter"
+        android:background="@drawable/button_bg_transparent_tocyan"
+
+        android:layout_centerInParent="true"
+        android:clickable="false"
+        />
+
+    <pl.tajchert.sample.DotsTextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="13dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="12dp"
+
+        android:id="@+id/dots"
+        android:textSize="50dp"
+        android:textColor="#DDFFFFFF"
+        dots:autoplay="false"
+        dots:period="1000"
+        android:clickable="false"/>
+
+
+
+</RelativeLayout>

@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.Notifier;
 import com.example.steven.spautify.MusicPlayerBar;
+import com.example.steven.spautify.PlayButtonView;
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.WPlayer;
@@ -41,11 +42,12 @@ public class CurrentSongFragment extends Fragment {
     private TextView mTrackAuthor;
     private TextView mTrackTime;
     private String mTrackUriDisplayed;
-    private ImageButton mPlayPause;
+    //private ImageButton mPlayPause;
     private ImageView mImageView;
 
     private ImageButton mSkipForward;
     private ImageButton mSkipBack;
+    private PlayButtonView mPlayButton;
     private ImageButton mShuffle;
     private ImageButton mRepeat;
 
@@ -56,7 +58,9 @@ public class CurrentSongFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.current_song_fragment, container, false);
 
-
+        // TODO
+        // TODO proper attribution to souce of song AND for soundcloud, a web browser launcher for the song link
+        // TODO
 
         //mLikedTrue = (ImageView) findViewById(R.id.liked_true);
 
@@ -70,7 +74,7 @@ public class CurrentSongFragment extends Fragment {
         mSeekBar = (SeekBar) view.findViewById(R.id.seek_bar);
         mNoPlaybackText = (TextView) view.findViewById(R.id.logged_out_text);
 
-        mPlayPause = (ImageButton) view.findViewById(R.id.play_pause);
+        mPlayButton = (PlayButtonView) view.findViewById(R.id.play_button);
         mSkipForward = (ImageButton) view.findViewById(R.id.skip_forward);
         mSkipBack = (ImageButton) view.findViewById(R.id.skip_back);
         mShuffle = (ImageButton) view.findViewById(R.id.shuffle);
@@ -94,15 +98,6 @@ public class CurrentSongFragment extends Fragment {
         mTrackAuthor.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         mTrackAuthor.setSingleLine(true);
 
-
-        mPlayPause.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        WPlayer.playpause();
-                    }
-                });
 
 
 
@@ -152,7 +147,7 @@ public class CurrentSongFragment extends Fragment {
     private Notifier.Listener mListener = new Notifier.Listener<WPlayer.Notif>() {
         @Override
         public void onChange(WPlayer.Notif type) {
-            if (type == WPlayer.Notif.PlaybackAndQueue || type == WPlayer.Notif.Playback || type == WPlayer.Notif.PlaybackPosition) {
+            if (type == WPlayer.Notif.PlaybackAndQueue || type == WPlayer.Notif.Playback || type == WPlayer.Notif.PlaybackJustPosition) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -176,7 +171,7 @@ public class CurrentSongFragment extends Fragment {
     public void onResume() {
         WPlayer.getNotifier().registerListener(mListener);
         refreshUI();
-        if (WPlayer.getState() != WPlayer.State.Off) {
+        if (WPlayer.getState() != WPlayer.WPlayerState.Off) {
             if (!attachedPosBar) {
                 attachedPosBar = true;
                 WPlayer.setPosBarAnimation(true, randomCode);
@@ -194,7 +189,7 @@ public class CurrentSongFragment extends Fragment {
     }
 
     private void removePosBar() {
-        if (WPlayer.getState() != WPlayer.State.Off && attachedPosBar) {
+        if (WPlayer.getState() != WPlayer.WPlayerState.Off && attachedPosBar) {
             WPlayer.setPosBarAnimation(false, randomCode);
         }
         attachedPosBar = false;
@@ -203,7 +198,7 @@ public class CurrentSongFragment extends Fragment {
 
     private void refreshUI() {
 
-        if (WPlayer.getState() != WPlayer.State.Off) {
+        if (WPlayer.getState() != WPlayer.WPlayerState.Off) {
             if (!attachedPosBar) {
                 attachedPosBar = true;
                 WPlayer.setPosBarAnimation(true, randomCode);
@@ -259,14 +254,6 @@ public class CurrentSongFragment extends Fragment {
                     mSeekBar.setSecondaryProgress(WPlayer.getPositionInMs());
 
 
-
-
-                    if (WPlayer.getPlaying()) {
-                        mPlayPause.setImageResource(R.drawable.ic_action_pause_over_video_w);
-                    } else {
-                        mPlayPause.setImageResource(R.drawable.ic_action_play_over_video_w);
-                    }
-
                     int pos = WPlayer.getPositionInMs();
 
                     mTrackTime.setText(MusicPlayerBar.formatMs(pos) + " / " + MusicPlayerBar.formatMs(sng.durationInMs) + "    (" + pos + "ms)");
@@ -276,7 +263,7 @@ public class CurrentSongFragment extends Fragment {
                     } else {
                         mTrackUriDisplayed = sng.name; // TODO change to song id
                         mTrackTitle.setText(sng.name);
-                        mTrackAuthor.setText(sng.artistPrimaryName + " / " + sng.albumName);
+                        mTrackAuthor.setText(sng.getFormattedArtistAlbumString());
 
                         Picasso.with(getActivity()).load(sng.artworkUrl).into(mImageView);
                     }
@@ -308,9 +295,6 @@ public class CurrentSongFragment extends Fragment {
                     mTrackAuthor.setText("");
                 }
 
-
-
-                mPlayPause.setImageResource(R.drawable.ic_action_play);
         }
 
 
@@ -324,10 +308,6 @@ public class CurrentSongFragment extends Fragment {
         display.getSize(size);
         return size.x;
     }
-
-
-
-
 
 
 

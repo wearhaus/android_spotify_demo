@@ -1,10 +1,7 @@
 package com.example.steven.spautify.musicplayer;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.util.Log;
 
 
@@ -12,7 +9,6 @@ import com.example.Notifier;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -83,6 +79,17 @@ public class WPlayer {
      * */
 
 
+    /*
+            4
+
+            Queue is really just a playlist that is editable via QueueFragment and other sources... It can be handled via a mCurrentSngId a
+            nd mCurrentPosition which is the index in mPlaylistSongs arraylist of songs.  The list itself is paginated both ways using the
+            technique of loading new data that Wearhaus Arc App uses for chat.  An original queue source is selected when a queue is started
+            when the context of an Album or Playlist makes sense.  Then we store the id of the source there, and we load it when we request more data.
+
+     */
+
+
 
     /** App context*/
     private static Context mApp;
@@ -100,14 +107,14 @@ public class WPlayer {
         mQueue = new ArrayList<>();
         mQueueBack = new ArrayList<>();
         mAutoplayQueueAdditions = true;
-        mPlaying = false;
+        mPlaybackState = PlaybackState.NotPlaying;
         mShuffling = false;
         mRepeating = false;
         mCurrentSng = null;
 
         mProviders = new Hashtable<>();
         mScheduledHash = new Hashtable<>();
-        mState = WPlayer.State.Initialized;
+        mWPlayerState = WPlayerState.Initialized;
 
 
         Intent i = new Intent(mApp, WPlayerService.class );
@@ -144,22 +151,17 @@ public class WPlayer {
 
         mProviders.clear();
         mScheduledHash = null;
-        mState = State.Off;
+        mWPlayerState = WPlayerState.Off;
         mCurrentProvider = null;
         mCurrentSng = null;
         mCurrentErrorSng = null;
         mQueue = null;
         mQueueBack = null;
 
-
-
-
-
-
     }
 
 
-    public enum State {
+    public enum WPlayerState {
         /** Things aren't loaded/initialized.  Don't all any gets since those will hve unpredictable behavior in this state.*/
         Off,
         /** WPlayer ready, but no Provider has started loading yet*/
@@ -174,6 +176,18 @@ public class WPlayer {
         /** Provider is ready and UI should render normal playback details.*/
         Ready;
     }
+
+    /** Rather than expose each provider's separate playerstate, this is a simple
+     * publically exposed representation of our current playback state used
+     * for UI elements.*/
+    public enum PlaybackState {
+        /** For loading either song or provider, since from User's perspective there is no difference*/
+        LoadingSong,
+        Playing,
+        NotPlaying,
+    }
+
+
 
 
 
@@ -200,7 +214,7 @@ public class WPlayer {
     // since hastables really only store a pointer, not a clone.
     private static Hashtable<Class, WMusicProvider> mProviders;
 
-    private static State mState = State.Off;
+    private static WPlayerState mWPlayerState = WPlayerState.Off;
 
     /** One of the players.  This is an extra pointer for convenience.
      * Ex/ mSpotifyProvider field and this field will both point to the same thing.
@@ -215,7 +229,7 @@ public class WPlayer {
     /**  Null unless a song has playback errors, in which case any attempt to play a song thats not this should remove the temp error state.*/
     private static Sng mCurrentErrorSng;
 
-    /** False when playing, or is paused.  Is true basically only when com.example.steven.spautify.player just activated and not started, or reached end of queue.
+    /** False when playing, or is paused.  Is true basically only when the player just activated and not started, or reached end of queue.
      * This does not correlate to if playerState.trackUri exists or not, but rather if something should auto-com.example.steven.spautify.player when added to the end of a queue*/
     private static boolean mAutoplayQueueAdditions;
 
@@ -230,28 +244,31 @@ public class WPlayer {
     private static Notifier<Notif> mNotifier = new Notifier<>();
 
     public enum Notif {
-        /** If the playback of the song changed but the queue has not changed. ex/ song positionInMs updates, or song was paused*/
+        /** If the playback of the song changed but the queue has not changed.  This includes all changes for PlaybackJustPosition listeners.
+         *  ex/ song was paused, song positionInMs updates, etc.*/
         Playback,
-        /** Just the playback position in ms; this will get called often if setPosBarAnimation is on.*/
-        PlaybackPosition,
-        /** Both current song and the queue changed. ex/ the song ended and a new song began*/
+        /** Just the playback position in ms; this will get called very often if setPosBarAnimation is on, so ignore unless
+         * the listener directly uses the position*/
+        PlaybackJustPosition,
+        /** Both current song (any call to Playback) and the queue changed. ex/ the song ended and a new song began*/
         PlaybackAndQueue,
-        /**The queue was changed without affecting the current song/its playback status*/
+        /**The queue was changed without affecting the current song/its playback status/position*/
         Queue;
 
 
         static Notif fuseNotifs(Notif a, Notif b) {
             if (a == PlaybackAndQueue) return PlaybackAndQueue;
             if (a == Playback || b == Queue) return PlaybackAndQueue;
-            if (a == PlaybackPosition || b == Queue) return PlaybackAndQueue;
-            if (a == PlaybackPosition || b == Playback) return Playback;
+            if (a == PlaybackJustPosition || b == Queue) return PlaybackAndQueue;
+            if (a == PlaybackJustPosition || b == Playback) return Playback;
             if (a == b) return a;
             return fuseNotifs(b, a);
         }
 
     }
 
-    private static boolean mPlaying;
+    //private static boolean mPlaying;
+    private static PlaybackState mPlaybackState;
     private static boolean mShuffling;
     private static boolean mRepeating;
     /** Updated periodically, TODO depending on device speed*/
@@ -269,15 +286,17 @@ public class WPlayer {
         return mNotifier;
     }
 
-    public static State getState() {
-        return mState;
+    /**Returns general state of player, such as loadning provider, authenticated, errors, etc.
+     * For particular playback state, refer to getPlaybackState, getPositionInMs, getCurrentSng, etc.*/
+    public static WPlayerState getState() {
+        return mWPlayerState;
     }
     public static Sng getCurrentSng() {
         return mCurrentSng;
     }
 
-    public static boolean getPlaying() {
-        return mPlaying;
+    public static PlaybackState getPlaybackState() {
+        return mPlaybackState;
     }
     public static boolean getShuffling() {
         return mShuffling;
@@ -300,11 +319,15 @@ public class WPlayer {
 
 
 
-    /** Returns true if mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerReady*/
+    /** Returns true if mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerInited*/
     private static boolean checkProviderReady() {
         Log.v(TAG, "mCurrentProvider: " + mCurrentProvider);
-        //if (mCurrentProvider != null)Log.e(TAG, "     checkProviderReady: " + (mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerReady));
-        return mCurrentProvider != null && mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerReady;
+        if (mCurrentProvider != null) Log.v(TAG, "     checkProviderReady: " + (mCurrentProvider.getProviderState()));
+        return mCurrentProvider != null &&
+                (mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerInited
+                        || mCurrentProvider.getProviderState() == WMusicProvider.State.LoadingSong
+                        || mCurrentProvider.getProviderState() == WMusicProvider.State.SongReady
+                );
     }
 
 
@@ -312,24 +335,31 @@ public class WPlayer {
      * Externally, make sure that the playing song is set to mCurrentSong.
      *
      * Note: Notifs should not happen in this call, instead do them the line after this method is called, since
-     * this method doesn't know if the queue changed or not and we don't want redundant notifs.*/
+     * this method doesn't know if the queue changed or not and we don't want redundant notifs.
+     * */
     private static void internalPlay() {
+        internalPlay(false);
+    }
+    /** @param fpProviderStateNotif false by default.  Means called from fpProviderStateNotif(), which would mean dont
+    *                             restart current song.  Otherwise, we do restart current song if applicable
+    **/
+    private static void internalPlay(boolean fpProviderStateNotif) {
         Log.d(TAG, "internalPlay");
-        // TODO is this where we check for Provider type and maybe switch?
-        // Create a state for LoadingProvider; creates a loading bar for UI
 
         if (mCurrentSng.source.providerClass != mCurrentProviderClass) {
             Log.d(TAG, "switching providers");
-            // Need to switch providers
+
             WMusicProvider wp = mProviders.get(mCurrentSng.source.providerClass);
             if (mCurrentProvider != null) {
-                mCurrentProvider.standby(); // Is null when first initialized
+                mCurrentProvider.standby();
             }
 
             if (wp == null) {
 
 
-                mState = State.LoadingProvider;
+                mWPlayerState = WPlayerState.LoadingProvider;
+                mPlaybackState = PlaybackState.NotPlaying;
+
                 try {
                     Log.d(TAG, "creating new provider");
                     Constructor con = mCurrentSng.source.providerClass.getConstructor(Context.class);
@@ -339,7 +369,7 @@ public class WPlayer {
                     mCurrentProviderClass = mCurrentSng.source.providerClass;
                     if (!wp.constructorAsync()) {
                         // force a refresh here
-                        internalPlay();
+                        internalPlay(fpProviderStateNotif);
                         return;
                     }
 
@@ -348,7 +378,7 @@ public class WPlayer {
 
                 } catch (Exception e) {
                     Log.e(TAG, "Error creating Provider, " + e);
-                    mState = State.ErrorWithProvider;
+                    mWPlayerState = WPlayerState.ErrorWithProvider;
                     mCurrentProvider = null; // didn't even get loaded.
                     mCurrentProviderClass = null;
                 }
@@ -373,46 +403,81 @@ public class WPlayer {
         // now wp is set to the correct version and hopefully is ready
 
         if (checkProviderReady()) {
+            Log.w(TAG, "  fpProviderStateNotif" + fpProviderStateNotif);
 
-            mState = State.Ready;
-            mPlaying = true;
-            mCurrentErrorSng = null;
-            mCurrentProvider.playSong(mCurrentSng);
+            boolean startCurrentSong = false;
 
-            checkScheduled();
+            if (fpProviderStateNotif) {
 
-        } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.Loading){
-            Log.e(TAG, "Error, Provider already existed, but is still loading. Waiting for it to finish");
-            mState = State.LoadingProvider;
-            mPlaying = false;
+                if (mCurrentProvider.getProviderState() == WMusicProvider.State.LoadingSong) {
+                    mPlaybackState = PlaybackState.LoadingSong;
+
+                } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.SongReady) {
+
+                    if (mPlaybackState == PlaybackState.LoadingSong) {
+                        mPlaybackState = PlaybackState.Playing;
+                    } // else, nothing to check for
+                    // Note: this assumes when loading, that pause actions are ignored.
+                } else {
+                    // No song is even prepared, since provider was loading but is not finished
+                    mPlaybackState = PlaybackState.NotPlaying;
+                    startCurrentSong = true;
+                }
+
+
+            } else {
+                startCurrentSong = true;
+            }
+
+            if (startCurrentSong) {
+
+                Log.w(TAG, "  mCurrentProvider.playSong(mCurrentSng)");
+
+                mWPlayerState = WPlayerState.Ready;
+                mCurrentErrorSng = null;
+                mPlaybackState = PlaybackState.LoadingSong;
+                positionInMs = 0;
+                mCurrentProvider.playSong(mCurrentSng);
+                // fpProviderStateNotif called right after, triggering the above line as well.
+
+
+            }
+
+
+
+
+        } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.AuthLoading){
+            Log.w(TAG, "Error, Provider already existed, but is still loading. Waiting for it to finish");
+            mWPlayerState = WPlayerState.LoadingProvider;
+            mPlaybackState = PlaybackState.LoadingSong;
 
         } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.Error){
             Log.e(TAG, "Error, Provider is in error state");
-            mState = State.ErrorWithProvider;
-            mPlaying = false;
+            mWPlayerState = WPlayerState.ErrorWithProvider;
+            mPlaybackState = PlaybackState.NotPlaying;
 
         } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.ErrorWithCurrentSong){
 
             if (mCurrentErrorSng == null) {
                 // new error!  set to error state
                 Log.e(TAG, "Error, Provider has temporary error with current song");
-                mState = State.ErrorWithSong;
-                mPlaying = false;
+                mWPlayerState = WPlayerState.ErrorWithSong;
+                mPlaybackState = PlaybackState.NotPlaying;
                 mCurrentErrorSng = mCurrentSng;
 
             } else if (mCurrentErrorSng == mCurrentSng) {
                 // another attempt to play erroring song... Doing nothing
                 // TODO
                 Log.e(TAG, "Error, Provider has temporary error with current song, ignoring attempt to play again");
-                mState = State.ErrorWithSong;
-                mPlaying = false;
+                mWPlayerState = WPlayerState.ErrorWithSong;
+                mPlaybackState = PlaybackState.NotPlaying;
 
 
             } else {
                 // new song attempt; this one probably has no error yet.  Try it.
 
-                mState = State.Ready;
-                mPlaying = true;
+                mWPlayerState = WPlayerState.Ready;
+                //mPlaybackState set during fp notif
                 mCurrentErrorSng = null;
                 mCurrentProvider.playSong(mCurrentSng);
 
@@ -431,21 +496,14 @@ public class WPlayer {
 
     /** Called when a Provider has been constructed and now asynchronously gets back to us that its finished.
      * This will start up the queued song
-     * @param dontInterruptIfPlaying True if this method is being called mostly for notifs or to try again,  Only used when a temp song error is recovered.
-     *
      * */
-    static void fpProviderState(WMusicProvider prov, boolean dontInterruptIfPlaying) {
-        Log.e(TAG, "fpProviderState: " + mCurrentProvider.getProviderState());
-        if (!dontInterruptIfPlaying && prov == mCurrentProvider) {
+    static void fpProviderStateNotif(WMusicProvider prov) {
+        Log.e(TAG, "fpProviderStateNotif: " + mCurrentProvider.getProviderState());
+        if (prov == mCurrentProvider) {
             // So we don't actually use the success param; that info is already encoded into the provider state...
 
-            Log.w(TAG, "fpProviderState: " + mCurrentProvider.getProviderState());
-
-            internalPlay();
+            internalPlay(true);
             mNotifier.notifyListeners(Notif.Playback);
-            // so when person skips to next, previous, or just plays new song, we need to not have ErrorWithCurrentSong
-            // not be permanent.  But, we also cant cause an infinite loop here.  Is the only way to use an extra flag here?
-            // and to internal play?  Or should we set a mCurrentErroringSng at this moment?
 
         }
         // Else do nothing, we switched providers, so we don't care about this right now.
@@ -455,19 +513,21 @@ public class WPlayer {
     /** Toggles between playing and pausing*/
     public static void playpause() {
 
-        if (checkProviderReady()) {
-            mPlaying = !mPlaying;
-            if (mPlaying) {
-                mCurrentProvider.resume();
-            } else {
-                mCurrentProvider.pause();
-            }
-            mNotifier.notifyListeners(Notif.Playback);
+        if (!checkProviderReady()) return;
 
+        if (mCurrentProvider.getProviderState() == WMusicProvider.State.SongReady) {
+            if (mPlaybackState == PlaybackState.Playing) {
+                mPlaybackState = PlaybackState.NotPlaying;
+                mCurrentProvider.pause();
+            } else {
+                mPlaybackState = PlaybackState.Playing;
+                mCurrentProvider.resume();
+            }
+
+            mNotifier.notifyListeners(Notif.Playback);
             checkScheduled();
         } else {
-            // TODO else: maybe try to reflect change or cancel Provider being loaded?
-
+            // Do nothing, play/pause undefined while loading the song
         }
 
     }
@@ -497,12 +557,13 @@ public class WPlayer {
     }
 
     public static void skipToPrevious() {
-        // best to not have provider handle since we want consistency on behavior across all providers
 
         mAutoplayQueueAdditions = false;
         if (mQueueBack.size() > 0) {
+            // If there is a previous song, jump immediately to it.
+            // TODO some music players would reset pos to 0 and play again same song if far enough into song
+
             if (mCurrentSng != null) {
-                // TODO, is this efficient enough??
                 mQueue.add(0, mCurrentSng);
             }
             mCurrentSng = mQueueBack.remove(mQueueBack.size() - 1);
@@ -510,6 +571,7 @@ public class WPlayer {
             mNotifier.notifyListeners(Notif.PlaybackAndQueue);
         } else {
             if (checkProviderReady()) {
+                mPlaybackState = PlaybackState.Playing;
                 mCurrentProvider.setPosition(0);
             }
             // pause and setpos to 0 for current song, which spotify com.example.steven.spautify.player does automatically
@@ -520,16 +582,14 @@ public class WPlayer {
 
     }
 
-    // fpSkipPrevReceived() {
-    //    // so do nothing?
-    //}
 
 
+    // TODO if dragged while paused, do we want to preserve that it was paused?
 
     public static void startDragPosition() {
         if (checkProviderReady()) {
             mCurrentProvider.pause();
-            mPlaying = false;
+            mPlaybackState = PlaybackState.NotPlaying;
             mNotifier.notifyListeners(Notif.Playback);
             checkScheduled(); // check after changing mPlaying
         }
@@ -538,7 +598,7 @@ public class WPlayer {
     /** Sets the new position of the song in ms*/
     public static void endDragPosition(int newpos) {
         if (checkProviderReady()) {
-            mPlaying = true;
+            mPlaybackState = PlaybackState.Playing;
             mCurrentProvider.setPosition(newpos);
             mNotifier.notifyListeners(Notif.Playback);
             checkScheduled(); // check after changing mPlaying
@@ -566,7 +626,7 @@ public class WPlayer {
 
     private static void checkScheduled() {
         Log.d(TAG, "checkScheduled()");
-        if (checkProviderReady() && mPlaying && mScheduledHash.entrySet().size() > 0) {
+        if (checkProviderReady() && mPlaybackState == PlaybackState.Playing && mScheduledHash.entrySet().size() > 0) {
             // This keeps our SeekBar and the time accurate
             if (mScheduledService == null) {
                 int delay = 250; // TODO for slow devices, use only 1, for fast devices, even as low as 100 is fine.
@@ -574,7 +634,7 @@ public class WPlayer {
                 mScheduledService = mScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {
-                        Log.e("sched", "running   playing?" + mPlaying);
+                        Log.e("sched", "running   playing?" + mPlaybackState);
                         try {
                             if (checkProviderReady()) {
                                 mCurrentProvider.requestPositionUpdate();
@@ -644,7 +704,8 @@ public class WPlayer {
         // TODO consider fixing offbyone (between pos being chosen by user and this method, the song may have changed, rare, but possible) stuff instead of just doing nothing
         if (pos < mQueueBack.size()) {
 
-            if (!mQueueBack.get(pos).spotifyUri.equals(sng.spotifyUri)) {
+            if (!mQueueBack.get(pos).equalsId(sng)) {
+//            if (!mQueueBack.get(pos).spotifyUri.equals(sng.spotifyUri)) {
                 Log.e(TAG, "Error with playItemInQueue.  Mismatched sng");
                 return;
             }
@@ -673,7 +734,8 @@ public class WPlayer {
             // so basically they chose mCurrentSng again
 
             if (mCurrentSng != null) {
-                if (!mCurrentSng.spotifyUri.equals(sng.spotifyUri)) {
+//                if (!mCurrentSng.spotifyUri.equals(sng.spotifyUri)) {
+                if (!mCurrentSng.equalsId(sng)) {
                     Log.e(TAG, "Error with playItemInQueue.  Mismatched sng");
                     return;
                 }
@@ -686,7 +748,7 @@ public class WPlayer {
 
         } else if (pos < mQueueBack.size() + 1 + mQueue.size()) {
             int newpos = pos - (mQueueBack.size() + 1);
-            if (!mQueue.get(newpos).spotifyUri.equals(sng.spotifyUri)) {
+            if (!mQueue.get(newpos).equalsId(sng)) {
                 Log.e(TAG, "Error with playItemInQueue.  Mismatched sng");
                 return;
             }
@@ -729,7 +791,9 @@ public class WPlayer {
     private static Notif removeFromQueueInternal(int pos, Sng sng) {
         if (pos < mQueueBack.size()) {
 
-            if (!mQueueBack.get(pos).spotifyUri.equals(sng.spotifyUri)) {
+
+//            if (!mQueueBack.get(pos).spotifyUri.equals(sng.spotifyUri)) {
+            if (!mQueueBack.get(pos).equalsId(sng)) {
                 Log.e(TAG, "Error with removeFromQueue.  Mismatched sng");
                 return null;
             }
@@ -749,7 +813,7 @@ public class WPlayer {
 
         } else if (pos < mQueueBack.size() + 1 + mQueue.size()) {
             int newpos = pos - (mQueueBack.size() + 1);
-            if (!mQueue.get(newpos).spotifyUri.equals(sng.spotifyUri)) {
+            if (!mQueue.get(newpos).equalsId(sng)) {
                 Log.e(TAG, "Error with removeFromQueue.  Mismatched sng");
                 return null;
             }
@@ -767,21 +831,28 @@ public class WPlayer {
     }
 
 
-    public static void addtoEndOfQueue(Sng song) {
+    public static void addtoEndOfQueue(Sng sng) {
         // TODO is a null check best way??
 
         // Depends on updateQueue working AND a marker for when we are at the end of a queue and a song has laready finished playing
         // This may not be easy to know, TEST what Spotify does
 
         if (mAutoplayQueueAdditions) {
-            mCurrentSng = song;
+            mCurrentSng = sng;
             mAutoplayQueueAdditions = false;
             internalPlay();
             mNotifier.notifyListeners(Notif.PlaybackAndQueue);
         } else {
-            mQueue.add(song);
+            mQueue.add(sng);
             mNotifier.notifyListeners(Notif.Queue);
         }
+    }
+
+    /** aka Play Next, adds to front of future queue, but not into queueBack,
+     * so that way this song is played right after CurrentSng finishes/skips*/
+    public static void addToFrontOfQueue(Sng sng) {
+        mQueue.add(0, sng);
+        mNotifier.notifyListeners(Notif.Queue);
     }
 
 
@@ -850,7 +921,7 @@ public class WPlayer {
         if (provider == mCurrentProvider) {
             //Log.v(TAG, "song pos: " + pos);
             positionInMs = pos;
-            mNotifier.notifyListeners(Notif.PlaybackPosition);
+            mNotifier.notifyListeners(Notif.PlaybackJustPosition);
         }
     }
 
@@ -873,14 +944,12 @@ public class WPlayer {
 
 
             } else {
-                // finished!
-                // leave current song as is,
+                // finished!  leave current song as is,
                 // TODO or set it to beginning of queueBack.
-                //ArrayList<Sng> newq = new ArrayList<>();
 
                 mAutoplayQueueAdditions = true;
 
-                mPlaying = false;
+                mPlaybackState = PlaybackState.NotPlaying;
                 mNotifier.notifyListeners(Notif.Playback);
 
             }

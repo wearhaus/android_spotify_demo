@@ -5,11 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
-import com.example.Notifier;
 import com.example.steven.spautify.musicplayer.Playlst;
-import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -21,7 +18,6 @@ import java.util.Map;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -59,7 +55,7 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
 
     @Override
     protected String checkIfBad() {
-        if (WPlayer.getState() == WPlayer.State.Off) {
+        if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
         } else if (getList() == null) {
             return "list is empty";

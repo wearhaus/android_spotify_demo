@@ -21,12 +21,17 @@ public abstract class WMusicProvider {
     }
 
 
-    public enum State {
+    enum State {
         /**Default state; This state also lets WPlayer know that this player can be closed*/
         NoPlayer,
-        /** Still authenticating user*/
-        Loading,
-        PlayerReady,
+        /** Still authenticating user or initializing entire player*/
+        AuthLoading,
+        /** Provider has been created, but no song is loaded into it*/
+        PlayerInited,
+        /** Preparing a song to be played.*/
+        LoadingSong,
+        /** Song is either playing or paused and ready to be started again*/
+        SongReady,
         /** And error has occurred with just this song and this can probably be fixed with skipping to next song.*/
         ErrorWithCurrentSong,
         /** When in this state, any call other than closeProvider will result in undefined behavior (most likely NPE)*/
@@ -66,8 +71,9 @@ public abstract class WMusicProvider {
 
 
     abstract void playSong(Sng song);
+    /** CAll fp notif when done*/
     abstract void skipToNext();
-    abstract void skipToPrevious();
+    //abstract void skipToPrevious(); // Handled outside of a music provider
     abstract void pause();
     abstract void resume();
     /** A drag is started, probably just pause it. */

@@ -23,7 +23,7 @@ public class QueueFragment extends SongListFragment {
     protected List getList() {
         ArrayList<SngItem> l = new ArrayList<>();
 
-        if (WPlayer.getState() == WPlayer.State.Off) {
+        if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return l;
         }
 
@@ -62,7 +62,7 @@ public class QueueFragment extends SongListFragment {
 
     @Override
     protected String checkIfBad() {
-        if (WPlayer.getState() == WPlayer.State.Off) {
+        if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
         } else if (WPlayer.getCurrentSng() == null) {
             return "queue is empty";

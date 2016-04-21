@@ -116,7 +116,7 @@ public abstract class DynamicRecycleListFragment<
             So every onResume, we regrab the list.  There is no other way to get any changes to the list.
             This is good since if someone removes a song, it won't be immediately removed until onResume gets called
             again (unless you listen to the notifier for changes).
-            Loading songs from the server doesn't cause a regrab of the list.  The list itself is cloned, so
+            AuthLoading songs from the server doesn't cause a regrab of the list.  The list itself is cloned, so
             changes that happen while this is open don't need a notify.
 
          */

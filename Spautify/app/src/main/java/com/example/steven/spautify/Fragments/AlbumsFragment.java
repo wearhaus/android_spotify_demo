@@ -9,15 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
-import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
-import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
 import com.squareup.picasso.Picasso;
 
@@ -143,7 +138,7 @@ public abstract class AlbumsFragment extends DynamicRecycleListFragment {
                 }
             });
 
-            holder.mImageButton.setOnClickListener(new View.OnClickListener() {
+            holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())

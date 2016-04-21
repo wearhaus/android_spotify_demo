@@ -28,12 +28,12 @@ public class SpotifyProvider extends WMusicProvider {
     /** Null only when an error has occurred or not yet done initializing*/
     private Player mPlayer;
 
-    private State mPlayerSetupState;
+    private State mProviderState;
 
 
     public SpotifyProvider(Context c) {
         super(c);
-        mPlayerSetupState = State.Loading;
+        mProviderState = State.AuthLoading;
 
 
         Config playerConfig = new Config(c, SpotifyWebApiHandler.getAccessToken(), SpotifyWebApiHandler.CLIENT_ID);
@@ -46,8 +46,8 @@ public class SpotifyProvider extends WMusicProvider {
                 mPlayer.addConnectionStateCallback(mConnStateCallback);
                 mPlayer.addPlayerNotificationCallback(mPlayerNotifCallback);
 
-                mPlayerSetupState = State.PlayerReady;
-                WPlayer.fpProviderState(SpotifyProvider.this, false);
+                mProviderState = State.PlayerInited;
+                WPlayer.fpProviderStateNotif(SpotifyProvider.this);
 
                 //requestPlayerState();
             }
@@ -57,9 +57,8 @@ public class SpotifyProvider extends WMusicProvider {
                 Log.e(TAG, "Could not initialize Spotify Player: " + throwable.getMessage());
 
                 mPlayer = null;
-                mPlayerSetupState = State.Error;
-
-                WPlayer.fpProviderState(SpotifyProvider.this, false);
+                mProviderState = State.Error;
+                WPlayer.fpProviderStateNotif(SpotifyProvider.this);
             }
         });
 
@@ -95,36 +94,44 @@ public class SpotifyProvider extends WMusicProvider {
 
     @Override
     State getProviderState() {
-        return mPlayerSetupState;
+        return mProviderState;
     }
 
 
     @Override
     void playSong(Sng song) {
         Log.d(TAG, "Playing song: " + song.spotifyUri);
-        mPlayer.play(song.spotifyUri);
+        if (mPlayer != null) {
+            mPlayer.play(song.spotifyUri);
+            mProviderState = State.LoadingSong;
+            // TODO how does spotify notify us that its done loading?
+            WPlayer.fpProviderStateNotif(this); // TODO redundant, state already set to loading by WPlayer's call to playSong
+        }
+
     }
 
     @Override
     void skipToNext() {
-        mPlayer.skipToNext();
+        if (mPlayer != null) {
+            mPlayer.skipToNext();
+        }
     }
 
-    @Override
-    void skipToPrevious() {
-        mPlayer.skipToPrevious();
-    }
 
     @Override
     void pause() {
         Log.d(TAG, "pause");
-        mPlayer.pause();
+        if (mPlayer != null) {
+            mPlayer.pause();
+        }
     }
 
     @Override
     void resume() {
         Log.d(TAG, "resume");
-        mPlayer.resume();
+        if (mPlayer != null) {
+            mPlayer.resume();
+        }
     }
 
 
@@ -147,7 +154,9 @@ public class SpotifyProvider extends WMusicProvider {
 
     @Override
     void requestPositionUpdate() {
-        mPlayer.getPlayerState(mPlayerStateCallBack);
+        if (mPlayer != null) {
+            mPlayer.getPlayerState(mPlayerStateCallBack);
+        }
     }
 
 
@@ -168,40 +177,16 @@ public class SpotifyProvider extends WMusicProvider {
 
     private void onPlayerStateHandle(PlayerState playerState) {
         mCurrentPlayerState = playerState;
-        WPlayer.fpGotNewPositionInMs(playerState.positionInMs, this);
-        //mPlaybackNotifier.notifyListeners();/////////////
-
-        //final String trackUri = playerState.trackUri;
+        // TODO read spotify docs to see how to handle LoadingSong state
+        if (mCurrentPlayerState.playing && mProviderState == State.LoadingSong) {
+            mProviderState = State.SongReady;
+            WPlayer.fpProviderStateNotif(this);
+        } else {
+            WPlayer.fpGotNewPositionInMs(playerState.positionInMs, this);
+        }
 
         // Update: So we don't want to ever READ the state of Spotify, except for double checking.  Instead,
-        // we will read the state from
 
-        /*if (trackUri != null && !trackUri.isEmpty()) {
-            if (mCurrentTrack != null && !mCurrentTrack.uri.equals(trackUri)) {
-                // Outdated track, we don't want this anymore
-                mCurrentTrack = null;
-            }
-
-            SpotifyWebApiHandler.getTrackByUri(trackUri, new SpotifyWebApiHandler.GetTrackListener() {
-                @Override
-                public void gotTrack(Track track) {
-                    if (track.uri.equals(trackUri)) {
-                        mCurrentTrack = track;
-
-                        mPlaybackNotifier.notifyListeners();/////////////////
-                    } else {
-                        mCurrentTrack = null;
-                    }
-                }
-
-                @Override
-                public void error(String error) {
-                    mCurrentTrack = null;
-                }
-            });
-
-
-        }*/
     }
 
 
@@ -260,7 +245,7 @@ public class SpotifyProvider extends WMusicProvider {
                     break;
 
                 case END_OF_CONTEXT:
-                    // End of queue hit, this is called, followed immediately by Paused, TrackEnd, TrackChanged
+                    // End of queue hit, this is called, followed immediately by NotPlaying, TrackEnd, TrackChanged
 
                     WPlayer.fpEndOfSong(SpotifyProvider.this);
                     // Player handles switching spotify Uri's for us.
@@ -277,10 +262,10 @@ public class SpotifyProvider extends WMusicProvider {
 
             onPlayerStateHandle(playerState);
 
-            if (mPlayerSetupState == State.Error) {
+            if (mProviderState == State.Error) {
                 // TODO for errors that are recoverable?
-                mPlayerSetupState = State.PlayerReady;
-                WPlayer.fpProviderState(SpotifyProvider.this, true);
+                mProviderState = State.PlayerInited;
+                WPlayer.fpProviderStateNotif(SpotifyProvider.this);
             }
         }
 
@@ -288,8 +273,8 @@ public class SpotifyProvider extends WMusicProvider {
         public void onPlaybackError(ErrorType errorType, String s) {
             Log.d(TAG, "Playback error received: " + errorType.name());
 
-            mPlayerSetupState = State.ErrorWithCurrentSong;
-            WPlayer.fpProviderState(SpotifyProvider.this, false);
+            mProviderState = State.ErrorWithCurrentSong;
+            WPlayer.fpProviderStateNotif(SpotifyProvider.this);
 
         }
     };

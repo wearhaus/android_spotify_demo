@@ -1,6 +1,8 @@
 package com.example.steven.spautify.musicplayer;
 
 
+import com.example.steven.spautify.R;
+
 import java.util.ArrayList;
 
 import kaaes.spotify.webapi.android.models.Artist;
@@ -26,7 +28,6 @@ public class Sng {
     public String spotifyUri;
     public String spotifyAlbumId;
     public ArrayList<String> spotifyArtistIds;
-    //public Image spotifyAlbumImage;
 
     public int soundCloudId;
     public SoundCloudApiHandler.TrackJson soundCloudJson;
@@ -51,6 +52,24 @@ public class Sng {
         soundCloudJson = t;
     }
 
+    /** Equality check that checks for ids of songs.
+     *
+     * TODO ultimately should use our assigned ids, which would probably be "sp" + spotifyUri, "sc" + soundCloudId, etc.
+     * That would also mean that the same song on different services remain as separate entities (probably for the best anyways)
+     */
+    public boolean equalsId(Sng other) {
+        if (other == null) return false;
+        if (source == other.source) {
+            if (source == Source.Spotify) {
+                return spotifyUri == other.spotifyUri;
+            } else if (source == Source.Spotify) {
+                return soundCloudId == other.soundCloudId;
+            }
+        }
+        return false;
+
+    }
+
 
     private void gotTrackInit(Track t) {
         spotifyUri = t.uri;
@@ -69,11 +88,45 @@ public class Sng {
 
     }
 
+    public int getSourceSplashImageRes() {
+        if (source == Sng.Source.Spotify) {
+            return R.drawable.spotify_icon;
+        } else if (source == Sng.Source.Soundcloud) {
+            return R.drawable.soundcloud_icon_small;
+        } else {
+            return 0;
+        }
+    }
+
+    public String getFormattedArtistAlbumString() {
+        String s = getAlbumName();
+        if (s != null) return artistPrimaryName + " / " + getAlbumName();
+        return artistPrimaryName;
+
+    }
+
+
+    public String getAlbumName() {
+        if (albumName != null && !albumName.isEmpty()) {
+            return albumName;
+        } else if (source == Sng.Source.Spotify) {
+            return "from Spotify";
+        } else if (source == Sng.Source.Soundcloud) {
+            return "from SoundCloud";
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
-        Track t = SpotifyWebApiHandler.getTrackOnlyIfCached(spotifyUri);
-        if (t != null) return t.name;
-        return spotifyUri;
+        if (source == Source.Spotify) {
+            Track t = SpotifyWebApiHandler.getTrackOnlyIfCached(spotifyUri);
+            if (t != null) return t.name;
+            return spotifyUri;
+        } else if (source == Source.Soundcloud) {
+            return ""+soundCloudId;
+        }
+        return "what??";
     }
 
     public enum Source {

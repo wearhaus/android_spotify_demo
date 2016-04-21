@@ -22,7 +22,6 @@ import java.util.Map;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -154,7 +153,7 @@ public class ViewAlbumFragment extends SongListFragment {
 
     @Override
     protected String checkIfBad() {
-        if (WPlayer.getState() == WPlayer.State.Off) {
+        if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
         } else if (mPageIsLoading) {
             return "loading";

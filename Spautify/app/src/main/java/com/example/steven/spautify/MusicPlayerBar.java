@@ -52,10 +52,11 @@ public class MusicPlayerBar extends RelativeLayout {
     private TextView mTrackAuthor;
     private TextView mTrackTime;
     private String mTrackUriDisplayed;
-    private ImageButton mPlayPause;
+    private PlayButtonView mPlayButton;
     private ImageButton mSkipForward;
     private ImageButton mSkipBack;
     private ImageView mImageView;
+    private ImageView mSourceSplashView;
     //private ImageView mImageBGView;
 
     private int randomCode;
@@ -78,11 +79,12 @@ public class MusicPlayerBar extends RelativeLayout {
         //mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
         mNoPlaybackText = (TextView) findViewById(R.id.logged_out_text);
 
-        mPlayPause = (ImageButton) findViewById(R.id.play_pause);
-        mSkipForward = (ImageButton) findViewById(R.id.skip_forward);
-        mSkipBack = (ImageButton) findViewById(R.id.skip_back);
+        mPlayButton = (PlayButtonView) findViewById(R.id.play_button);
+        //mSkipForward = (ImageButton) findViewById(R.id.skip_forward);
+        //mSkipBack = (ImageButton) findViewById(R.id.skip_back);
 
         mImageView = (ImageView) findViewById(R.id.img);
+        mSourceSplashView = (ImageView) findViewById(R.id.source_splash);
         //mImageBGView = (ImageView) findViewById(R.id.img);
 
 
@@ -97,31 +99,22 @@ public class MusicPlayerBar extends RelativeLayout {
         mTrackAuthor.setSingleLine(true);
 
 
-        mPlayPause.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        WPlayer.playpause();
-                    }
-                });
 
 
-
-        mSkipForward.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        WPlayer.skipToNext();
-                    }
-                });
-        mSkipBack.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        WPlayer.skipToPrevious();
-                    }
-                });
+//        mSkipForward.setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        WPlayer.skipToNext();
+//                    }
+//                });
+//        mSkipBack.setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        WPlayer.skipToPrevious();
+//                    }
+//                });
 
 //        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 //            @Override
@@ -160,7 +153,7 @@ public class MusicPlayerBar extends RelativeLayout {
     private Notifier.Listener mListener = new Notifier.Listener<WPlayer.Notif>() {
         @Override
         public void onChange(WPlayer.Notif type) {
-            if (type == WPlayer.Notif.PlaybackAndQueue || type == WPlayer.Notif.Playback || type == WPlayer.Notif.PlaybackPosition) {
+            if (type == WPlayer.Notif.PlaybackAndQueue || type == WPlayer.Notif.Playback || type == WPlayer.Notif.PlaybackJustPosition) {
                 post(new Runnable() {
                     @Override
                     public void run() {
@@ -203,7 +196,7 @@ public class MusicPlayerBar extends RelativeLayout {
 
     private void refreshListeners(boolean remove) {
 
-        if (WPlayer.getState() != WPlayer.State.Off && !remove) {
+        if (WPlayer.getState() != WPlayer.WPlayerState.Off && !remove) {
             if (!attachedPosBar) {
                 attachedPosBar = true;
 
@@ -217,7 +210,7 @@ public class MusicPlayerBar extends RelativeLayout {
     }
 
     private void removePosBar() {
-        if (WPlayer.getState() != WPlayer.State.Off && attachedPosBar) {
+        if (WPlayer.getState() != WPlayer.WPlayerState.Off && attachedPosBar) {
             WPlayer.setPosBarAnimation(false, randomCode);
         }
         attachedPosBar = false;
@@ -227,7 +220,7 @@ public class MusicPlayerBar extends RelativeLayout {
 
     private void refreshUI() {
 
-        if (WPlayer.getState() != WPlayer.State.Off) {
+        if (WPlayer.getState() != WPlayer.WPlayerState.Off) {
             if (!attachedPosBar) {
                 attachedPosBar = true;
                 WPlayer.setPosBarAnimation(true, randomCode);
@@ -278,19 +271,6 @@ public class MusicPlayerBar extends RelativeLayout {
                     mLoading.setVisibility(View.GONE);
 
 
-//                    mSeekBar.setMax(sng.durationInMs);
-//                    mSeekBar.setProgress(WPlayer.getPositionInMs());
-//                    mSeekBar.setSecondaryProgress(WPlayer.getPositionInMs());
-
-
-
-
-                    if (WPlayer.getPlaying()) {
-                        mPlayPause.setImageResource(R.drawable.ic_action_pause_w);
-                    } else {
-                        mPlayPause.setImageResource(R.drawable.ic_action_play_w);
-                    }
-
                     int pos = WPlayer.getPositionInMs();
 
                     mTrackTime.setText(formatMs(pos) + " / " + formatMs(sng.durationInMs));// + "    (" + pos + "ms)");
@@ -300,9 +280,11 @@ public class MusicPlayerBar extends RelativeLayout {
                     } else {
                         mTrackUriDisplayed = sng.name; // TODO change to song id
                         mTrackTitle.setText(sng.name);
-                        mTrackAuthor.setText(sng.artistPrimaryName + " / " + sng.albumName);
+                        mTrackAuthor.setText(sng.getFormattedArtistAlbumString());
 
                         Picasso.with(getContext()).load(sng.artworkUrl).into(mImageView);
+
+                        mSourceSplashView.setImageResource(sng.getSourceSplashImageRes());
                     }
 
                     break;
@@ -316,11 +298,6 @@ public class MusicPlayerBar extends RelativeLayout {
                 mNoPlaybackLayout.setVisibility(View.GONE);
                 mLoading.setVisibility(View.GONE);
 
-//                mSeekBar.setMax(1);
-//                mSeekBar.setProgress(0);
-//                mSeekBar.setSecondaryProgress(1);
-
-
                 if (WPlayer.getCurrentSng() != null) {
                     mTrackTitle.setText(WPlayer.getCurrentSng().name);
                     mTrackAuthor.setText("Error loading song");
@@ -330,17 +307,9 @@ public class MusicPlayerBar extends RelativeLayout {
                     mTrackAuthor.setText("");
                 }
 
-
-
-                mPlayPause.setImageResource(R.drawable.ic_action_play);
         }
 
-
     }
-
-
-
-
 
 
 

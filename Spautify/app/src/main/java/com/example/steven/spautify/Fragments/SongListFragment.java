@@ -7,13 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.RelativeLayout;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
@@ -29,7 +27,7 @@ import java.util.ArrayList;
  */
 public abstract class SongListFragment extends DynamicRecycleListFragment {
 
-
+    private static final boolean SHOW_ALBUM = true;
 
     @Override
     protected RecyclerView.Adapter createNewAdapter(Context context, ArrayList mList) {
@@ -41,6 +39,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
         Queue(),
         SearchResult(),
         Lib(),
+        /** A lib, but we are looking at it's spotify album, so dont offer to look at album*/
         LibAlbum(),
     }
     /** If true, then */
@@ -51,78 +50,126 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
         return getClickType() == ClickType.Queue;
     }
 
-    private void onQueueItemSelected(final int position, final Sng sng) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("" + sng.name)
-                .setPositiveButton("Play", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+    private enum DialogItem {
+        PlayInQueue("Play"),
+        PlayFromLib("Play"),
+        RemoveFromQueue("Remove from queue"),
+        AddToQueue("Add to queue"),
+        PlayNextLib("Play next"),
+        OpenSpotifyAlbum("Open album"),
+        //OpenInSoundCloud("Open in SoundCloud"),
+        Back("Back"),
 
-                        WPlayer.playItemInQueue(position, sng);
-                    }
-                })
-                .setNeutralButton("Remove from queue", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        WPlayer.removeFromQueue(position, sng);
-                    }
-                })
-                .setNeutralButton("Open Album", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+        ;
 
-                        openAlbumActivity(sng);
-                    }
-                })
-                .setNegativeButton("Back", null);
-
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
-
-
-    private void addtoQueueOrPlayNow(final Sng song) {
-
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("" + song.name)
-                .setPositiveButton("Play Now", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        WPlayer.playSingleClearQueue(song);
-                    }
-                })
-                .setNeutralButton("Add to Queue", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        WPlayer.addtoEndOfQueue(song);
-                    }
-                })
-
-                .setNegativeButton("Back", null);
-
-        if (getClickType() != ClickType.LibAlbum) {
-            builder.setNeutralButton("Open Album", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-
-                    openAlbumActivity(song);
-                }
-            });
+        private String text;
+        DialogItem(String s) {
+            text = s;
         }
 
+    }
+
+    private void onItemMenuSelected(final int position, final Sng sng) {
+
+        ArrayList<DialogItem> dialogItems = new ArrayList<>();
+
+        if (getClickType() == ClickType.Queue) {
+            dialogItems.add(DialogItem.PlayInQueue); // TODO detect if current song or not by reading position
+            dialogItems.add(DialogItem.RemoveFromQueue);
+
+        } else {
+            dialogItems.add(DialogItem.PlayFromLib);
+            dialogItems.add(DialogItem.AddToQueue);
+
+
+        }
+
+        if (sng.source == Sng.Source.Spotify) {
+            if (getClickType() != ClickType.LibAlbum) {
+                dialogItems.add(DialogItem.OpenSpotifyAlbum);
+            }
+        } else if (sng.source == Sng.Source.Soundcloud) {
+            //dialogItems.add(DialogItem.OpenInSoundCloud);
+        }
+
+
+        dialogItems.add(DialogItem.Back);
+
+
+
+        final ArrayList<DialogItem> dialogItemsFinalized = dialogItems; // yeah java...
+        CharSequence[] dialogNames = new CharSequence[dialogItems.size()];
+        for (int i = 0; i < dialogItems.size(); i++) {
+            dialogNames[i] = dialogItems.get(i).text;
+        }
+
+        // Null here means we end up ignoring the root's layout width and height attr, so we
+        // need to manually specify it here, unless we figure out how to properly get a ViewGroup it inflate with
+        View titleView = LayoutInflater.from(getActivity()).inflate(R.layout.recycler_queue_item_dialog_title, null);
+        {
+            WPlayerViewHolder vh = new WPlayerViewHolder(titleView);
+            vh.setMarquee(true);
+
+//            float heightPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
+//            vh.mContainer.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+//            vh.mContainer.getLayoutParams().height = (int) heightPx;
+
+            vh.mTitleView.setText("" + sng.name);
+            vh.mAuthorView.setText(sng.getFormattedArtistAlbumString());
+            vh.mSourceSplashView.setImageResource(sng.getSourceSplashImageRes());
+            vh.mExtendedMenuButton.setVisibility(View.GONE);
+            Picasso.with(vh.mContainer.getContext()).load(sng.artworkUrl).into(vh.mImageView);
+
+
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setCustomTitle(titleView)
+                .setItems(dialogNames, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        switch (dialogItemsFinalized.get(which)) {
+                            case PlayFromLib:
+                                WPlayer.playSingleClearQueue(sng); break;
+
+                            case PlayInQueue:
+                                WPlayer.playItemInQueue(position, sng); break;
+
+                            case AddToQueue:
+                                WPlayer.addtoEndOfQueue(sng); break;
+
+                            case PlayNextLib:
+                                WPlayer.addToFrontOfQueue(sng); break;
+
+                            case RemoveFromQueue:
+                                WPlayer.removeFromQueue(position, sng); break;
+
+                            case OpenSpotifyAlbum:
+                                openSpotifyAlbumActivity(sng); break;
+
+                            case Back:
+                                break; // do nothing
+                        }
+
+
+                    }
+                });
+
         AlertDialog alert = builder.create();
         alert.show();
 
 
     }
 
-    private void openAlbumActivity(Sng song) {
+
+    private void openSpotifyAlbumActivity(Sng song) {
         Activity act = getActivity();
         if (act != null) {
-
             Intent intent = new Intent(act, ViewAlbumActivity.class);
             intent.putExtra(ViewAlbumActivity.TAG_ID, song.spotifyAlbumId);
             act.startActivity(intent);
-
         }
 
     }
@@ -211,11 +258,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
 
-
-
             final SngItem s = mDataset.get(position);
-            //final String shortId = SpotifyController.getSpotifyIdFromUri(s.sng.spotifyUri);
-            //Track t = SpotifyWebApiHandler.getTrackOnlyIfCached(shortId);
 
             if (s.type == SngItem.Type.Current) {
                 holder.mContainer.setBackgroundColor(Color.argb(50, 0, 125, 250));
@@ -225,21 +268,18 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             }
 
             holder.mTitleView.setText("" + s.sng.name);
-            holder.mAuthorView.setText("" + s.sng.artistPrimaryName);
+            holder.mAuthorView.setText(s.sng.getFormattedArtistAlbumString());
 
 
-            if (s.sng.source == Sng.Source.Spotify) {
-                holder.mSourceSplashView.setImageResource(R.drawable.spotify_icon);
-            } else if (s.sng.source == Sng.Source.Soundcloud) {
-                holder.mSourceSplashView.setImageResource(R.drawable.soundcloud_icon_small);
-            } else  {
-                holder.mSourceSplashView.setImageResource(0);
-            }
-
+            holder.mSourceSplashView.setImageResource(s.sng.getSourceSplashImageRes());
 
             //Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
-            Picasso.with(holder.mContainer.getContext()).load(s.sng.artworkUrl).into(holder.mImageView);
 
+            if (SHOW_ALBUM) {
+                Picasso.with(holder.mContainer.getContext()).load(s.sng.artworkUrl).into(holder.mImageView);
+            } else {
+                holder.mImageView.setVisibility(View.GONE);
+            }
 
 
             holder.mContainer.setOnClickListener(new View.OnClickListener() {
@@ -250,31 +290,19 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
                     } else if (getClickType() == ClickType.SearchResult) {
                         WPlayer.playSingleClearQueue(s.sng);
                     } else if (getClickType() == ClickType.Lib || getClickType() == ClickType.LibAlbum) {
-                        // for now...
+                        // TODO auto-load rest of album/playlist/artist page into queue, or an id
+                        // to load more form when the time comes.
                         WPlayer.playSingleClearQueue(s.sng);
                     }
                 }
             });
 
-            holder.mImageButton.setOnClickListener(new View.OnClickListener() {
+            holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // We shouldn't allow add to Queue, only jump queue to this... which is a weird operation
-                    // Especially considering this same Sng might appear multiple times...
-                    // To be superior than spotify, we ought to preserve QueueBack
-
-                    if (getClickType() == ClickType.Queue) {
-                        onQueueItemSelected(position, s.sng);
-                    } else if (getClickType() == ClickType.SearchResult) {
-                        addtoQueueOrPlayNow(s.sng);
-                    } else if (getClickType() == ClickType.Lib || getClickType() == ClickType.LibAlbum) {
-                        // for now...
-                        addtoQueueOrPlayNow(s.sng);
-                    }
-
+                    onItemMenuSelected(position, s.sng);
                 }
             });
-
 
         }
 

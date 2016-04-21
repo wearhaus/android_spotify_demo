@@ -11,8 +11,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -139,7 +137,7 @@ public class MusicActivity extends BluetoothActivityMOD {
 
 
     private void refreshUI() {
-        if (WPlayer.getState() == WPlayer.State.Off) {
+        if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             mSearchResultContainer.setVisibility(View.GONE);
             mSearchText.setVisibility(View.GONE);
             mSearchCancel.setVisibility(View.GONE);

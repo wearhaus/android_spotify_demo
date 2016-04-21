@@ -12,10 +12,12 @@ import android.widget.TextView;
  */
 public class WPlayerViewHolder extends RecyclerView.ViewHolder {
     // each data item is just a string in this case
+
+
     public View mContainer;
     public TextView mTitleView;
     public TextView mAuthorView;
-    public ImageButton mImageButton;
+    public ImageButton mExtendedMenuButton;
     public ImageView mImageView;
     public ImageView mSourceSplashView;
 
@@ -24,16 +26,23 @@ public class WPlayerViewHolder extends RecyclerView.ViewHolder {
         mContainer =  itemView.findViewById(R.id.container);
         mTitleView = (TextView) itemView.findViewById(R.id.track_title);
         mAuthorView = (TextView) itemView.findViewById(R.id.track_author);
-        mImageButton = (ImageButton) itemView.findViewById(R.id.stuffs);
+        mExtendedMenuButton = (ImageButton) itemView.findViewById(R.id.extended_menu_button);
         mImageView = (ImageView) itemView.findViewById(R.id.img);
         mSourceSplashView = (ImageView) itemView.findViewById(R.id.source_splash);
+    }
 
-        mAuthorView.setSelected(true);
-        mAuthorView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        mAuthorView.setSingleLine(true);
-        mTitleView.setSelected(true);
-        mTitleView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        mTitleView.setSingleLine(true);
+    public void setMarquee(boolean b) {
+
+        if (b) {
+            mAuthorView.setSelected(true);
+            mAuthorView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+            mTitleView.setSelected(true);
+            mTitleView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        } else {
+            mAuthorView.setEllipsize(TextUtils.TruncateAt.START);
+            mTitleView.setEllipsize(TextUtils.TruncateAt.START);
+        }
+
 
     }
 

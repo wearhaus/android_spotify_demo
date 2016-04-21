@@ -251,10 +251,10 @@ public class WPlayerService extends Service {
         //Log.i(TAG, "buildNotification");
 
         if (checkHearbeat()) {
-            Notification.Action action;
-            if (!WPlayer.getPlaying()) {
+            Notification.Action action = null;
+            if (WPlayer.getPlaybackState()== WPlayer.PlaybackState.NotPlaying) {
                 action = generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY);
-            } else {
+            } else if (WPlayer.getPlaybackState()== WPlayer.PlaybackState.Playing) {
                 action = generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE);
             }
 
@@ -286,10 +286,14 @@ public class WPlayerService extends Service {
 
             //builder.addAction(generateAction(android.R.drawable.ic_media_previous, "Previous", ACTION_PREVIOUS));
             //builder.addAction( generateAction( android.R.drawable.ic_media_rew, "Rewind", ACTION_REWIND ) );
-            builder.addAction(action);
+            if (action != null) builder.addAction(action);
             //builder.addAction( generateAction( android.R.drawable.ic_media_ff, "Fast Forward", ACTION_FAST_FORWARD ) );
             builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
-            style.setShowActionsInCompactView(0, 1); // 2, 3, 4);
+            if (action != null) {
+                style.setShowActionsInCompactView(0, 1); // 2, 3, 4);
+            } else {
+                style.setShowActionsInCompactView(0); // 2, 3, 4);
+            }
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(1, builder.build());
@@ -304,7 +308,7 @@ public class WPlayerService extends Service {
 
     private boolean checkHearbeat() {
         //Log.i(TAG, "checkHeartbeat ");
-        if (WPlayer.getState() != WPlayer.State.Off) {
+        if (WPlayer.getState() != WPlayer.WPlayerState.Off) {
             if (mHeartbeat == null) {
                 ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
                 mHeartbeat = service.scheduleWithFixedDelay(new Runnable() {
