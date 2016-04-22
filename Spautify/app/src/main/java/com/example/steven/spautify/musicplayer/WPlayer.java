@@ -97,7 +97,7 @@ public class WPlayer {
     public static void init(Context appContext) {
         mApp = appContext;
 
-        SpotifyWebApiHandler.init();
+        SpotifyApiController.init();
     }
 
 
@@ -321,8 +321,8 @@ public class WPlayer {
 
     /** Returns true if mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerInited*/
     private static boolean checkProviderReady() {
-        Log.v(TAG, "mCurrentProvider: " + mCurrentProvider);
-        if (mCurrentProvider != null) Log.v(TAG, "     checkProviderReady: " + (mCurrentProvider.getProviderState()));
+//        Log.v(TAG, "mCurrentProvider: " + mCurrentProvider);
+//        if (mCurrentProvider != null) Log.v(TAG, "     checkProviderReady: " + (mCurrentProvider.getProviderState()));
         return mCurrentProvider != null &&
                 (mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerInited
                         || mCurrentProvider.getProviderState() == WMusicProvider.State.LoadingSong
@@ -498,7 +498,7 @@ public class WPlayer {
      * This will start up the queued song
      * */
     static void fpProviderStateNotif(WMusicProvider prov) {
-        Log.e(TAG, "fpProviderStateNotif: " + mCurrentProvider.getProviderState());
+        //Log.e(TAG, "fpProviderStateNotif: " + mCurrentProvider.getProviderState());
         if (prov == mCurrentProvider) {
             // So we don't actually use the success param; that info is already encoded into the provider state...
 
@@ -625,7 +625,7 @@ public class WPlayer {
     }
 
     private static void checkScheduled() {
-        Log.d(TAG, "checkScheduled()");
+//        Log.d(TAG, "checkScheduled()");
         if (checkProviderReady() && mPlaybackState == PlaybackState.Playing && mScheduledHash.entrySet().size() > 0) {
             // This keeps our SeekBar and the time accurate
             if (mScheduledService == null) {
@@ -634,7 +634,7 @@ public class WPlayer {
                 mScheduledService = mScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {
-                        Log.e("sched", "running   playing?" + mPlaybackState);
+//                        Log.e("sched", "running   playing?" + mPlaybackState);
                         try {
                             if (checkProviderReady()) {
                                 mCurrentProvider.requestPositionUpdate();
@@ -642,20 +642,20 @@ public class WPlayer {
 
                             checkScheduled();
                         } catch (Exception e) {
-                            Log.e("sched", "Exception!!" + e);
+                            Log.e("sched", "Error during Scheduled" + e);
                         }
 
                         // this will call notifiers which calls refreshUI over again
                     }
                 }, 1, delay, TimeUnit.MILLISECONDS);
 
-                Log.e("sched", "created");
+                Log.v("sched", "created");
 
             }
 
 
         } else {
-            Log.e("sched", "checkScheduled To be cancelled");
+            Log.v("sched", "checkScheduled To be cancelled");
 
             if (mScheduledService != null) {
                 mScheduledService.cancel(false);

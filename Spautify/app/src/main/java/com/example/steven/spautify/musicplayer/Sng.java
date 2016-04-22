@@ -1,13 +1,14 @@
 package com.example.steven.spautify.musicplayer;
 
 
+import android.util.Log;
+import android.util.LruCache;
+
 import com.example.steven.spautify.R;
 
 import java.util.ArrayList;
 
-import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
-import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
@@ -16,7 +17,11 @@ import kaaes.spotify.webapi.android.models.Track;
  * Temp song that gets queued.  To be replaced with a different class in the future
  */
 public class Sng {
+    private static final String TAG = "Sng";
+
     // Fields always present
+    /** our custom defined songId field, separating out sources*/
+    public String songId;
     public Source source;
     public String name;
     public String artistPrimaryName;
@@ -30,18 +35,34 @@ public class Sng {
     public ArrayList<String> spotifyArtistIds;
 
     public int soundCloudId;
-    public SoundCloudApiHandler.TrackJson soundCloudJson;
+    public SoundCloudApiController.TrackJson soundCloudJson;
 
 
 
 
     public Sng(Track t) {
-        gotTrackInit(t);
+        spotifyUri = t.uri;
+        source = Source.Spotify;
+        songId = source.prefix + t.uri;
+
+
+        name = t.name;
+        artistPrimaryName = t.artists.get(0).name;
+        albumName = t.album.name;
+        durationInMs = (int) t.duration_ms;
+        artworkUrl = t.album.images.get(0).url;
+
+        spotifyAlbumId = t.album.id;
+        spotifyArtistIds = new ArrayList<>();
+        for (ArtistSimple art : t.artists) {
+            spotifyArtistIds.add(art.id);
+        }
     }
 
-    public Sng(SoundCloudApiHandler.TrackJson t) {
+    public Sng(SoundCloudApiController.TrackJson t) {
         source = Source.Soundcloud;
         soundCloudId = t.id;
+        songId = source.prefix + t.id;
 
         name = t.title;
         artistPrimaryName = t.user.username;
@@ -62,7 +83,7 @@ public class Sng {
         if (source == other.source) {
             if (source == Source.Spotify) {
                 return spotifyUri == other.spotifyUri;
-            } else if (source == Source.Spotify) {
+            } else if (source == Source.Soundcloud) {
                 return soundCloudId == other.soundCloudId;
             }
         }
@@ -71,32 +92,7 @@ public class Sng {
     }
 
 
-    private void gotTrackInit(Track t) {
-        spotifyUri = t.uri;
-        source = Source.Spotify;
-        name = t.name;
-        artistPrimaryName = t.artists.get(0).name;
-        albumName = t.album.name;
-        durationInMs = (int) t.duration_ms;
-        artworkUrl = t.album.images.get(0).url;
 
-        spotifyAlbumId = t.album.id;
-        spotifyArtistIds = new ArrayList<>();
-        for (ArtistSimple art : t.artists) {
-            spotifyArtistIds.add(art.id);
-        }
-
-    }
-
-    public int getSourceSplashImageRes() {
-        if (source == Sng.Source.Spotify) {
-            return R.drawable.spotify_icon;
-        } else if (source == Sng.Source.Soundcloud) {
-            return R.drawable.soundcloud_icon_small;
-        } else {
-            return 0;
-        }
-    }
 
     public String getFormattedArtistAlbumString() {
         String s = getAlbumName();
@@ -109,37 +105,91 @@ public class Sng {
     public String getAlbumName() {
         if (albumName != null && !albumName.isEmpty()) {
             return albumName;
-        } else if (source == Sng.Source.Spotify) {
+        } else if (source == Source.Spotify) {
             return "from Spotify";
-        } else if (source == Sng.Source.Soundcloud) {
+        } else if (source == Source.Soundcloud) {
             return "from SoundCloud";
         }
         return null;
     }
 
-    @Override
-    public String toString() {
-        if (source == Source.Spotify) {
-            Track t = SpotifyWebApiHandler.getTrackOnlyIfCached(spotifyUri);
-            if (t != null) return t.name;
-            return spotifyUri;
-        } else if (source == Source.Soundcloud) {
-            return ""+soundCloudId;
-        }
-        return "what??";
+//    @Override
+//    public String toString() {
+//        if (source == Source.Spotify) {
+//            Track t = SpotifyApiController.getTrackOnlyIfCached(spotifyUri);
+//            if (t != null) return t.name;
+//            return spotifyUri;
+//        } else if (source == Source.Soundcloud) {
+//            return ""+soundCloudId;
+//        }
+//        return "what??";
+//    }
+
+
+
+
+    /*
+        Static stuff
+     */
+
+
+
+    static LruCache<String, Sng> mSngCache;
+
+    public static void init() {
+        mSngCache = new LruCache<>(300); // 150 track entries max limit.
     }
 
-    public enum Source {
-        Spotify(SpotifyProvider.class),
-        Blank(BlankProvider.class),
-        Soundcloud(SoundCloudProvider.class),
-        iTunes(null);
+
+    public interface GetSongListener {
+        /** Note: sng should also have been put into Sng cache.  TODO */
+        public void gotSong(Sng sng);
+        public void failed();
+
+    }
+
+    /** Gets the sng async, saves into cache, and calls the provided listener with
+     * the results.  This abstracts out which source the Sng is from. */
+    public static void getSng(final String songId, final GetSongListener l) {
 
 
-        Class providerClass;
-        Source(Class pc) {
-            providerClass = pc;
+        if (mSngCache.get(songId) != null) {
+            if (l != null) l.gotSong(mSngCache.get(songId));
+            return;
+        } else {
+            Source s = Source.getSource(songId);
+            if (s == Source.Spotify) {
+                SpotifyApiController.getTrackByUri(Source.get3rdPartyId(songId), l);
 
+                return;
+            } else if (s == Source.Spotify) {
+
+
+                SoundCloudApiController.getTrackByIdOnline(Integer.parseInt(Source.get3rdPartyId(songId)), new SoundCloudApiController.GotItem<SoundCloudApiController.TrackJson>() {
+                    @Override
+                    public void gotItem(SoundCloudApiController.TrackJson trackJson) {
+                        Sng sng = new Sng(trackJson);
+                        mSngCache.put(songId, sng);
+                        if (l != null) l.gotSong(sng);
+                    }
+
+                    @Override
+                    public void failure(String e) {
+                        Log.e(TAG, "Failure getting sng: " + e);
+                        if (l != null) l.failed();
+
+                    }
+                });
+
+                return;
+            }
         }
+
+        if (l != null) l.failed();
+    }
+
+    /** Does returns immediately and does not attempt to search onlinev*/
+    public static Sng getSngNow(String songId) {
+        return mSngCache.get(songId);
     }
 }

@@ -49,7 +49,7 @@ public abstract class DynamicRecycleListFragment<
 
 
     private TextView mNoticeText;
-    protected View mLoadingContainer;
+    //protected View mLoadingContainer;
     protected View mEverythingContainer;
 
     //private RelativeLayout mLayout;
@@ -105,8 +105,8 @@ public abstract class DynamicRecycleListFragment<
 
         mNoticeText = (TextView) view.findViewById(R.id.notice_text);
 
-        mLoadingContainer = view.findViewById(R.id.loading_container);
-        mLoadingContainer.setVisibility(View.GONE);
+//        mLoadingContainer = view.findViewById(R.id.loading_container);
+//        mLoadingContainer.setVisibility(View.GONE);
 
 
 

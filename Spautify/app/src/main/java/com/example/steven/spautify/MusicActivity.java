@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,8 +25,8 @@ import com.example.steven.spautify.Fragments.QueueFragment;
 import com.example.steven.spautify.Fragments.SongListFragment;
 import com.example.steven.spautify.Fragments.SongSearchResultFragment;
 import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SoundCloudApiHandler;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SoundCloudApiController;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -40,33 +41,17 @@ import retrofit.client.Response;
 /**
  * Created by Steven on 7/16/2015.
  */
-public class MusicActivity extends BluetoothActivityMOD {
+public class MusicActivity extends NavBarRootActivityMOD {
     // TO be leaf in the end
-
-    protected static final String FRAGMENT_ID_RESULT = "search_result_frag";
-
 
     private MyViewPageAdapter mViewPagerAdapter;
     private ViewPager mViewPager;
 
-    //private View mLoadingContainer;
-    private View mSearchResultContainer;
-    //private View mTabAndViewpagerContainer;
-    //private RelativeLayout mSearchBar;
-    private TextView mSearchText;
-    private TextView mDisabledText;
-    private ImageView mSearchCancel;
-    private ImageView mSearchStart;
-
-    private Button mSettings;
+    private ImageButton mSearchButton;
     private Button mCreatePlayer;
+    private TextView mDisabledText;
 
     private TabLayout mTabLayout;
-
-    private SongSearchResultFragment mFragResult;
-
-    private static final int ANI_DURATION_MS = 150;
-
 
     private MusicPlayerBar mMusicPlayerBar;
 
@@ -83,6 +68,17 @@ public class MusicActivity extends BluetoothActivityMOD {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
+        onCreateAfterInflation();
+
+        mSearchButton = (ImageButton) findViewById(R.id.toolbar_search_button);
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MusicActivity.this, SearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
 
 
@@ -96,27 +92,9 @@ public class MusicActivity extends BluetoothActivityMOD {
 
         mTabLayout.setupWithViewPager(mViewPager);
 
-
-
-        // Just create a new one
-        mFragResult = new SongSearchResultFragment();
-
-        fm.beginTransaction()
-                .replace(R.id.search_result_container, mFragResult, FRAGMENT_ID_RESULT)
-                .commit();
-
-
-        //mLoadingContainer = findViewById(R.id.loading_container);
-        //mLoadingContainer.setVisibility(View.GONE);
-
         mDisabledText = (TextView) findViewById(R.id.disabled_text);
-        mSettings = (Button) findViewById(R.id.launch_settings);
-        mCreatePlayer = (Button) findViewById(R.id.create_player);
 
-        mSearchResultContainer = findViewById(R.id.search_result_container);
-        mSearchText = (TextView) findViewById(R.id.search_text);
-        mSearchCancel = (ImageView) findViewById(R.id.cancel_button);
-        mSearchStart = (ImageView) findViewById(R.id.search_button);
+        mCreatePlayer = (Button) findViewById(R.id.create_player);
 
 
         mMusicPlayerBar = (MusicPlayerBar) findViewById(R.id.music_player_bar);
@@ -138,94 +116,34 @@ public class MusicActivity extends BluetoothActivityMOD {
 
     private void refreshUI() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
-            mSearchResultContainer.setVisibility(View.GONE);
-            mSearchText.setVisibility(View.GONE);
-            mSearchCancel.setVisibility(View.GONE);
 
             mDisabledText.setVisibility(View.VISIBLE);
             mDisabledText.setText("Player is off");
             mViewPager.setVisibility(View.GONE);
             mTabLayout.setVisibility(View.GONE);
-            mSettings.setVisibility(View.VISIBLE);
 
             mMusicPlayerBar.setVisibility(View.GONE);
 
 
-            if (SpotifyWebApiHandler.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
-                mCreatePlayer.setVisibility(View.VISIBLE);
-
-                // Then for now, we auto create the player
-
-                mCreatePlayer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        WPlayer.createPlayer();
-                    }
-                });
-
-            } else {
-                mCreatePlayer.setVisibility(View.GONE);
-
-            }
-
-            mSettings.setOnClickListener(new View.OnClickListener() {
+            mCreatePlayer.setVisibility(View.VISIBLE);
+            mCreatePlayer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(MusicActivity.this, SettingsActivity.class);
-                    startActivity(intent);
+                    WPlayer.createPlayer();
                 }
             });
+
+
+            //if (SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
 
 
 
         } else {
 
-
-
-
             mDisabledText.setVisibility(View.GONE);
-            mSettings.setVisibility(View.GONE);
             mCreatePlayer.setVisibility(View.GONE);
-
-
-            mSearchCancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startAniCloseSearch();
-                    mSearchText.setText("");
-//                if (mhhh != null) {
-//                    mhhh.cancel();
-//                    mhhh = null;
-//                }
-                }
-            });
-
-            mSearchStart.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startAniOpenSearch();
-                    //searchSpotifyApi("" + mSearchText.getText());
-                    searchSoundCloudApi("" + mSearchText.getText());
-                    mFragResult.setResultingLoading();
-                }
-            });
-
-
-
-
-
-//            mSearchText.addTextChangedListener(mTextWatcher);
-
-            mSearchText.setVisibility(View.VISIBLE);
-            if (mSearchOpened) {
-                mViewPager.setVisibility(View.GONE);
-                mTabLayout.setVisibility(View.GONE);
-                mSearchCancel.setVisibility(View.VISIBLE);
-            } else {
-                mViewPager.setVisibility(View.VISIBLE);
-                mTabLayout.setVisibility(View.VISIBLE);
-                mSearchCancel.setVisibility(View.GONE);
-            }
+            mViewPager.setVisibility(View.VISIBLE);
+            mTabLayout.setVisibility(View.VISIBLE);
 
             if (WPlayer.getCurrentSng() == null) {
                 mMusicPlayerBar.setVisibility(View.GONE);
@@ -249,134 +167,6 @@ public class MusicActivity extends BluetoothActivityMOD {
         mMusicPlayerBar.onActivityResumed();
     }
 
-    private boolean mSearchOpened = false;
-
-    private void startAniOpenSearch() {
-        if (!mSearchOpened) {
-            mSearchOpened = true;
-
-            mViewPager.clearAnimation();
-//            mSearchCancel.clearAnimation();
-
-            mSearchResultContainer.setVisibility(View.VISIBLE);
-            mSearchCancel.setVisibility(View.VISIBLE);
-
-
-
-            int h = mViewPager.getHeight() + mTabLayout.getHeight();
-
-            for (final View v : new View[] { mViewPager, mTabLayout}) {
-                v.animate()
-                        .translationY(h)
-                        .alpha(0.0f)
-                        .setDuration(ANI_DURATION_MS)
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                super.onAnimationEnd(animation);
-                                if (mSearchOpened) {
-                                    Log.e("SSSS", "Finsihed opening, and now setting both views to invisible");
-                                    // Check needed since even a cancel still ends up having this be called.
-                                    v.setVisibility(View.GONE);
-                                }
-                            }
-                        });
-
-            }
-
-
-
-//            if (mSearchCancel.getTranslationX() >= -0.1) {
-//                mSearchCancel.setTranslationX(mSearchCancel.getWidth());
-//            }
-//
-//            mSearchCancel.animate()
-//                    .translationX(0)
-//                    .alpha(1.0f)
-//                    .setDuration(ANI_DURATION_MS);
-        }
-
-    }
-
-    private void startAniCloseSearch() {
-        if (mSearchOpened) {
-            mSearchOpened = false;
-
-            mTabLayout.clearAnimation();
-            mViewPager.clearAnimation();
-
-//            mSearchCancel.clearAnimation();
-            mSearchCancel.setVisibility(View.GONE);
-
-            mTabLayout.setVisibility(View.VISIBLE);
-            mViewPager.setVisibility(View.VISIBLE);
-
-
-            //int h = mViewPager.getHeight() + mTabLayout.getHeight();
-
-            mTabLayout.animate()
-                    .translationY(0)
-                    .alpha(1.0f)
-                    .setDuration(ANI_DURATION_MS);
-
-            mViewPager.animate()
-                    .translationY(0)
-                    .alpha(1.0f)
-                    .setDuration(ANI_DURATION_MS)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            // So even after this is set, a previous animation finishing will call it's old listener (don't know why,)
-                            // So we use this boolean check to make sure the correct one gets used.
-                            if (!mSearchOpened) {
-                                mSearchResultContainer.setVisibility(View.GONE);
-//                                mSearchCancel.setVisibility(View.GONE);
-                            }
-
-                        }
-                    });
-
-
-
-
-
-//            mSearchCancel.animate()
-//                    .translationX(-mSearchCancel.getWidth())
-//                    .alpha(0.0f)
-//                    .setDuration(ANI_DURATION_MS);
-
-        }
-
-    }
-
-
-//    private TextWatcher mTextWatcher = new TextWatcher() {
-//        @Override
-//        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-//
-//        @Override
-//        public void onTextChanged(CharSequence s, int start, int before, int count) {
-//            Log.i("FA", "onTextChanged: " + s);
-//            if (s.length() > 0) {
-////                startAniOpenSearch();
-////                searchSpotifyApi("" + mSearchText.getText());
-////
-////
-////                mFragResult.setResultingLoading();
-////                // Nope.. NEED to use a search button since this isn't going to our API backend, its using Spotify's,
-//                // So we don't want to get our App throttled/banned from too much redundant activity.
-//
-//
-//            } else {
-//                mFragResult.setResultingLoading();
-//                startAniCloseSearch();
-//            }
-//        }
-//
-//        @Override
-//        public void afterTextChanged(Editable s) {}
-//    };
 
 
 
@@ -430,65 +220,6 @@ public class MusicActivity extends BluetoothActivityMOD {
     protected Layout getLayoutType() {
         return Layout.Custom;
     }
-
-    private void searchSoundCloudApi(final String query) {
-        // this only does track title, not author, or smart features like soundclouds
-        SoundCloudApiHandler.searchTrack(query, new SoundCloudApiHandler.GotItemArray() {
-            @Override
-            public void gotItem(SoundCloudApiHandler.TrackJson[] trackJsons) {
-
-                ArrayList<SongListFragment.SngItem> songs = new ArrayList<>();
-                for (SoundCloudApiHandler.TrackJson t : trackJsons) {
-                    Log.d("createSearchResults", t.title);
-                    songs.add(new SongListFragment.SngItem(new Sng(t), SongListFragment.SngItem.Type.NotInQueue));
-                }
-
-                mFragResult.setResult(songs);
-            }
-
-            @Override
-            public void failure() {
-                mFragResult.setResultingError("Server Error!");
-            }
-        });
-
-    }
-
-    private void searchSpotifyApi(final String query) {
-        // calls mFragResult
-        // mFragResult.setResultingError("Server Error!");
-
-
-        Log.i("createSearchResults", "Search Query: " + query);
-        SpotifyWebApiHandler.getTempApi().searchTracks(query, new Callback<TracksPager>() {
-            @Override
-            public void success(final TracksPager trackspager, Response response) {
-
-                ArrayList<SongListFragment.SngItem> songs = new ArrayList<>();
-                for (Track t : trackspager.tracks.items) {
-                    Log.d("createSearchResults", t.name + "" + ", " + t.uri + ", " + t.album.name);
-                    songs.add(new SongListFragment.SngItem(new Sng(t), SongListFragment.SngItem.Type.NotInQueue));
-                }
-
-                mFragResult.setResult(songs);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.e("Track failure", error.toString());
-                mFragResult.setResultingError("Server Error!");
-            }
-
-        });
-
-
-    }
-
-
-
-
-
-
 
 
 

@@ -27,8 +27,6 @@ public class SoundCloudProvider extends WMusicProvider {
     public SoundCloudProvider(Context c) {
         super(c);
 
-        Log.w(TAG, "new SoundCloudProvider");
-
         // No auth states or anything; we just stream directly
         mPlayerSetupState = State.PlayerInited;
         //WPlayer.fpProviderStateNotif(SoundCloudProvider.this, false);
@@ -52,7 +50,6 @@ public class SoundCloudProvider extends WMusicProvider {
 
     @Override
     State getProviderState() {
-        Log.w(TAG, " getProviderState " + mPlayerSetupState);
         return mPlayerSetupState;
     }
 
@@ -64,7 +61,7 @@ public class SoundCloudProvider extends WMusicProvider {
         createMediaPlayer();
 
         try {
-            mMediaPlayer.setDataSource(song.soundCloudJson.stream_url + "?client_id=" + SoundCloudApiHandler.CLIENT_ID);
+            mMediaPlayer.setDataSource(song.soundCloudJson.stream_url + "?client_id=" + SoundCloudApiController.CLIENT_ID);
             mMediaPlayer.prepareAsync();
 
             mPlayerSetupState = State.LoadingSong;
@@ -188,7 +185,6 @@ public class SoundCloudProvider extends WMusicProvider {
     @Override
     void requestPositionUpdate() {
         if (mMediaPlayer != null && mMediaPlayerStarted) {
-            Log.e(TAG, "ms: " + mMediaPlayer.getCurrentPosition());
             WPlayer.fpGotNewPositionInMs(mMediaPlayer.getCurrentPosition(), this);
         }
     }

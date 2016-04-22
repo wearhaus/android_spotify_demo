@@ -20,14 +20,39 @@
         <service android:name=".musicplayer.WPlayerService"/>
 
         <activity
-            android:name=".CurrentSongActivity"
-            android:label="@string/title_activity_current_song">
+            android:name=".MusicActivity"
+            android:label="@string/title_activity_music">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
+
+        <activity
+            android:name=".CurrentSongActivity"
+            android:label="@string/title_activity_current_song"
+            android:parentActivityName=".MusicActivity"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MusicActivity" />
+        </activity>
+
         <activity
             android:name=".ViewPlaylistActivity"
             android:label="ViewPlaylistActivity"
             android:parentActivityName=".MusicActivity"
             >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MusicActivity" />
+        </activity>
+        <activity
+            android:name=".SearchActivity"
+            android:label="SearchActivity"
+            android:windowSoftInputMode="adjustNothing"
+            android:parentActivityName=".MusicActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MusicActivity" />
@@ -40,15 +65,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MusicActivity" />
-        </activity>
-        <activity
-            android:name=".MusicActivity"
-            android:label="@string/title_activity_music">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity
             android:name=".SettingsActivity"

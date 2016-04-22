@@ -6,7 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 import java.util.ArrayList;
@@ -29,21 +30,39 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
 
 
     private ArrayList<Album> mList;
-    private String mUserId;
 
     @Override
     protected List getList() {
         return mList;
     }
 
+    private boolean unAuthed = false;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+    protected void updateList() {
+        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+            init();
+        }
+        super.updateList();
+    }
+
+    private void init() {
+        unAuthed = SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn;
+        if (unAuthed) {
+            return;
+        }
 
         mList = new ArrayList<>();
         mPageLoadedCount = 0;
         loadData(0);
-        // TODO this should be cached
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+
+
+        init();
 
         return view;
     }
@@ -52,6 +71,8 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
+        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return "No Spotify account found";
         } else if (getList() == null) {
             return "list is null";
         }
@@ -80,9 +101,14 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
     @Override
     protected void loadData(int offset) {
         Log.d("ggg", "loadData  " + offset);
+
+        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return;
+        }
+
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        mLoadingContainer.setVisibility(View.VISIBLE);
+        setRefreshing(true);
         mPageIsLoading = true;
 
 
@@ -91,7 +117,7 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyWebApiHandler.getTempApi().getMySavedAlbums(options, new Callback<Pager<SavedAlbum>>() {
+        SpotifyApiController.getTempApi().getMySavedAlbums(options, new Callback<Pager<SavedAlbum>>() {
             @Override
             public void success(Pager<SavedAlbum> psa, Response response) {
 
@@ -104,7 +130,7 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
                 mPageLoadedCount = psa.offset + psa.limit;
                 mPageTotalAbleToBeLoaded = psa.total;
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -118,7 +144,7 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
             }
         });

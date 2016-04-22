@@ -17,6 +17,7 @@ import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Sng;
+import com.example.steven.spautify.musicplayer.Source;
 import com.example.steven.spautify.musicplayer.WPlayer;
 import com.squareup.picasso.Picasso;
 
@@ -27,7 +28,6 @@ import java.util.ArrayList;
  */
 public abstract class SongListFragment extends DynamicRecycleListFragment {
 
-    private static final boolean SHOW_ALBUM = true;
 
     @Override
     protected RecyclerView.Adapter createNewAdapter(Context context, ArrayList mList) {
@@ -44,6 +44,11 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
     }
     /** If true, then */
     protected abstract ClickType getClickType();
+
+    /** Default off due to OOM issues*/
+    protected boolean showAlbum() {
+        return false;
+    }
 
     @Override
     protected boolean canDragAndDrop() {
@@ -85,11 +90,11 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
         }
 
-        if (sng.source == Sng.Source.Spotify) {
+        if (sng.source == Source.Spotify) {
             if (getClickType() != ClickType.LibAlbum) {
                 dialogItems.add(DialogItem.OpenSpotifyAlbum);
             }
-        } else if (sng.source == Sng.Source.Soundcloud) {
+        } else if (sng.source == Source.Soundcloud) {
             //dialogItems.add(DialogItem.OpenInSoundCloud);
         }
 
@@ -117,7 +122,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
             vh.mTitleView.setText("" + sng.name);
             vh.mAuthorView.setText(sng.getFormattedArtistAlbumString());
-            vh.mSourceSplashView.setImageResource(sng.getSourceSplashImageRes());
+            vh.mSourceSplashView.setImageResource(sng.source.sourceSplashRes);
             vh.mExtendedMenuButton.setVisibility(View.GONE);
             Picasso.with(vh.mContainer.getContext()).load(sng.artworkUrl).into(vh.mImageView);
 
@@ -271,13 +276,14 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             holder.mAuthorView.setText(s.sng.getFormattedArtistAlbumString());
 
 
-            holder.mSourceSplashView.setImageResource(s.sng.getSourceSplashImageRes());
+            holder.mSourceSplashView.setImageResource(s.sng.source.sourceSplashRes);
 
             //Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
 
-            if (SHOW_ALBUM) {
+            if (showAlbum()) {
                 Picasso.with(holder.mContainer.getContext()).load(s.sng.artworkUrl).into(holder.mImageView);
             } else {
+                //holder.mImgGoneSpace.getLayoutParams().
                 holder.mImageView.setVisibility(View.GONE);
             }
 

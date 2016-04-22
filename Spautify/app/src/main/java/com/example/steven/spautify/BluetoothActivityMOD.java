@@ -12,7 +12,7 @@ import android.view.View;
 
 import com.example.Notifier;
 import com.example.NotifierSimple;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -182,7 +182,7 @@ abstract class BluetoothActivityMOD extends AppCompatActivity {
         if (mMusicPlayerBar != null) {
             mMusicPlayerBar.onActivityResumed();
 
-            if (SpotifyWebApiHandler.getAuthState() != WMusicProvider.AuthState.LoggedIn || WPlayer.getCurrentSng() == null) {
+            if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn || WPlayer.getCurrentSng() == null) {
                 mMusicPlayerBar.setVisibility(View.GONE);
             } else {
                 mMusicPlayerBar.setVisibility(View.VISIBLE);
@@ -278,6 +278,7 @@ abstract class BluetoothActivityMOD extends AppCompatActivity {
         Shell_WithToolbarEmptyLeaf      (true, R.layout.activity_blank_toolbar),
         Shell_WithToolbarEmptyLeafAndPlayerBar      (true, R.layout.activity_blank_toolbar),
         Shell_WithToolbarEditProfile    (true, R.layout.activity_blank_toolbar_editprofile),
+        //Shell_WithToolbarSearch    (true, R.layout.activity_blank_toolbar_editprofile),
         Shell_NoToolbar                 (true, R.layout.activity_blank_no_toolbar),
 
         Custom(false, 0),

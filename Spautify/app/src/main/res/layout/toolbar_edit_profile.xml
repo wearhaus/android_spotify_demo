@@ -10,7 +10,7 @@
     android:elevation="6dp"
     android:minHeight="?attr/actionBarSize">
 
-    <com.wearhaus.frontend.widgets.TextViewLatoBold
+    <TextView
         android:id="@+id/toolbar_save_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

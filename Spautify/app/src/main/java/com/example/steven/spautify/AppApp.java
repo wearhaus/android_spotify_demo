@@ -2,8 +2,9 @@ package com.example.steven.spautify;
 
 import android.app.Application;
 
-import com.example.steven.spautify.musicplayer.SoundCloudApiHandler;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.Sng;
+import com.example.steven.spautify.musicplayer.SoundCloudApiController;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 /**
@@ -15,6 +16,8 @@ public class AppApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //LeakCanary.install(this);
 
 
 
@@ -32,9 +35,11 @@ public class AppApp extends Application {
         WPlayer.init(getApplicationContext());
 
         //SpotifyController.init(getApplicationContext());
-        SpotifyWebApiHandler.init();
+        SpotifyApiController.init();
 
-        SoundCloudApiHandler.init();
+        SoundCloudApiController.init();
+
+        Sng.init();
 
 
     }

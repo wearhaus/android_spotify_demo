@@ -36,7 +36,7 @@ public class SpotifyProvider extends WMusicProvider {
         mProviderState = State.AuthLoading;
 
 
-        Config playerConfig = new Config(c, SpotifyWebApiHandler.getAccessToken(), SpotifyWebApiHandler.CLIENT_ID);
+        Config playerConfig = new Config(c, SpotifyApiController.getAccessToken(), SpotifyApiController.CLIENT_ID);
         mPlayer = Spotify.getPlayer(playerConfig, c, new Player.InitializationObserver() {
             @Override
             public void onInitialized(Player player) {

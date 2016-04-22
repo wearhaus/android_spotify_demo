@@ -1,149 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout
+<android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:dots="http://schemas.android.com/apk/res-auto"
 
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-
     android:background="@color/bg_black_really_dark_grey"
-
-    android:focusableInTouchMode="true"
     >
-    <!-- Added android:focusableInTouchMode="true" so the EditText doesn't receive focus when activity is first opened.-->
 
-
-
-
-    <include layout="@layout/toolbar_music"/>
-
-
-    <!-- This layout only is visible when the toolbar disappears.-->
-    <FrameLayout
-        android:id="@+id/search_result_container"
-
-        android:layout_below="@+id/toolbar"
-        android:layout_above="@+id/music_player_bar"
-
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
-        android:background="@color/cyan_dark"
-        >
-
-    </FrameLayout>
-
-
-
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tab_layout"
-        android:layout_below="@+id/toolbar"
-
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-
-        android:elevation="6dp"
-        app:tabIndicatorColor="@color/cyan"
-        />
-
-
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/view_pager"
-
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-
-
-        android:layout_below="@+id/tab_layout"
-        android:layout_above="@+id/music_player_bar"
+        android:orientation="vertical"
 
         android:background="@color/bg_black_really_dark_grey"
         >
-        <!--
-        <android.support.v4.view.PagerTabStrip
-             android:id="@+id/pager_title_strip"
 
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:layout_gravity="top"
-             android:textColor="@color/white"
+        <include layout="@layout/toolbar_navbar"/>
 
-             android:background="#00ffffff"
-             android:paddingTop="2dp"
-             android:paddingBottom="2dp"
-             />
-         -->
-    </android.support.v4.view.ViewPager>
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_below="@+id/toolbar"
 
-    <com.example.steven.spautify.MusicPlayerBar
-        android:id="@+id/music_player_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
 
-        android:layout_alignParentBottom="true"
-        />
+            android:elevation="6dp"
+            app:tabIndicatorColor="@color/cyan"
+            />
 
 
 
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
 
-    <TextView
-        android:id="@+id/disabled_text"
-
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_margin="30dp"
-        style="@style/Text_Small_Subtitle_White_Style"
-        />
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
 
 
-    <Button
-        android:id="@+id/launch_settings"
+            android:layout_below="@+id/tab_layout"
+            android:layout_above="@+id/music_player_bar"
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/disabled_text"
-        android:text="Open Settings"
-        android:background="@drawable/button_bg_cyan"
-        android:layout_centerHorizontal="true"
-        android:padding="10dp"
-        android:layout_margin="10dp"
-        />
+            android:background="@color/bg_black_really_dark_grey"
+            >
+        </android.support.v4.view.ViewPager>
 
-    <Button
-        android:id="@+id/create_player"
+        <com.example.steven.spautify.MusicPlayerBar
+            android:id="@+id/music_player_bar"
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/launch_settings"
-        android:text="Create Player"
-        android:background="@drawable/button_bg_cyan"
-        android:layout_centerHorizontal="true"
-        android:padding="10dp"
-        android:layout_margin="10dp"
-        />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-    <pl.tajchert.sample.DotsTextView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-
-        android:id="@+id/dots"
-        android:textSize="50dp"
-        android:textColor="#DDFFFFFF"
-        dots:autoplay="true"
-        dots:period="1000"
-        />
+            android:layout_alignParentBottom="true"
+            />
 
 
 
 
+        <TextView
+            android:id="@+id/disabled_text"
 
-</RelativeLayout>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="30dp"
+            style="@style/Text_Small_Subtitle_White_Style"
+            />
+
+
+        <Button
+            android:id="@+id/create_player"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/disabled_text"
+            android:text="Create Player"
+            android:background="@drawable/button_bg_cyan"
+            android:layout_centerHorizontal="true"
+            android:padding="10dp"
+            android:layout_margin="10dp"
+            />
+
+        <pl.tajchert.sample.DotsTextView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+
+            android:id="@+id/dots"
+            android:textSize="50dp"
+            android:textColor="#DDFFFFFF"
+            dots:autoplay="true"
+            dots:period="1000"
+            />
+
+
+    </RelativeLayout>
+
+    <!-- The navigation drawer
+    	 Should be last so it can be drawn with highest z value
+    -->
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:listSelector="@drawable/button_bg_toolbar_default"
+
+        android:divider="@color/transparent"
+        android:dividerHeight="0dp"
+        android:background="@color/bg_black_really_dark_grey"/>
+
+
+
+
+</android.support.v4.widget.DrawerLayout>
+
+
+

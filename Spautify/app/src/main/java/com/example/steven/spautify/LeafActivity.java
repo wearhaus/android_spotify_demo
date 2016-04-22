@@ -19,11 +19,6 @@ import android.view.MenuItem;
  */
 public abstract class LeafActivity extends BluetoothActivityMOD {
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +31,6 @@ public abstract class LeafActivity extends BluetoothActivityMOD {
 //        } else {
 //            fromNotification = false;
 //        }
-
-
     }
 
     protected void onCreateAfterInflation() {

@@ -14,7 +14,7 @@ import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Playlst;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -119,7 +119,7 @@ public abstract class PlaylistsFragment extends DynamicRecycleListFragment {
 
 
 
-                    SpotifyWebApiHandler.mPlaylstCache.put(p.id, p);
+                    SpotifyApiController.mPlaylstCache.put(p.id, p);
 
                     Activity act = getActivity();
                     if (act != null) {

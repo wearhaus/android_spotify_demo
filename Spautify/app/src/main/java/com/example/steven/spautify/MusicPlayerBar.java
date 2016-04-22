@@ -284,7 +284,7 @@ public class MusicPlayerBar extends RelativeLayout {
 
                         Picasso.with(getContext()).load(sng.artworkUrl).into(mImageView);
 
-                        mSourceSplashView.setImageResource(sng.getSourceSplashImageRes());
+                        mSourceSplashView.setImageResource(sng.source.sourceSplashRes);
                     }
 
                     break;

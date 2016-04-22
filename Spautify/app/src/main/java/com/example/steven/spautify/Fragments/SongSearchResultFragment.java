@@ -43,9 +43,9 @@ public class SongSearchResultFragment extends SongListFragment {
             // made invisible only when "no matches" is displayed, or the adapter getView actuallu is called.
             // Since the delay between calling updateList() and the UI updating this list may
             // take up to several seconds of awkwardness
-            mLoadingContainer.setVisibility(View.VISIBLE);
+            setRefreshing(true);
         } else {
-            mLoadingContainer.setVisibility(View.GONE);
+            setRefreshing(false);
         }
         updateList();
     }
@@ -59,7 +59,7 @@ public class SongSearchResultFragment extends SongListFragment {
         Log.w("SSSS", "setResultingError() " + e);
         resultingItems = null;
         errorMsg = e;
-        mLoadingContainer.setVisibility(View.GONE);
+        setRefreshing(false);
         updateList();
     }
 
@@ -79,7 +79,7 @@ public class SongSearchResultFragment extends SongListFragment {
             badWhy = "";
         } else if (getList().size() <= 0) {
             badWhy = "No matches";
-            mLoadingContainer.setVisibility(View.GONE);
+            setRefreshing(false);
         }
 
         return badWhy;

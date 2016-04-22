@@ -1,28 +1,18 @@
 package com.example.steven.spautify.Fragments;
 
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.SettingsActivity;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 
 
 public class SettingsFragment extends Fragment {
@@ -64,7 +54,7 @@ public class SettingsFragment extends Fragment {
 
 
         // strange order blocking player until spotify is authed
-        switch (SpotifyWebApiHandler.getAuthState()) {
+        switch (SpotifyApiController.getAuthState()) {
             case LoggedIn:
                 mSpotifySubtitle.setText("Logged In");
                 break;

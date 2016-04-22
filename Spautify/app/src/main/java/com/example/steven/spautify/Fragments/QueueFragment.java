@@ -80,6 +80,11 @@ public class QueueFragment extends SongListFragment {
     }
 
     @Override
+    protected boolean showAlbum() {
+        return true;
+    }
+
+    @Override
     protected boolean paginated() {
         return false;
     }

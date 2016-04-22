@@ -11,7 +11,8 @@ import android.widget.Button;
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 import java.util.ArrayList;
@@ -63,27 +64,31 @@ public class ViewAlbumFragment extends SongListFragment {
         mSetActivityTitle = getArguments().getBoolean(ViewPlaylistActivity.TAG_SET_ACTIVITY_TITLE);
     }
 
+    private boolean unAuthed = false;
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    protected void updateList() {
+        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+            unAuthed = false;
+            init();
+        }
+        super.updateList();
+    }
 
+    private void init() {
+        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            unAuthed = true;
+            return;
+        }
 
-        mAlbum = SpotifyWebApiHandler.mAlbumCache.get(mAlbumId);
+        mAlbum = SpotifyApiController.mAlbumCache.get(mAlbumId);
 
         if (mAlbum != null) {
-
             mList = new ArrayList<>();
-
-//            for (Sng s : SpotifyWebApiHandler.mExtremAlbumTEMP.songs) {
-//                mList.add(new SngItem(s, SngItem.Type.NotInQueue));
-//            }
             loadData(0);
-
         } else {
 
-
-            SpotifyWebApiHandler.getTempApi().getAlbum(mAlbumId, new Callback<Album>() {
+            SpotifyApiController.getTempApi().getAlbum(mAlbumId, new Callback<Album>() {
                 @Override
                 public void success(Album album, Response response) {
                     mList = new ArrayList<>();
@@ -97,15 +102,21 @@ public class ViewAlbumFragment extends SongListFragment {
                         }
                     }
                 }
-
                 @Override
                 public void failure(RetrofitError error) {
 
                 }
             });
-
-
         }
+    }
+
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+        init();
     }
 
 
@@ -155,11 +166,13 @@ public class ViewAlbumFragment extends SongListFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
+        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return "No Spotify account found";
         } else if (mPageIsLoading) {
             return "loading";
-        }else if (mList == null) {
+        } else if (mList == null) {
             return "unable to load album";
-        }else if (mList.size() <= 0) {
+        } else if (mList.size() <= 0) {
             return "album is empty";
         }
         return null;
@@ -188,9 +201,14 @@ public class ViewAlbumFragment extends SongListFragment {
     @Override
     protected void loadData(int offset) {
         Log.d("ggg", "loadData  " + offset);
+
+        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return;
+        }
+
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        mLoadingContainer.setVisibility(View.VISIBLE);
+        setRefreshing(true);
         mPageIsLoading = true;
 
 
@@ -199,7 +217,7 @@ public class ViewAlbumFragment extends SongListFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyWebApiHandler.getTempApi().getAlbumTracks(mAlbumId, options, new Callback<Pager<Track>>() {
+        SpotifyApiController.getTempApi().getAlbumTracks(mAlbumId, options, new Callback<Pager<Track>>() {
             @Override
             public void success(Pager<Track> ptp, Response response) {
 
@@ -217,7 +235,7 @@ public class ViewAlbumFragment extends SongListFragment {
                 mPageLoadedCount = ptp.offset + ptp.limit;
                 mPageTotalAbleToBeLoaded = ptp.total;
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -231,7 +249,7 @@ public class ViewAlbumFragment extends SongListFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
             }
         });

@@ -2,10 +2,9 @@ package com.example.steven.spautify;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
 import com.example.steven.spautify.Fragments.ViewAlbumFragment;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 
 import kaaes.spotify.webapi.android.models.Album;
 
@@ -26,7 +25,7 @@ public class ViewAlbumActivity extends LeafActivityWithPlayerBar {
 
         onCreateAfterInflation();
 
-        Album a = SpotifyWebApiHandler.mAlbumCache.get(mAlbumId);
+        Album a = SpotifyApiController.mAlbumCache.get(mAlbumId);
 
         if (a != null) {
             setTitle("Album: " + a.name);

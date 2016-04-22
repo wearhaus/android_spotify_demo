@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:dots="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+
+    android:background="@color/bg_black_really_dark_grey"
+
+    >
+    <!-- Added android:focusableInTouchMode="true" so the EditText doesn't receive focus when activity is first opened.-->
+
+
+
+
+    <include layout="@layout/toolbar_music"/>
+
+    <LinearLayout
+        android:id="@+id/search_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_below="@+id/toolbar"
+        android:orientation="horizontal"
+        >
+
+        <CheckBox
+            android:id="@+id/option_spotify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Spotify"/>
+        <CheckBox
+            android:id="@+id/option_soundcloud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SoundCloud"/>
+        <CheckBox
+            android:id="@+id/option_artists"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Artists"/>
+        <CheckBox
+            android:id="@+id/option_playlists"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Playlists"/>
+
+    </LinearLayout>
+
+
+    <!-- This layout only is visible when the toolbar disappears.-->
+    <FrameLayout
+        android:id="@+id/search_result_container"
+
+        android:layout_below="@+id/search_options"
+        android:layout_above="@+id/music_player_bar"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+    </FrameLayout>
+
+
+
+
+
+
+
+    <com.example.steven.spautify.MusicPlayerBar
+        android:id="@+id/music_player_bar"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        />
+
+
+
+
+    <TextView
+        android:id="@+id/disabled_text"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="30dp"
+        style="@style/Text_Small_Subtitle_White_Style"
+        />
+
+
+    <pl.tajchert.sample.DotsTextView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+
+        android:id="@+id/dots"
+        android:textSize="50dp"
+        android:textColor="#DDFFFFFF"
+        dots:autoplay="true"
+        dots:period="1000"
+        />
+
+
+
+
+</RelativeLayout>

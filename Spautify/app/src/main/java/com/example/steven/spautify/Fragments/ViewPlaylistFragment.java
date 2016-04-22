@@ -11,7 +11,8 @@ import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 import java.util.ArrayList;
@@ -66,11 +67,27 @@ public class ViewPlaylistFragment extends SongListFragment {
         return R.layout.view_playlist_header;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        mPlaylist = SpotifyWebApiHandler.mPlaylstCache.get(mPlaylistId);
+    private boolean unAuthed = false;
+
+    @Override
+    protected void updateList() {
+        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+            unAuthed = false;
+            init();
+        }
+        super.updateList();
+    }
+
+    private void init() {
+        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            unAuthed = true;
+            mPlayButton.setVisibility(View.GONE);
+            return;
+        }
+
+        mPlaylist = SpotifyApiController.mPlaylstCache.get(mPlaylistId);
+        mPlayButton.setVisibility(View.VISIBLE);
 
         if (mPlaylist != null) {
             mList = new ArrayList<>();
@@ -78,9 +95,6 @@ public class ViewPlaylistFragment extends SongListFragment {
 
             loadData(0);
         }
-
-
-        mPlayButton = (Button) view.findViewById(R.id.play_button);
 
         mPlayButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -99,6 +113,17 @@ public class ViewPlaylistFragment extends SongListFragment {
                     }
                 });
 
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+
+        mPlayButton = (Button) view.findViewById(R.id.play_button);
+
+        init();
+
         return view;
     }
 
@@ -110,9 +135,13 @@ public class ViewPlaylistFragment extends SongListFragment {
     @Override
     protected void loadData(int offset) {
         Log.d("ggg", "loadData  " + offset);
+
+        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return;
+        }
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        mLoadingContainer.setVisibility(View.VISIBLE);
+        setRefreshing(true);
         mPageIsLoading = true;
 
 
@@ -121,7 +150,7 @@ public class ViewPlaylistFragment extends SongListFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyWebApiHandler.getTempApi().getPlaylistTracks(mPlaylist.owner.id, mPlaylist.id, options, new Callback<Pager<PlaylistTrack>>() {
+        SpotifyApiController.getTempApi().getPlaylistTracks(mPlaylist.owner.id, mPlaylist.id, options, new Callback<Pager<PlaylistTrack>>() {
             @Override
             public void success(Pager<PlaylistTrack> ptp, Response response) {
 
@@ -138,7 +167,7 @@ public class ViewPlaylistFragment extends SongListFragment {
                 mPageLoadedCount = ptp.offset + ptp.limit;
                 mPageTotalAbleToBeLoaded = ptp.total;
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -152,7 +181,7 @@ public class ViewPlaylistFragment extends SongListFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
             }
         });
@@ -178,6 +207,8 @@ public class ViewPlaylistFragment extends SongListFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
+        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return "No Spotify account found";
         } else if (mPageIsLoading) {
             return "loading";
         } else if (mList == null) {

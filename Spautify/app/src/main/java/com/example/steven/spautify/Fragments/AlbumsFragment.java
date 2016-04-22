@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public abstract class AlbumsFragment extends DynamicRecycleListFragment {
 //                        }
 //                    });
 
-                    SpotifyWebApiHandler.mAlbumCache.put(a.id, a);
+                    SpotifyApiController.mAlbumCache.put(a.id, a);
 
                     Activity act = getActivity();
                     if (act != null) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+
+    
+    <item android:state_enabled="false" >
+        <shape>
+            <!-- TODO maybe add something here?  This does work now -->
+            <solid android:color="@color/transparent" />
+        </shape>
+    </item>
+    
+
+    
+    <item android:state_activated="true" >
+        <shape>
+            <solid android:color="@color/cyan_trans50" />
+        </shape>
+    </item>
+    
+    
+    <item>
+        <shape>
+            <solid android:color="@color/transparent" />
+        </shape>
+    </item>
+    
+    
+    
+    
+</selector>

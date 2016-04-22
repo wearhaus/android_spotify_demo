@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.steven.spautify.Fragments.SettingsFragment;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -51,7 +51,7 @@ public class SettingsActivity extends LeafActivity {
     public void onSpotifyAuth(boolean forceDialog) {
 
 
-        AuthenticationClient.openLoginActivity(SettingsActivity.this, REQUEST_CODE, SpotifyWebApiHandler.startAuth(forceDialog));
+        AuthenticationClient.openLoginActivity(SettingsActivity.this, REQUEST_CODE, SpotifyApiController.startAuth(forceDialog));
 
     }
 
@@ -68,7 +68,7 @@ public class SettingsActivity extends LeafActivity {
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
                 //mTextView.setText("Logged in");
 
-                SpotifyWebApiHandler.onGetAccessToken(response.getAccessToken(), new SpotifyWebApiHandler.AuthCallback() {
+                SpotifyApiController.onGetAccessToken(response.getAccessToken(), new SpotifyApiController.AuthCallback() {
                     @Override
                     public void callback(WMusicProvider.AuthState authState) {
                         refreshAuthUI();

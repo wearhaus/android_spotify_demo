@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Space;
 import android.widget.TextView;
 
 /**
@@ -20,6 +21,7 @@ public class WPlayerViewHolder extends RecyclerView.ViewHolder {
     public ImageButton mExtendedMenuButton;
     public ImageView mImageView;
     public ImageView mSourceSplashView;
+    public Space mImgGoneSpace;
 
     public WPlayerViewHolder(View v) {
         super(v);
@@ -29,6 +31,7 @@ public class WPlayerViewHolder extends RecyclerView.ViewHolder {
         mExtendedMenuButton = (ImageButton) itemView.findViewById(R.id.extended_menu_button);
         mImageView = (ImageView) itemView.findViewById(R.id.img);
         mSourceSplashView = (ImageView) itemView.findViewById(R.id.source_splash);
+        mImgGoneSpace = (Space) itemView.findViewById(R.id.img_gone_space);
     }
 
     public void setMarquee(boolean b) {

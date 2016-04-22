@@ -14,6 +14,13 @@ import kaaes.spotify.webapi.android.models.UserPublic;
  */
 public class Playlst {
 
+    public Source source;
+    /** Our assigned id */
+    public String playlstId;
+    
+    .
+
+
     public String id;
     public String name;
     public String href;
@@ -41,6 +48,12 @@ public class Playlst {
         type = p.type;
         uri = p.uri;
     }
+
+
+
+
+
+
 
 
 

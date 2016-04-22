@@ -7,7 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.steven.spautify.musicplayer.Playlst;
-import com.example.steven.spautify.musicplayer.SpotifyWebApiHandler;
+import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 import java.util.ArrayList;
@@ -37,18 +38,39 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
         return mList;
     }
 
+    private boolean unAuthed = false;
+
+    @Override
+    protected void updateList() {
+        Log.w("updateList", "unAuthed" + unAuthed);
+        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+            init();
+        }
+        super.updateList();
+    }
+
+
+    private void init() {
+        Log.e("BAA", "init");
+        unAuthed = SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn;
+        if (unAuthed) {
+            return;
+        }
+
+        mUserId = SpotifyApiController.getUserId();
+        mList = new ArrayList<>();
+        mPageLoadedCount = 0;
+        loadData(0);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view =  super.onCreateView(inflater, container, savedInstanceState);
 
-        mUserId = SpotifyWebApiHandler.getUserId();
+        init();
 
-        if (mUserId != null) {
-            mList = new ArrayList<>();
-            mPageLoadedCount = 0;
-            loadData(0);
-        }
+        Log.e("unAuthed", "unAuthed" + unAuthed);
+
 
         return view;
     }
@@ -57,6 +79,8 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
+        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return "No Spotify account found";
         } else if (getList() == null) {
             return "list is empty";
         }
@@ -91,7 +115,11 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
         Log.d("ggg", "loadData  " + offset);
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        mLoadingContainer.setVisibility(View.VISIBLE);
+        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            return;
+        }
+
+        setRefreshing(true);
         mPageIsLoading = true;
 
 
@@ -100,7 +128,7 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyWebApiHandler.getTempApi().getPlaylists(mUserId, options, new Callback<Pager<PlaylistSimple>>() {
+        SpotifyApiController.getTempApi().getPlaylists(mUserId, options, new Callback<Pager<PlaylistSimple>>() {
             @Override
             public void success(Pager<PlaylistSimple> psp, Response response) {
 
@@ -118,7 +146,7 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
                 mPageLoadedCount = psp.offset + psp.limit;
                 mPageTotalAbleToBeLoaded = psp.total;
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -132,7 +160,7 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                mLoadingContainer.setVisibility(View.GONE);
+                setRefreshing(false);
                 mPageIsLoading = false;
             }
         });
