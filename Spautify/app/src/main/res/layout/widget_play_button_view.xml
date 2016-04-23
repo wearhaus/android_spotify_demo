@@ -36,29 +36,27 @@
         android:layout_centerInParent="true"
         android:clickable="false"
         />
-
     <ImageView
         android:id="@+id/paused"
 
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="8dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="6dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
 
         android:src="@drawable/ic_action_play_w"
         android:scaleType="fitCenter"
         android:background="@drawable/button_bg_transparent_tocyan"
 
-        android:layout_centerInParent="true"
         android:clickable="false"
         />
 
     <pl.tajchert.sample.DotsTextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="13dp"
-        android:layout_marginRight="12dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
 
         android:id="@+id/dots"
         android:textSize="50dp"

@@ -7,15 +7,20 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.media.Rating;
 import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.example.Notifier;
 import com.example.steven.spautify.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -251,20 +256,37 @@ public class WPlayerService extends Service {
         //Log.i(TAG, "buildNotification");
 
         if (checkHearbeat()) {
-            Notification.Action action = null;
-            if (WPlayer.getPlaybackState()== WPlayer.PlaybackState.NotPlaying) {
-                action = generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY);
-            } else if (WPlayer.getPlaybackState()== WPlayer.PlaybackState.Playing) {
-                action = generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE);
+            Notification.Action playpause = null;
+
+
+            boolean setprogress = false;
+
+
+
+
+
+            if (WPlayer.getCurrentSng() == null) {
+
+                return; // No notif right now, but service still exists
             }
 
-            String title = "no song";
-            String artist = "";
-            // TODO service shouldn't exist without a song loaded?
-            if (WPlayer.getCurrentSng() != null) {
-                title = WPlayer.getCurrentSng().name;
-                artist = WPlayer.getCurrentSng().artistPrimaryName;
+
+            if (WPlayer.getPlaybackState()== WPlayer.PlaybackState.NotPlaying) {
+                playpause = generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY);
+            } else if (WPlayer.getPlaybackState()== WPlayer.PlaybackState.Playing) {
+                playpause = generateAction(android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE);
+            } else if (WPlayer.getPlaybackState() == WPlayer.PlaybackState.LoadingSong) {
+                setprogress = true;
             }
+            String title = WPlayer.getCurrentSng().name;
+            String artist = WPlayer.getCurrentSng().artistPrimaryName;
+            String imgUrl = WPlayer.getCurrentSng().artworkUrl;
+            if (WPlayer.getState() == WPlayer.WPlayerState.LoadingProvider) {
+                setprogress = true;
+            }
+
+
+            Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_play);
 
 
             Notification.MediaStyle style = new Notification.MediaStyle();
@@ -274,6 +296,7 @@ public class WPlayerService extends Service {
             PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
             Notification.Builder builder = new Notification.Builder(this)
                     .setSmallIcon(R.drawable.ic_action_play)
+                    .setLargeIcon(largeIconBitmap)
                     .setContentTitle(title)
                     .setContentText(artist)
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
@@ -281,22 +304,57 @@ public class WPlayerService extends Service {
                     .setDeleteIntent(pendingIntent)
                     .setAutoCancel(false)
                     .setOngoing(true) // removes ability to swipe or clear
-                    .setShowWhen(false) // dont show notif timestamp
-                    .setStyle(style);
+                    .setShowWhen(false); // dont show notif timestamp
+
 
             //builder.addAction(generateAction(android.R.drawable.ic_media_previous, "Previous", ACTION_PREVIOUS));
             //builder.addAction( generateAction( android.R.drawable.ic_media_rew, "Rewind", ACTION_REWIND ) );
-            if (action != null) builder.addAction(action);
             //builder.addAction( generateAction( android.R.drawable.ic_media_ff, "Fast Forward", ACTION_FAST_FORWARD ) );
-            builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
-            if (action != null) {
-                style.setShowActionsInCompactView(0, 1); // 2, 3, 4);
+            if (playpause != null) {
+                builder.addAction(playpause);
+
+                builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
+                if (playpause != null) {
+                    style.setShowActionsInCompactView(0, 1); // 2, 3, 4);
+                } else {
+                    style.setShowActionsInCompactView(0); // 2, 3, 4);
+                }
+                builder.setStyle(style);
             } else {
-                style.setShowActionsInCompactView(0); // 2, 3, 4);
+                builder.setProgress(0, 0, true);
             }
 
+
+            Notification nnn = builder.build();
+
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(1, builder.build());
+            notificationManager.notify(1, nnn);
+
+
+
+            // Pre api 16 code:
+            final RemoteViews contentView = nnn.contentView;
+            final int iconId = android.R.id.icon;
+
+            // Requires API 16!
+            //final RemoteViews bigContentView = nnn.bigContentView;
+            //final int bigIconId = getResources().getIdentifier("android:id/big_picture", null, null);
+
+            // Use Picasso with RemoteViews to load image into a notification
+            if (imgUrl != null) {
+                // TODO causes issues with playback buttons, since by the time it loads if the notif
+                // was changed with a new one (aka song done loading and now isn't and the button shifts to play)
+                // then this tries to replace it with the old notification
+//                Picasso.with(getApplicationContext())
+//                        .cancelTag("notif");
+                // TODO causes flickering issues because we rely on asyncly setting the image
+
+                Picasso.with(getApplicationContext())
+                        .load(imgUrl)
+                        .tag("notif")
+                        .into(contentView, iconId, 1, nnn);
+            }
+
 
         } else {
 

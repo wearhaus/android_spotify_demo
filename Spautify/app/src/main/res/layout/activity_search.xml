@@ -19,6 +19,8 @@
 
     <include layout="@layout/toolbar_music"/>
 
+    <!-- One other option for search is to use a ViewPager/Tab to handle the different apis together.  No zipping would occur-->
+
     <LinearLayout
         android:id="@+id/search_options"
         android:layout_width="match_parent"
@@ -26,28 +28,71 @@
 
         android:layout_below="@+id/toolbar"
         android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        >
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5">
+            <CheckBox
+                android:id="@+id/option_spotify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Spotify"
+                android:layout_weight="0.5"
+                android:layout_gravity="center_horizontal"/>
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5">
+            <CheckBox
+                android:id="@+id/option_soundcloud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SoundCloud"
+                android:layout_gravity="center_horizontal"
+                />
+        </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/search_options_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_below="@+id/search_options"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         >
 
         <CheckBox
-            android:id="@+id/option_spotify"
+            android:id="@+id/option_tracks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Spotify"/>
+            android:text="Tracks"
+            android:layout_weight="0.5"/>
         <CheckBox
-            android:id="@+id/option_soundcloud"
+            android:id="@+id/option_album"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SoundCloud"/>
+            android:text="Albums"
+            android:layout_weight="0.5"/>
         <CheckBox
             android:id="@+id/option_artists"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Artists"/>
+            android:text="Artists"
+            android:layout_weight="0.5"/>
         <CheckBox
             android:id="@+id/option_playlists"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Playlists"/>
+            android:text="Playlists"
+            android:layout_weight="0.5"/>
 
     </LinearLayout>
 
@@ -56,7 +101,7 @@
     <FrameLayout
         android:id="@+id/search_result_container"
 
-        android:layout_below="@+id/search_options"
+        android:layout_below="@+id/search_options_2"
         android:layout_above="@+id/music_player_bar"
 
         android:layout_width="match_parent"

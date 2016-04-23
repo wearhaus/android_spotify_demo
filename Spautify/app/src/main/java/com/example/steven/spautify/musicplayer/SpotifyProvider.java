@@ -33,34 +33,37 @@ public class SpotifyProvider extends WMusicProvider {
 
     public SpotifyProvider(Context c) {
         super(c);
-        mProviderState = State.AuthLoading;
+        mProviderState = State.ProviderLoading;
 
+        try {
+            Config playerConfig = new Config(c, SpotifyApiController.getAccessToken(), SpotifyApiController.CLIENT_ID);
+            mPlayer = Spotify.getPlayer(playerConfig, c, new Player.InitializationObserver() {
+                @Override
+                public void onInitialized(Player player) {
+                    Log.i(TAG, "onInitialized:" + player);
+                    mPlayer = player;
 
-        Config playerConfig = new Config(c, SpotifyApiController.getAccessToken(), SpotifyApiController.CLIENT_ID);
-        mPlayer = Spotify.getPlayer(playerConfig, c, new Player.InitializationObserver() {
-            @Override
-            public void onInitialized(Player player) {
-                Log.i(TAG, "onInitialized:" + player);
+                    mPlayer.addConnectionStateCallback(mConnStateCallback);
+                    mPlayer.addPlayerNotificationCallback(mPlayerNotifCallback);
 
+                    mProviderState = State.PlayerInited;
+                    WPlayer.fpProviderStateNotif(SpotifyProvider.this);
 
-                mPlayer.addConnectionStateCallback(mConnStateCallback);
-                mPlayer.addPlayerNotificationCallback(mPlayerNotifCallback);
+                    //requestPlayerState();
+                }
 
-                mProviderState = State.PlayerInited;
-                WPlayer.fpProviderStateNotif(SpotifyProvider.this);
+                @Override
+                public void onError(Throwable throwable) {
+                    Log.e(TAG, "Could not initialize Spotify Player: " + throwable.getMessage());
 
-                //requestPlayerState();
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                Log.e(TAG, "Could not initialize Spotify Player: " + throwable.getMessage());
-
-                mPlayer = null;
-                mProviderState = State.Error;
-                WPlayer.fpProviderStateNotif(SpotifyProvider.this);
-            }
-        });
+                    mPlayer = null;
+                    mProviderState = State.Error;
+                    WPlayer.fpProviderStateNotif(SpotifyProvider.this);
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating SpotifyProvider " + e);
+        }
 
 
     }

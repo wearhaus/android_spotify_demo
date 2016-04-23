@@ -43,7 +43,7 @@ public class Sng {
     public Sng(Track t) {
         spotifyUri = t.uri;
         source = Source.Spotify;
-        songId = source.prefix + t.uri;
+        songId = source.prefix + t.id;
 
 
         name = t.name;
@@ -144,7 +144,7 @@ public class Sng {
     public interface GetSongListener {
         /** Note: sng should also have been put into Sng cache.  TODO */
         public void gotSong(Sng sng);
-        public void failed();
+        public void failed(String songId);
 
     }
 
@@ -159,10 +159,10 @@ public class Sng {
         } else {
             Source s = Source.getSource(songId);
             if (s == Source.Spotify) {
-                SpotifyApiController.getTrackByUri(Source.get3rdPartyId(songId), l);
+                SpotifyApiController.getTrackBySongId(songId, l);
 
                 return;
-            } else if (s == Source.Spotify) {
+            } else if (s == Source.Soundcloud) {
 
 
                 SoundCloudApiController.getTrackByIdOnline(Integer.parseInt(Source.get3rdPartyId(songId)), new SoundCloudApiController.GotItem<SoundCloudApiController.TrackJson>() {
@@ -176,7 +176,7 @@ public class Sng {
                     @Override
                     public void failure(String e) {
                         Log.e(TAG, "Failure getting sng: " + e);
-                        if (l != null) l.failed();
+                        if (l != null) l.failed(songId);
 
                     }
                 });
@@ -185,7 +185,7 @@ public class Sng {
             }
         }
 
-        if (l != null) l.failed();
+        if (l != null) l.failed(songId);
     }
 
     /** Does returns immediately and does not attempt to search onlinev*/

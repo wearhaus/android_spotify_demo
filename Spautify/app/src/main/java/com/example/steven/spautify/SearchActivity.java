@@ -1,29 +1,16 @@
 package com.example.steven.spautify;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.steven.spautify.Fragments.MyPlaylistsFragment;
-import com.example.steven.spautify.Fragments.MySavedAlbumsFragment;
-import com.example.steven.spautify.Fragments.QueueFragment;
 import com.example.steven.spautify.Fragments.SongListFragment;
 import com.example.steven.spautify.Fragments.SongSearchResultFragment;
 import com.example.steven.spautify.musicplayer.Sng;
@@ -54,6 +41,7 @@ public class SearchActivity extends LeafActivity {
 
 
     private View mSearchResultContainer;
+    private View mSearchResultContainer2;
     private TextView mSearchText;
     private TextView mDisabledText;
     private ImageView mSearchCancel;
@@ -64,9 +52,12 @@ public class SearchActivity extends LeafActivity {
     private MusicPlayerBar mMusicPlayerBar;
 
 
-    private View mOptionsLayout;
+    private View mSearchOptionsLayout1;
+    private View mSearchOptionsLayout2;
     private CheckBox mCheckBoxSpotify;
     private CheckBox mCheckBoxSoundCloud;
+    private CheckBox mCheckBoxTracks;
+    private CheckBox mCheckBoxAlbums;
     private CheckBox mCheckBoxArtist;
     private CheckBox mCheckBoxPlaylist;
 
@@ -108,7 +99,8 @@ public class SearchActivity extends LeafActivity {
 
 
 
-        mOptionsLayout = findViewById(R.id.search_options);
+        mSearchOptionsLayout1 = findViewById(R.id.search_options);
+        mSearchOptionsLayout2 = findViewById(R.id.search_options_2);
 
         View.OnClickListener ccc = new View.OnClickListener() {
             @Override
@@ -116,9 +108,9 @@ public class SearchActivity extends LeafActivity {
                 switch (v.getId()) {
                     case R.id.option_spotify:
                         if (SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
-                            mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
+                            //mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
                         } else {
-                            mCheckBoxSoundCloud.setChecked(true);
+                            //mCheckBoxSoundCloud.setChecked(true);
                             mCheckBoxSpotify.setChecked(false);
                             Toast toast = Toast.makeText(SearchActivity.this, "Log into Spotify to access Spotify music", Toast.LENGTH_SHORT);
                             toast.show();
@@ -127,16 +119,25 @@ public class SearchActivity extends LeafActivity {
                         break;
                     case R.id.option_soundcloud:
                         if (SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
-                            mCheckBoxSpotify.setChecked(!mCheckBoxSoundCloud.isChecked());
+                            //mCheckBoxSpotify.setChecked(!mCheckBoxSoundCloud.isChecked());
                         } else {
-                            mCheckBoxSoundCloud.setChecked(true);
-                            mCheckBoxSpotify.setChecked(false);
+//                            mCheckBoxSoundCloud.setChecked(true);
+//                            mCheckBoxSpotify.setChecked(false);
                         }
                         break;
+
+
+                    case R.id.option_tracks:
+                    case R.id.option_album:
                     case R.id.option_artists:
-                        break;
                     case R.id.option_playlists:
+                        // No turn off, only turn on
+                        mCheckBoxTracks.setChecked(v.getId() == R.id.option_tracks);
+                        mCheckBoxAlbums.setChecked(v.getId() == R.id.option_album);
+                        mCheckBoxArtist.setChecked(v.getId() == R.id.option_artists);
+                        mCheckBoxPlaylist.setChecked(v.getId() == R.id.option_playlists);
                         break;
+
                 }
 
 
@@ -145,23 +146,26 @@ public class SearchActivity extends LeafActivity {
 
         mCheckBoxSpotify = (CheckBox) findViewById(R.id.option_spotify);
         mCheckBoxSoundCloud = (CheckBox) findViewById(R.id.option_soundcloud);
-        mCheckBoxArtist = (CheckBox) findViewById(R.id.option_artists);
-        mCheckBoxPlaylist = (CheckBox) findViewById(R.id.option_playlists);
-
         mCheckBoxSpotify.setOnClickListener(ccc);
         mCheckBoxSoundCloud.setOnClickListener(ccc);
+
+        mCheckBoxTracks = (CheckBox) findViewById(R.id.option_tracks);
+        mCheckBoxAlbums = (CheckBox) findViewById(R.id.option_album);
+        mCheckBoxArtist = (CheckBox) findViewById(R.id.option_artists);
+        mCheckBoxPlaylist = (CheckBox) findViewById(R.id.option_playlists);
+        mCheckBoxTracks.setOnClickListener(ccc);
+        mCheckBoxAlbums.setOnClickListener(ccc); // don't exist on SoundCloud
         mCheckBoxArtist.setOnClickListener(ccc);
         mCheckBoxPlaylist.setOnClickListener(ccc);
 
-        mCheckBoxArtist.setVisibility(View.GONE); // TODO add support for
-        mCheckBoxPlaylist.setVisibility(View.GONE); // TODO add support for
-
+        //mCheckBoxArtist.setVisibility(View.GONE); // TODO add support for
+        //mCheckBoxPlaylist.setVisibility(View.GONE); // TODO add support for
 
         mMusicPlayerBar = (MusicPlayerBar) findViewById(R.id.music_player_bar);
 
-        mCheckBoxSoundCloud.setChecked(SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn);
         mCheckBoxSpotify.setChecked(SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn);
-
+        mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
+        mCheckBoxTracks.setChecked(true);
     }
 
 
@@ -192,12 +196,15 @@ public class SearchActivity extends LeafActivity {
             mDisabledText.setText("Player is off");
 
             mMusicPlayerBar.setVisibility(View.GONE);
-            mOptionsLayout.setVisibility(View.GONE);
+            mSearchOptionsLayout1.setVisibility(View.GONE);
+            mSearchOptionsLayout2.setVisibility(View.GONE);
 
 
         } else {
 
             mDisabledText.setVisibility(View.GONE);
+            mSearchOptionsLayout1.setVisibility(View.VISIBLE);
+            mSearchOptionsLayout2.setVisibility(View.VISIBLE);
 
 
             mSearchCancel.setOnClickListener(new View.OnClickListener() {
@@ -205,7 +212,7 @@ public class SearchActivity extends LeafActivity {
                 public void onClick(View v) {
                     startAniCloseSearch();
                     mSearchText.setText("");
-                    mFragResult.setResult(new ArrayList<SongListFragment.SngItem>());
+                    mFragResult.setResultingCancelled();
 //                if (AUTO_SEARCH_DURING_TYPING && mhhh != null) {
 //                    mhhh.cancel();
 //                    mhhh = null;
@@ -334,6 +341,10 @@ public class SearchActivity extends LeafActivity {
     }
 
     private void searchSoundCloudApi(final String query) {
+        searchSoundCloudApi(query, 0, 10);
+    }
+    private void searchSoundCloudApi(final String query, final int offset, final int limit) {
+
         // this only does track title, not author, or smart features like soundclouds
         SoundCloudApiController.searchTrack(query, new SoundCloudApiController.GotItemArray() {
             @Override
@@ -345,14 +356,21 @@ public class SearchActivity extends LeafActivity {
                     songs.add(new SongListFragment.SngItem(new Sng(t), SongListFragment.SngItem.Type.NotInQueue));
                 }
 
-                mFragResult.setResult(songs);
+
+                mFragResult.setResult(songs, new SongSearchResultFragment.SetResultNextPage() {
+                    @Override
+                    public void requestNextPage() {
+                        searchSoundCloudApi(query, offset+limit, limit);
+                    }
+                }, (offset>0));
+
             }
 
             @Override
             public void failure() {
                 mFragResult.setResultingError("Server Error!");
             }
-        });
+        }, offset, limit);
 
     }
 
@@ -372,7 +390,7 @@ public class SearchActivity extends LeafActivity {
                     songs.add(new SongListFragment.SngItem(new Sng(t), SongListFragment.SngItem.Type.NotInQueue));
                 }
 
-                mFragResult.setResult(songs);
+                mFragResult.setResult(songs, null, false);
             }
 
             @Override

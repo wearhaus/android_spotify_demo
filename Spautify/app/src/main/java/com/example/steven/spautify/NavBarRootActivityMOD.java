@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.steven.spautify.musicplayer.Sng;
+import com.example.steven.spautify.musicplayer.WPlayer;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 
 /**
@@ -63,8 +71,8 @@ public abstract class NavBarRootActivityMOD extends BluetoothActivityMOD {
 
 
     protected enum DrawerItem {
-        Profile("Profile", R.layout.drawer_list_item),
-        LikedSongs("Liked Songs", R.layout.drawer_list_item),
+        Profile("...", R.layout.drawer_list_item),
+        LikedSongs("Play Playlist A", R.layout.drawer_list_item),
         Settings("Settings", R.layout.drawer_list_item);
 
         String name;
@@ -286,6 +294,7 @@ public abstract class NavBarRootActivityMOD extends BluetoothActivityMOD {
 	        		break;
         			
                 case LikedSongs:
+                    dbgPlaySongsA();
         			break;
         			
                 case Settings:
@@ -305,5 +314,68 @@ public abstract class NavBarRootActivityMOD extends BluetoothActivityMOD {
         // Note: doing this dynamically is better, since devices can change density, according to the official docs.
         return dim;
     }
+
+
+
+    private ArrayList<String> dbgAA;
+    private Sng[] dbgSng;
+    private int dbgCc;
+    private boolean dbgRunning = false;
+    private void dbgPlaySongsA() {
+        if (dbgRunning) return;
+        dbgRunning = true;
+        dbgAA = new ArrayList<>();
+        dbgSng = new Sng[9];
+        dbgCc = 0;
+        dbgAA.add("sc231945845");
+        dbgAA.add("sp0nCZDQrlWA149QdGTdlsFU");
+        dbgAA.add("sc236102593");
+        dbgAA.add("sc151614648");
+        dbgAA.add("sp5Va6Q5lTUbgfSjPOMKE4y9");
+        dbgAA.add("sp3HiKwZ4BDpfWDZrpNUL6O2");
+        dbgAA.add("sc183357532");
+        dbgAA.add("sp1pUsdir2xhSxP0RyBe9lLH");
+        dbgAA.add("sc215615250");
+
+        dbgDo();
+    }
+
+    private void dbgDo() {
+
+        Sng.GetSongListener ll = new Sng.GetSongListener() {
+            @Override
+            public void gotSong(Sng sng) {
+                Log.w("rgsfdgs", "gotSong!" + dbgCc + ", " + dbgAA.size());
+                int i = dbgAA.indexOf(sng.songId);
+                dbgSng[i] = sng;
+                dbgGot();
+            }
+            @Override
+            public void failed(String songId) {
+                int i = dbgAA.indexOf(songId);
+                dbgSng[i] = null; // to remove
+                dbgGot();
+            }
+        };
+
+        for (String a : dbgAA) {
+            Sng.getSng(a, ll);
+        }
+
+    }
+
+    private void dbgGot() {
+        dbgCc++;
+        if (dbgCc >= dbgAA.size()) {
+            ArrayList<Sng> ss = new ArrayList<>(Arrays.asList(dbgSng));
+//            ss.removeAll(null);
+            ss.removeAll(Collections.singleton(null));
+            WPlayer.playManyClearQueue(ss);
+            dbgRunning = false;
+        }
+
+    }
+
+
 
 }

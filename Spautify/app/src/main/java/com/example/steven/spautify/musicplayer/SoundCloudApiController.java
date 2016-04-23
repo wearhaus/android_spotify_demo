@@ -1,5 +1,7 @@
 package com.example.steven.spautify.musicplayer;
 
+import android.util.Log;
+
 import com.example.steven.spautify.HTTP;
 
 import java.util.ArrayList;
@@ -59,10 +61,10 @@ public class SoundCloudApiController {
         //getTrackByIdOnline(156909581, gg);
 
 
-        searchTrack("hello", null);
-        searchTrack("drowning in sleep", null);
-        searchTrack("drowning-in-sleep", null);
-        searchTrack("Float", null);
+//        searchTrack("hello", null);
+//        searchTrack("drowning in sleep", null);
+//        searchTrack("drowning-in-sleep", null);
+//        searchTrack("Float", null);
 
     }
 
@@ -77,10 +79,11 @@ public class SoundCloudApiController {
 
 
 
-    public static void searchTrack(String query, GotItemArray listener) {
+    public static void searchTrack(String query, GotItemArray listener, int offset, int limit) {
         // Breaks with spaces.
         String q = query.replace(" ", "-");
-        H_SearchTrack hhh = new H_SearchTrack(q, listener);
+        // limit max is 200, default is 10
+        H_SearchTrack hhh = new H_SearchTrack(q, listener, offset, limit);
         hhh.execute();
     }
 
@@ -97,20 +100,26 @@ public class SoundCloudApiController {
     }
 
 
-    private static class H_SearchTrack extends HTTP<TrackJson[]> {
+    private static class H_SearchTrack extends HTTP<SearchTrackJson> {
+        // json is TrackJson[] when no linked_partitioning/offset/limit
+        // json is SearchTrackJson otherwise
         private GotItemArray listener;
 
-        public H_SearchTrack(String q, GotItemArray l) {
+        public H_SearchTrack(String q, GotItemArray l, int offset, int limit) {
             super(Method.GET,
-                    API_URL + "/tracks/?q=" + q + "&" + CLIENT_ID_PARAM,
-                    TrackJson[].class);
+                    API_URL + "/tracks/?linked_partitioning=1&q=" + q + "&" + CLIENT_ID_PARAM +  "&offset=" + offset + "&limit=" + limit,
+                    //TrackJson[].class
+                    SearchTrackJson.class
+            );
             listener = l;
         }
 
 
         @Override
-        protected void onResponse(TrackJson[] jr) {
-            listener.gotItem(jr);
+        protected void onResponse(SearchTrackJson jr) {
+            Log.w(TAG, ""+jr.collection);
+            Log.w(TAG, jr.next_href);
+            listener.gotItem(jr.collection);
         }
 
         @Override
@@ -220,7 +229,10 @@ public class SoundCloudApiController {
     }
 
 
-
+    public static class SearchTrackJson {
+        public TrackJson[] collection; //
+        public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
+    }
 
     public static class PlaylistJson {
 

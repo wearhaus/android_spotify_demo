@@ -116,7 +116,7 @@ public abstract class DynamicRecycleListFragment<
             So every onResume, we regrab the list.  There is no other way to get any changes to the list.
             This is good since if someone removes a song, it won't be immediately removed until onResume gets called
             again (unless you listen to the notifier for changes).
-            AuthLoading songs from the server doesn't cause a regrab of the list.  The list itself is cloned, so
+            ProviderLoading songs from the server doesn't cause a regrab of the list.  The list itself is cloned, so
             changes that happen while this is open don't need a notify.
 
          */
@@ -171,7 +171,7 @@ public abstract class DynamicRecycleListFragment<
 
     protected abstract boolean canDragAndDrop();
 
-    protected abstract void onSwipeRefresh();
+    protected void onSwipeRefresh() {};
 
     protected void setRefreshing(boolean b) {
         if (mSwipeRefresh != null) {
@@ -350,7 +350,8 @@ public abstract class DynamicRecycleListFragment<
             if (!mPageIsLoading) {
                 if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                         && firstVisibleItemPosition >= 0
-                        && totalItemCount >= getPageSize()) {
+                        //&& totalItemCount >= getPageSize()
+                        ) {
 
                     Log.i("temp", "end of items in adapter");
 

@@ -62,10 +62,10 @@ public class SettingsFragment extends Fragment {
                 mSpotifySubtitle.setText("Error");
                 break;
             case Loading:
-                mSpotifySubtitle.setText("AuthLoading");
+                mSpotifySubtitle.setText("Authenticating");
                 break;
             case NotLoggedIn:
-                mSpotifySubtitle.setText("NotLoggedIn");
+                mSpotifySubtitle.setText("Not Logged In");
                 break;
         }
 

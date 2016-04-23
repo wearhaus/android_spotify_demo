@@ -511,9 +511,17 @@ public class SpotifyApiController {
     //}
 
 
-    /** Checks cache, and if not in cache, requests Spotify's Server for the track.*/
-//    public static void getTrackByUri(final String trackUri, final GetTrackListener l) {
-    public static void getTrackByUri(final String trackUri, final Sng.GetSongListener l) {
+    /** Checks cache, and if not in cache, requests Spotify's Server for the track.
+     * trackUri ex/ "spotify:track:65IxnRl41h2UI7sd31TPu5"
+     * trackId ex/ "65IxnRl41h2UI7sd31TPu5"
+     * */
+    public static void getTrackBySongId(final String songId, final Sng.GetSongListener l) {
+
+        final String trackUri = Source.get3rdPartyId(songId);
+        if (getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+            l.failed(songId);
+            return;
+        }
 
         mApi.getService().getTrack(getSpotifyIdFromUri(trackUri), new Callback<Track>() {
             @Override
@@ -526,7 +534,7 @@ public class SpotifyApiController {
             @Override
             public void failure(RetrofitError error) {
                 Log.d("Track failure", error.toString());
-                if (l != null) l.failed();
+                if (l != null) l.failed(songId);
             }
 
         });

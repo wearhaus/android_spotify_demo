@@ -25,7 +25,7 @@ public abstract class WMusicProvider {
         /**Default state; This state also lets WPlayer know that this player can be closed*/
         NoPlayer,
         /** Still authenticating user or initializing entire player*/
-        AuthLoading,
+        ProviderLoading, // TODO if provider stuck in this state for more than like 30 seconds, delete it and try again
         /** Provider has been created, but no song is loaded into it*/
         PlayerInited,
         /** Preparing a song to be played.*/
@@ -56,6 +56,8 @@ public abstract class WMusicProvider {
 
     /**
      * Called when this player is no longer the current provider.  Essentially pause and maybe free up memory.
+     * Do not notify WPlayer of any change status; just change internally and do nothing and WPlayer will
+     * request the state when it wants to switch to you again.
      */
     abstract void standby();
     /**

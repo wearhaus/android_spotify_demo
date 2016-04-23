@@ -2,6 +2,7 @@ package com.example.steven.spautify.musicplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 
@@ -340,156 +341,150 @@ public class WPlayer {
     private static void internalPlay() {
         internalPlay(false);
     }
+
+    private static final Object sInternalPlayLock = new Object();
     /** @param fpProviderStateNotif false by default.  Means called from fpProviderStateNotif(), which would mean dont
     *                             restart current song.  Otherwise, we do restart current song if applicable
     **/
     private static void internalPlay(boolean fpProviderStateNotif) {
-        Log.d(TAG, "internalPlay");
+        Log.d(TAG, "internalPlay " + Thread.currentThread().getId());
 
-        if (mCurrentSng.source.providerClass != mCurrentProviderClass) {
-            Log.d(TAG, "switching providers");
+        synchronized (sInternalPlayLock) {
+            if (mCurrentSng.source.providerClass != mCurrentProviderClass) {
+                Log.d(TAG, "switching providers");
 
-            WMusicProvider wp = mProviders.get(mCurrentSng.source.providerClass);
-            if (mCurrentProvider != null) {
-                mCurrentProvider.standby();
-            }
-
-            if (wp == null) {
-
-
-                mWPlayerState = WPlayerState.LoadingProvider;
-                mPlaybackState = PlaybackState.NotPlaying;
-
-                try {
-                    Log.d(TAG, "creating new provider");
-                    Constructor con = mCurrentSng.source.providerClass.getConstructor(Context.class);
-                    wp = (WMusicProvider) con.newInstance(mApp);
-                    mProviders.put(mCurrentSng.source.providerClass, wp);
-                    mCurrentProvider = wp;
-                    mCurrentProviderClass = mCurrentSng.source.providerClass;
-                    if (!wp.constructorAsync()) {
-                        // force a refresh here
-                        internalPlay(fpProviderStateNotif);
-                        return;
-                    }
-
-                    // Waits for fpProviderReady to be called. In th meantime, UI knows we have a LoadingProvider.
-                    // If they want to do something else before that, it's fine.
-
-                } catch (Exception e) {
-                    Log.e(TAG, "Error creating Provider, " + e);
-                    mWPlayerState = WPlayerState.ErrorWithProvider;
-                    mCurrentProvider = null; // didn't even get loaded.
-                    mCurrentProviderClass = null;
+                WMusicProvider wp = mProviders.get(mCurrentSng.source.providerClass);
+                if (mCurrentProvider != null) {
+                    mCurrentProvider.standby();
                 }
 
-                checkScheduled(); // turn off scheduled while player loading.
+                if (wp == null) {
 
+                    mWPlayerState = WPlayerState.LoadingProvider;
+                    mPlaybackState = PlaybackState.NotPlaying;
 
+                    try {
+                        Log.d(TAG, "creating new provider");
+                        Constructor con = mCurrentSng.source.providerClass.getConstructor(Context.class);
+                        wp = (WMusicProvider) con.newInstance(mApp);
+                        mProviders.put(mCurrentSng.source.providerClass, wp);
+                        mCurrentProvider = wp;
+                        mCurrentProviderClass = mCurrentSng.source.providerClass;
+                        if (!wp.constructorAsync()) {
+                            Log.d(TAG, "!wp.constructorAsync()");
+                            // force a refresh here, since not switching prov anymore, this cant create infinite loop
+                            internalPlay(fpProviderStateNotif);
+                            return;
+                        }
+                        // Waits for fpProviderReady to be called. In th meantime, UI knows we have a LoadingProvider.
+                        // If they want to do something else before that, it's fine.
+                    } catch (Exception e) {
+                        mWPlayerState = WPlayerState.ErrorWithProvider;
+                        mCurrentProvider = null; // didn't even get loaded.
+                        mCurrentProviderClass = null;
+                    }
 
-                return;
+                    checkScheduled(); // turn off scheduled while player loading.
+                    return;
 
+                } else {
 
-            } else {
+                    mCurrentProvider = wp;
+                    mCurrentProviderClass = mCurrentSng.source.providerClass;
 
-                mCurrentProvider = wp;
-                mCurrentProviderClass = mCurrentSng.source.providerClass;
+                }
 
             }
 
-        }
+
+            // now wp is set to the correct version and hopefully is ready
+
+            if (checkProviderReady()) {
+                Log.w(TAG, "  fpProviderStateNotif" + fpProviderStateNotif);
+
+                boolean startCurrentSong = false;
+
+                if (fpProviderStateNotif) {
+
+                    if (mCurrentProvider.getProviderState() == WMusicProvider.State.LoadingSong) {
+                        mPlaybackState = PlaybackState.LoadingSong;
+
+                    } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.SongReady) {
+
+                        if (mPlaybackState == PlaybackState.LoadingSong) {
+                            mPlaybackState = PlaybackState.Playing;
+                        } // else, nothing to check for
+                        // Note: this assumes when loading, that pause actions are ignored.
+                    } else {
+                        // No song is even prepared, since provider was loading but is not finished
+                        mPlaybackState = PlaybackState.NotPlaying;
+                        startCurrentSong = true;
+                    }
 
 
-        // now wp is set to the correct version and hopefully is ready
-
-        if (checkProviderReady()) {
-            Log.w(TAG, "  fpProviderStateNotif" + fpProviderStateNotif);
-
-            boolean startCurrentSong = false;
-
-            if (fpProviderStateNotif) {
-
-                if (mCurrentProvider.getProviderState() == WMusicProvider.State.LoadingSong) {
-                    mPlaybackState = PlaybackState.LoadingSong;
-
-                } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.SongReady) {
-
-                    if (mPlaybackState == PlaybackState.LoadingSong) {
-                        mPlaybackState = PlaybackState.Playing;
-                    } // else, nothing to check for
-                    // Note: this assumes when loading, that pause actions are ignored.
                 } else {
-                    // No song is even prepared, since provider was loading but is not finished
-                    mPlaybackState = PlaybackState.NotPlaying;
                     startCurrentSong = true;
                 }
 
+                if (startCurrentSong) {
 
-            } else {
-                startCurrentSong = true;
-            }
+                    Log.w(TAG, "  mCurrentProvider.playSong(mCurrentSng)");
 
-            if (startCurrentSong) {
+                    mWPlayerState = WPlayerState.Ready;
+                    mCurrentErrorSng = null;
+                    mPlaybackState = PlaybackState.LoadingSong;
+                    positionInMs = 0;
+                    mCurrentProvider.playSong(mCurrentSng);
+                    // fpProviderStateNotif called right after, triggering the above line as well.
 
-                Log.w(TAG, "  mCurrentProvider.playSong(mCurrentSng)");
 
-                mWPlayerState = WPlayerState.Ready;
-                mCurrentErrorSng = null;
+                }
+
+
+            } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.ProviderLoading) {
+                Log.w(TAG, "Error, Provider already existed, but is still loading. Waiting for it to finish");
+                mWPlayerState = WPlayerState.LoadingProvider;
                 mPlaybackState = PlaybackState.LoadingSong;
-                positionInMs = 0;
-                mCurrentProvider.playSong(mCurrentSng);
-                // fpProviderStateNotif called right after, triggering the above line as well.
 
-
-            }
-
-
-
-
-        } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.AuthLoading){
-            Log.w(TAG, "Error, Provider already existed, but is still loading. Waiting for it to finish");
-            mWPlayerState = WPlayerState.LoadingProvider;
-            mPlaybackState = PlaybackState.LoadingSong;
-
-        } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.Error){
-            Log.e(TAG, "Error, Provider is in error state");
-            mWPlayerState = WPlayerState.ErrorWithProvider;
-            mPlaybackState = PlaybackState.NotPlaying;
-
-        } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.ErrorWithCurrentSong){
-
-            if (mCurrentErrorSng == null) {
-                // new error!  set to error state
-                Log.e(TAG, "Error, Provider has temporary error with current song");
-                mWPlayerState = WPlayerState.ErrorWithSong;
-                mPlaybackState = PlaybackState.NotPlaying;
-                mCurrentErrorSng = mCurrentSng;
-
-            } else if (mCurrentErrorSng == mCurrentSng) {
-                // another attempt to play erroring song... Doing nothing
-                // TODO
-                Log.e(TAG, "Error, Provider has temporary error with current song, ignoring attempt to play again");
-                mWPlayerState = WPlayerState.ErrorWithSong;
+            } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.Error) {
+                Log.e(TAG, "Error, Provider is in error state");
+                mWPlayerState = WPlayerState.ErrorWithProvider;
                 mPlaybackState = PlaybackState.NotPlaying;
 
+            } else if (mCurrentProvider.getProviderState() == WMusicProvider.State.ErrorWithCurrentSong) {
 
-            } else {
-                // new song attempt; this one probably has no error yet.  Try it.
+                if (mCurrentErrorSng == null) {
+                    // new error!  set to error state
+                    Log.e(TAG, "Error, Provider has temporary error with current song");
+                    mWPlayerState = WPlayerState.ErrorWithSong;
+                    mPlaybackState = PlaybackState.NotPlaying;
+                    mCurrentErrorSng = mCurrentSng;
 
-                mWPlayerState = WPlayerState.Ready;
-                //mPlaybackState set during fp notif
-                mCurrentErrorSng = null;
-                mCurrentProvider.playSong(mCurrentSng);
+                } else if (mCurrentErrorSng == mCurrentSng) {
+                    // another attempt to play erroring song... Doing nothing
+                    // TODO
+                    Log.e(TAG, "Error, Provider has temporary error with current song, ignoring attempt to play again");
+                    mWPlayerState = WPlayerState.ErrorWithSong;
+                    mPlaybackState = PlaybackState.NotPlaying;
 
 
+                } else {
+                    // new song attempt; this one probably has no error yet.  Try it.
+
+                    mWPlayerState = WPlayerState.Ready;
+                    //mPlaybackState set during fp notif
+                    mCurrentErrorSng = null;
+                    mCurrentProvider.playSong(mCurrentSng);
+
+
+                }
+                // TODO maybe have an auto-start next song after like 5 seconds?
             }
-            // TODO maybe have an auto-start next song after like 5 seconds?
+
+            checkScheduled(); // check after changing mPlaying
+
+            //mNotifier.notifyListeners(notifType);  Notifs handled outside internalPlay()
         }
-
-        checkScheduled(); // check after changing mPlaying
-
-        //mNotifier.notifyListeners(notifType);  Notifs handled outside internalPlay()
-
 
     }
 
@@ -498,8 +493,9 @@ public class WPlayer {
      * This will start up the queued song
      * */
     static void fpProviderStateNotif(WMusicProvider prov) {
-        //Log.e(TAG, "fpProviderStateNotif: " + mCurrentProvider.getProviderState());
+//        Log.e(TAG, "fpProviderStateNotif: " + mCurrentProvider.getProviderState() + ",   class: " + prov.getClass());
         if (prov == mCurrentProvider) {
+//            Log.e(TAG, "prov == mCurrentProvider ");
             // So we don't actually use the success param; that info is already encoded into the provider state...
 
             internalPlay(true);
@@ -666,8 +662,9 @@ public class WPlayer {
     }
 
 
-
+    @NonNull
     public static void playManyClearQueue(ArrayList<Sng> sngs) {
+        Log.i(TAG, "playManyClearQueue() size=" + sngs.size());
         mQueue.clear();
         mQueueBack.clear();
 
@@ -682,8 +679,7 @@ public class WPlayer {
 
 
 
-
-
+    @NonNull
     public static void playSingleClearQueue(Sng sng) {
         mQueue.clear();
         mQueueBack.clear();

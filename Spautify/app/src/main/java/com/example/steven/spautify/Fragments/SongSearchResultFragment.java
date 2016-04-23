@@ -1,5 +1,6 @@
 package com.example.steven.spautify.Fragments;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
@@ -22,44 +23,63 @@ public class SongSearchResultFragment extends SongListFragment {
         return resultingItems;
     }
 
-
-
     private ArrayList<SngItem> resultingItems;
+    private SetResultNextPage mNextPage;
     private String errorMsg;
 
-    /*@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = super.onCreateView(inflater, container, savedInstanceState);
-        mListView.setDivider(new ColorDrawable(0x88424646)); // med grey trans50
-        return v;
-    }*/
+    public interface SetResultNextPage {
+        /** Must call setResult... eventually due to loading bar being present
+         * TODO how to handle cancelling due to another search sent.*/
+        void requestNextPage();
+    }
 
-
-    public void setResult(ArrayList<SngItem> r) {
-        Log.w("SSSS", "setResult() " + r);
-        resultingItems = r;
-        errorMsg = null;
-        if (r == null) {
-            // made invisible only when "no matches" is displayed, or the adapter getView actuallu is called.
-            // Since the delay between calling updateList() and the UI updating this list may
-            // take up to several seconds of awkwardness
-            setRefreshing(true);
+    /** @param add if true, add the given items nstead of replace.  When true, r must not be null*/
+    public void setResult(@NonNull ArrayList<SngItem> r, SetResultNextPage srnp, boolean add) {
+        if (add && resultingItems != null) {
+            // extra null check in case async came back awkwardly
+            // TODO program in dynamic cancelling of the nextPage request (as in ignore result instead of calling this)
+            resultingItems.addAll(r);
         } else {
-            setRefreshing(false);
+            resultingItems = r;
         }
+        errorMsg = null;
+        mNextPage = srnp;
+
+        mPageLoadedCount = resultingItems.size();
+        mPageTotalAbleToBeLoaded = mPageLoadedCount + (mNextPage != null ? 1 : 0); // if not null, at least 1 more thing loadable
+        setRefreshing(false);
+
         updateList();
     }
 
+
     public void setResultingLoading() {
-        Log.w("SSSS", "setResultingLoading() ");
-        setResult(null);
+        resultingItems = null;
+        errorMsg = null;
+        mNextPage = null;
+        setRefreshing(true);
+        mPageLoadedCount = 0;
+        mPageTotalAbleToBeLoaded = 0;
+        updateList();
     }
 
     public void setResultingError(String e) {
-        Log.w("SSSS", "setResultingError() " + e);
         resultingItems = null;
         errorMsg = e;
+        mNextPage = null;
         setRefreshing(false);
+        mPageLoadedCount = 0;
+        mPageTotalAbleToBeLoaded = 0;
+        updateList();
+    }
+
+    public void setResultingCancelled() {
+        resultingItems = null;
+        errorMsg = null;
+        mNextPage = null;
+        setRefreshing(false);
+        mPageLoadedCount = 0;
+        mPageTotalAbleToBeLoaded = 0;
         updateList();
     }
 
@@ -91,12 +111,21 @@ public class SongSearchResultFragment extends SongListFragment {
     }
 
     @Override
-    protected void onSwipeRefresh() {
-
+    protected boolean paginated() {
+        return true;
     }
 
     @Override
-    protected boolean paginated() {
-        return false;
+    protected int getPageSize() {
+        return 10;
+    }
+
+    @Override
+    protected void loadData(int offset) {
+        // we ignore offset, since thats already prepared outside of this fragment
+        if (mNextPage != null) {
+            setRefreshing(true);
+            mNextPage.requestNextPage();
+        }
     }
 }
