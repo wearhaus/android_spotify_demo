@@ -11,7 +11,8 @@ import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.Source;
+import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -29,14 +30,19 @@ import retrofit.client.Response;
 
 /**
  * Created by Steven on 2/10/2016.
+ *
+ * It is an error to not have a TAG_ID argument
  */
 public class ViewPlaylistFragment extends SongListFragment {
 
-    private String mPlaylistId;
+    private String mPlaylstId;
+    private Source mSource;
     private ArrayList<SongListFragment.SngItem> mList;
     private Button mPlayButton;
 
-    private Playlst mPlaylist;
+    private Playlst mPlaylst;
+
+    // TODO if we detect WPlayer's autosource matches our mPlaylstId, then display that here and mark the current song
 
 
 
@@ -49,16 +55,14 @@ public class ViewPlaylistFragment extends SongListFragment {
         args.putString(ViewPlaylistActivity.TAG_ID, id);
         frag.setArguments(args);
 
-
         return frag;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mPlaylistId = getArguments().getString(ViewPlaylistActivity.TAG_ID);
-
+        mPlaylstId = getArguments().getString(ViewPlaylistActivity.TAG_ID);
+        mSource = Source.getSource(mPlaylstId);
     }
 
 
@@ -72,7 +76,7 @@ public class ViewPlaylistFragment extends SongListFragment {
 
     @Override
     protected void updateList() {
-        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+        if (unAuthed && SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
             unAuthed = false;
             init();
         }
@@ -80,20 +84,23 @@ public class ViewPlaylistFragment extends SongListFragment {
     }
 
     private void init() {
-        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        if (mSource == Source.Spotify && SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             unAuthed = true;
             mPlayButton.setVisibility(View.GONE);
             return;
         }
 
-        mPlaylist = SpotifyApiController.mPlaylstCache.get(mPlaylistId);
+        mPlaylst = Playlst.mPlaylstCache.get(mPlaylstId);
         mPlayButton.setVisibility(View.VISIBLE);
 
-        if (mPlaylist != null) {
+        if (mPlaylst != null) {
             mList = new ArrayList<>();
             mPageLoadedCount = 0;
 
             loadData(0);
+        } else {
+            // TODO create the getters in Playlst
+            Log.e("ViewPlaylistFragment", "Playlst is not in cache, can't render it");
         }
 
         mPlayButton.setOnClickListener(
@@ -136,7 +143,17 @@ public class ViewPlaylistFragment extends SongListFragment {
     protected void loadData(int offset) {
         Log.d("ggg", "loadData  " + offset);
 
-        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        if (mSource == Source.Spotify) {
+            loadDataSpotify(offset);
+        }
+
+
+    }
+
+
+    private void loadDataSpotify(int offset) {
+
+        if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return;
         }
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
@@ -150,7 +167,7 @@ public class ViewPlaylistFragment extends SongListFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyApiController.getTempApi().getPlaylistTracks(mPlaylist.owner.id, mPlaylist.id, options, new Callback<Pager<PlaylistTrack>>() {
+        SpotifyApi.getTempApi().getPlaylistTracks(mPlaylst.spotifyObject.owner.id, mPlaylst.spotifyId, options, new Callback<Pager<PlaylistTrack>>() {
             @Override
             public void success(Pager<PlaylistTrack> ptp, Response response) {
 
@@ -185,8 +202,9 @@ public class ViewPlaylistFragment extends SongListFragment {
                 mPageIsLoading = false;
             }
         });
-
     }
+
+
 
     @Override
     protected SongListFragment.ClickType getClickType() {
@@ -198,7 +216,6 @@ public class ViewPlaylistFragment extends SongListFragment {
         return mList;
     }
 
-    @Override
     protected int getPageSize() {
         return 100;
     }
@@ -207,7 +224,7 @@ public class ViewPlaylistFragment extends SongListFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
-        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        } else if (mSource == Source.Spotify && SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return "No Spotify account found";
         } else if (mPageIsLoading) {
             return "loading";
@@ -224,9 +241,5 @@ public class ViewPlaylistFragment extends SongListFragment {
         return false;
     }
 
-    @Override
-    protected void onSwipeRefresh() {
-
-    }
 
 }

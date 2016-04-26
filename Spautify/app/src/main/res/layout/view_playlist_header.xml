@@ -23,8 +23,7 @@
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/button_bg_cyan"
-        android:drawableLeft="@drawable/ic_action_play_w"
+        android:background="@drawable/button_bg_cyan_rounder"
         style="@style/Text_Medium_White_Style"
         android:text="Play All"
         android:paddingLeft="10dp"

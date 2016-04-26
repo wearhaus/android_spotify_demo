@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <item android:state_enabled="false" >
+        <shape>
+            <corners android:radius="15dip" />
+            <solid android:color="@color/med_greyminus" />
+        </shape>
+    </item>
+    
+    
+    <item android:state_pressed="true" >
+        <shape>
+            <corners android:radius="15dip" />
+            <solid android:color="@color/cyanplus" />
+        </shape>
+    </item>
+    
+    
+    
+    <item>
+        <shape>
+            <!--  <gradient
+                android:angle="270"
+                android:startColor="@color/color_med_greyplus"
+                android:endColor="@color/color_med_greyminus"
+                 /> -->
+            <corners android:radius="15dip" />
+            <solid android:color="@color/cyan" />
+        </shape>
+    </item>
+    
+    
+    
+    
+</selector>

@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -40,14 +40,14 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
 
     @Override
     protected void updateList() {
-        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+        if (unAuthed && SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
             init();
         }
         super.updateList();
     }
 
     private void init() {
-        unAuthed = SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn;
+        unAuthed = SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn;
         if (unAuthed) {
             return;
         }
@@ -71,7 +71,7 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
-        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        } else if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return "No Spotify account found";
         } else if (getList() == null) {
             return "list is null";
@@ -93,7 +93,6 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
     }
 
 
-    @Override
     protected int getPageSize() {
         return 50;
     }
@@ -102,7 +101,7 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
     protected void loadData(int offset) {
         Log.d("ggg", "loadData  " + offset);
 
-        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return;
         }
 
@@ -117,7 +116,7 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyApiController.getTempApi().getMySavedAlbums(options, new Callback<Pager<SavedAlbum>>() {
+        SpotifyApi.getTempApi().getMySavedAlbums(options, new Callback<Pager<SavedAlbum>>() {
             @Override
             public void success(Pager<SavedAlbum> psa, Response response) {
 

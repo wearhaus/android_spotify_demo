@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.steven.spautify.musicplayer.Playlst;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -43,7 +43,7 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
     @Override
     protected void updateList() {
         Log.w("updateList", "unAuthed" + unAuthed);
-        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+        if (unAuthed && SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
             init();
         }
         super.updateList();
@@ -52,12 +52,12 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
 
     private void init() {
         Log.e("BAA", "init");
-        unAuthed = SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn;
+        unAuthed = SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn;
         if (unAuthed) {
             return;
         }
 
-        mUserId = SpotifyApiController.getUserId();
+        mUserId = SpotifyApi.getUserId();
         mList = new ArrayList<>();
         mPageLoadedCount = 0;
         loadData(0);
@@ -79,7 +79,7 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
-        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        } else if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return "No Spotify account found";
         } else if (getList() == null) {
             return "list is empty";
@@ -105,17 +105,17 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
         return false;
     }
 
-    @Override
     protected int getPageSize() {
         return 50;
     }
+
 
     @Override
     protected void loadData(int offset) {
         Log.d("ggg", "loadData  " + offset);
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return;
         }
 
@@ -128,7 +128,7 @@ public class MyPlaylistsFragment extends PlaylistsFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyApiController.getTempApi().getPlaylists(mUserId, options, new Callback<Pager<PlaylistSimple>>() {
+        SpotifyApi.getTempApi().getPlaylists(mUserId, options, new Callback<Pager<PlaylistSimple>>() {
             @Override
             public void success(Pager<PlaylistSimple> psp, Response response) {
 

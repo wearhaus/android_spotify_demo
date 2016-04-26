@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -40,27 +40,9 @@ public abstract class AlbumsFragment extends DynamicRecycleListFragment {
 
 
 
-
-    //////////////////
-
-
-
-//    public static class PLItem {
-//        public Playlst playlst;
-//        //public Type type;
-//        public PLItem (Playlst s) {
-//            playlst = s;
-//        }
-//
-//    }
-
     public class PLAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
             implements ItemTouchHelperAdapter {
         private ArrayList<Album> mDataset;
-
-        // Provide a reference to the views for each data item
-        // Complex data items may need more than one view per item, and
-        // you provide access to all the views for a data item in a view holder
 
 
         // Provide a suitable constructor (depends on the kind of dataset)
@@ -126,7 +108,7 @@ public abstract class AlbumsFragment extends DynamicRecycleListFragment {
 //                        }
 //                    });
 
-                    SpotifyApiController.mAlbumCache.put(a.id, a);
+                    SpotifyApi.mAlbumCache.put(a.id, a);
 
                     Activity act = getActivity();
                     if (act != null) {

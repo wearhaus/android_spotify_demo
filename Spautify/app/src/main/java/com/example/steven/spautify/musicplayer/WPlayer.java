@@ -98,7 +98,10 @@ public class WPlayer {
     public static void init(Context appContext) {
         mApp = appContext;
 
-        SpotifyApiController.init();
+        Sng.init();
+
+        SpotifyApi.init();
+        SoundCloudApi.init();
     }
 
 

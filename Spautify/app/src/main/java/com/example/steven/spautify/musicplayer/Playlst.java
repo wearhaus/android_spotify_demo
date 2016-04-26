@@ -1,5 +1,7 @@
 package com.example.steven.spautify.musicplayer;
 
+import android.util.LruCache;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -17,41 +19,49 @@ public class Playlst {
     public Source source;
     /** Our assigned id */
     public String playlstId;
-
-    //.
-
-
-    public String id;
     public String name;
-    public String href;
+    public String creatorName;
+    public String artworkUrl;
 
+    // sometimes not visible
 
-    public Boolean collaborative;
-    public Map<String, String> external_urls;
-    public List<Image> images;
-    public UserPublic owner;
-    public Boolean is_public;
-    public String snapshot_id;
-    public String type;
-    public String uri;
+    public String spotifyId;
+
+    public PlaylistSimple spotifyObject;
+    /**TODO this is dangerous since this can be very very large*/
+    public SoundCloudApi.PlaylistJson soundcloudObject;
+
 
     public Playlst(PlaylistSimple p) {
+        source = Source.Spotify;
+        playlstId = source.prefix + p.id;
+        spotifyId = p.id;
         name = p.name;
-        id = p.id;
-        href = p.href;
-        collaborative = p.collaborative;
-        external_urls = p.external_urls;
-        images = p.images;
-        owner = p.owner;
-        is_public = p.is_public;
-        snapshot_id = p.snapshot_id;
-        type = p.type;
-        uri = p.uri;
+        creatorName = "";
+        spotifyObject = p;
+        // some fields like owner may be null
+
+        try {
+            artworkUrl = p.images.get(0).url;
+        } catch (NullPointerException e) {}
+    }
+
+
+    public Playlst(SoundCloudApi.PlaylistJson p) {
+        source = Source.Soundcloud;
+        playlstId = source.prefix + p.id;
+
+        name = p.title;
+        creatorName = p.user != null ? p.user.username : "";
+        artworkUrl = p.artwork_url;
+
+        soundcloudObject = p;
     }
 
 
 
 
+    public static LruCache<String, Playlst> mPlaylstCache = new LruCache<>(50); // Temp, may not be the best way to handle
 
 
 

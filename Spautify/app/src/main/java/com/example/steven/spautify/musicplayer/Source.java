@@ -22,7 +22,7 @@ public enum Source {
     }
 
     /** Valid for Songs, Playlists, and Albums */
-    static Source getSource(String id) {
+    public static Source getSource(String id) {
         if (id != null) {
             for (Source s : Source.values()) {
                 if (id.startsWith(s.prefix)) return s;
@@ -32,7 +32,7 @@ public enum Source {
     }
 
     /** Valid for Songs, Playlists, and Albums */
-    static String get3rdPartyId(String id) {
+    public static String get3rdPartyId(String id) {
         if (id == null || id.length() <= 2) return null;
         return id.substring(2);
     }

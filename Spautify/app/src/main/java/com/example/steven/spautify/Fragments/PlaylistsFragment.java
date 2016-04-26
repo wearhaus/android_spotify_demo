@@ -14,7 +14,6 @@ import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Playlst;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -95,15 +94,16 @@ public abstract class PlaylistsFragment extends DynamicRecycleListFragment {
 
 
             holder.mTitleView.setText("" + p.name);
+            holder.mAuthorView.setText("" + p.creatorName);
             //holder.mAuthorView.setText("" + p.owner.display_name); is null
-            if (p.is_public) {
-                holder.mAuthorView.setText("public");
-            } else {
-                holder.mAuthorView.setText("private");
-            }
+//            if (p.) {
+//                holder.mAuthorView.setText("public");
+//            } else { TODO get owner/creator name and display here
+//                holder.mAuthorView.setText("private");
+//            }
 
 
-            Picasso.with(holder.mContainer.getContext()).load(p.images.get(0).url).into(holder.mImageView);
+            Picasso.with(holder.mContainer.getContext()).load(p.artworkUrl).into(holder.mImageView);
 
 
             holder.mContainer.setOnClickListener(new View.OnClickListener() {
@@ -119,12 +119,13 @@ public abstract class PlaylistsFragment extends DynamicRecycleListFragment {
 
 
 
-                    SpotifyApiController.mPlaylstCache.put(p.id, p);
+
+                    Playlst.mPlaylstCache.put(p.playlstId, p);
 
                     Activity act = getActivity();
                     if (act != null) {
                         Intent intent = new Intent(act, ViewPlaylistActivity.class);
-                        intent.putExtra(ViewPlaylistActivity.TAG_ID, p.id);
+                        intent.putExtra(ViewPlaylistActivity.TAG_ID, p.playlstId);
                         act.startActivity(intent);
 
                     }

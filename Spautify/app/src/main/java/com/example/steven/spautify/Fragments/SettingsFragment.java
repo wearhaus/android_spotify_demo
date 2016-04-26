@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.SettingsActivity;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.SpotifyApi;
 
 
 public class SettingsFragment extends Fragment {
@@ -54,7 +54,7 @@ public class SettingsFragment extends Fragment {
 
 
         // strange order blocking player until spotify is authed
-        switch (SpotifyApiController.getAuthState()) {
+        switch (SpotifyApi.getAuthState()) {
             case LoggedIn:
                 mSpotifySubtitle.setText("Logged In");
                 break;

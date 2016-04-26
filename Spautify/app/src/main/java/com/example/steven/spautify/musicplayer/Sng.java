@@ -4,8 +4,6 @@ package com.example.steven.spautify.musicplayer;
 import android.util.Log;
 import android.util.LruCache;
 
-import com.example.steven.spautify.R;
-
 import java.util.ArrayList;
 
 import kaaes.spotify.webapi.android.models.ArtistSimple;
@@ -35,7 +33,7 @@ public class Sng {
     public ArrayList<String> spotifyArtistIds;
 
     public int soundCloudId;
-    public SoundCloudApiController.TrackJson soundCloudJson;
+    public SoundCloudApi.TrackJson soundCloudJson;
 
 
 
@@ -59,7 +57,7 @@ public class Sng {
         }
     }
 
-    public Sng(SoundCloudApiController.TrackJson t) {
+    public Sng(SoundCloudApi.TrackJson t) {
         source = Source.Soundcloud;
         soundCloudId = t.id;
         songId = source.prefix + t.id;
@@ -159,15 +157,15 @@ public class Sng {
         } else {
             Source s = Source.getSource(songId);
             if (s == Source.Spotify) {
-                SpotifyApiController.getTrackBySongId(songId, l);
+                SpotifyApi.getTrackBySongId(songId, l);
 
                 return;
             } else if (s == Source.Soundcloud) {
 
 
-                SoundCloudApiController.getTrackByIdOnline(Integer.parseInt(Source.get3rdPartyId(songId)), new SoundCloudApiController.GotItem<SoundCloudApiController.TrackJson>() {
+                SoundCloudApi.getTrackByIdOnline(Integer.parseInt(Source.get3rdPartyId(songId)), new SoundCloudApi.GotItem<SoundCloudApi.TrackJson>() {
                     @Override
-                    public void gotItem(SoundCloudApiController.TrackJson trackJson) {
+                    public void gotItem(SoundCloudApi.TrackJson trackJson) {
                         Sng sng = new Sng(trackJson);
                         mSngCache.put(songId, sng);
                         if (l != null) l.gotSong(sng);

@@ -11,7 +11,7 @@ import android.widget.Button;
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
+import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -68,7 +68,7 @@ public class ViewAlbumFragment extends SongListFragment {
 
     @Override
     protected void updateList() {
-        if (unAuthed && SpotifyApiController.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+        if (unAuthed && SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
             unAuthed = false;
             init();
         }
@@ -76,19 +76,19 @@ public class ViewAlbumFragment extends SongListFragment {
     }
 
     private void init() {
-        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             unAuthed = true;
             return;
         }
 
-        mAlbum = SpotifyApiController.mAlbumCache.get(mAlbumId);
+        mAlbum = SpotifyApi.mAlbumCache.get(mAlbumId);
 
         if (mAlbum != null) {
             mList = new ArrayList<>();
             loadData(0);
         } else {
 
-            SpotifyApiController.getTempApi().getAlbum(mAlbumId, new Callback<Album>() {
+            SpotifyApi.getTempApi().getAlbum(mAlbumId, new Callback<Album>() {
                 @Override
                 public void success(Album album, Response response) {
                     mList = new ArrayList<>();
@@ -166,7 +166,7 @@ public class ViewAlbumFragment extends SongListFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
-        } else if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        } else if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return "No Spotify account found";
         } else if (mPageIsLoading) {
             return "loading";
@@ -193,7 +193,6 @@ public class ViewAlbumFragment extends SongListFragment {
         return true;
     }
 
-    @Override
     protected int getPageSize() {
         return 20;
     }
@@ -202,7 +201,7 @@ public class ViewAlbumFragment extends SongListFragment {
     protected void loadData(int offset) {
         Log.d("ggg", "loadData  " + offset);
 
-        if (SpotifyApiController.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
+        if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return;
         }
 
@@ -217,7 +216,7 @@ public class ViewAlbumFragment extends SongListFragment {
         options.put(SpotifyService.LIMIT, getPageSize());
 
 
-        SpotifyApiController.getTempApi().getAlbumTracks(mAlbumId, options, new Callback<Pager<Track>>() {
+        SpotifyApi.getTempApi().getAlbumTracks(mAlbumId, options, new Callback<Pager<Track>>() {
             @Override
             public void success(Pager<Track> ptp, Response response) {
 

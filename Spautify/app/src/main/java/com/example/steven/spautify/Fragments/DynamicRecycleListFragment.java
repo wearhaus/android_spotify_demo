@@ -64,6 +64,15 @@ public abstract class DynamicRecycleListFragment<
     protected int mPageTotalAbleToBeLoaded = -1;
 
 
+    /** Interface class to be used if the fragment does not know how to loadData,
+     * but the caller activity does.*/
+    public interface SearchResultNextPage {
+        /** Must call setResult... eventually due to loading bar being present
+         * TODO how to handle cancelling due to another search sent.*/
+        void requestNextPage();
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.mf_generic_list, container, false);
@@ -248,13 +257,6 @@ public abstract class DynamicRecycleListFragment<
     }
 
 
-    /** call mListView.addHeader of Footer here, since it must be done before the adapter
-     * is set for API < 18.*/
-//    protected void addHeader(LayoutInflater inflater) {
-//
-//
-//    };
-
     /** Returns 0 by default which means no header layout.
      * Override and return the resid of a layout which will finish inflating
      * at the end of onCreateView*/
@@ -264,9 +266,9 @@ public abstract class DynamicRecycleListFragment<
 
     protected abstract boolean paginated();
 
-    protected int getPageSize() {
-        return 50;
-    }
+//    protected int getPageSize() {
+//        return 50;
+//    }
 
 
     private void loadNewPage() {

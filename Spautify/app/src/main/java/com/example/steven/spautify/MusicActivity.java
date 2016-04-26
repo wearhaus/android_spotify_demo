@@ -1,7 +1,5 @@
 package com.example.steven.spautify;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -15,28 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 
 import com.example.steven.spautify.Fragments.MyPlaylistsFragment;
 import com.example.steven.spautify.Fragments.MySavedAlbumsFragment;
 import com.example.steven.spautify.Fragments.QueueFragment;
-import com.example.steven.spautify.Fragments.SongListFragment;
-import com.example.steven.spautify.Fragments.SongSearchResultFragment;
-import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SoundCloudApiController;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
-import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
-import java.util.ArrayList;
-
-import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.TracksPager;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 /**
  * Created by Steven on 7/16/2015.

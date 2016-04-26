@@ -2,9 +2,6 @@ package com.example.steven.spautify;
 
 import android.app.Application;
 
-import com.example.steven.spautify.musicplayer.Sng;
-import com.example.steven.spautify.musicplayer.SoundCloudApiController;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 /**
@@ -35,11 +32,11 @@ public class AppApp extends Application {
         WPlayer.init(getApplicationContext());
 
         //SpotifyController.init(getApplicationContext());
-        SpotifyApiController.init();
+        //SpotifyApiController.init();
+        //SoundCloudApiController.init();
+        // inits handled within WPlayer package
 
-        SoundCloudApiController.init();
 
-        Sng.init();
 
 
     }

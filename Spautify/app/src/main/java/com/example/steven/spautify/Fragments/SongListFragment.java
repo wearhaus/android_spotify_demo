@@ -7,11 +7,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
@@ -27,11 +25,13 @@ import java.util.ArrayList;
  * Created by Steven on 2/5/2016.
  */
 public abstract class SongListFragment extends DynamicRecycleListFragment {
+//        extends DynamicRecycleListFragment<
+//        SngItemAdapter.SngItem, WPlayerViewHolder, SngItemAdapter> {
 
 
     @Override
     protected RecyclerView.Adapter createNewAdapter(Context context, ArrayList mList) {
-        return new QueueAdapter((ArrayList<SngItem>) mList);
+        return new SngItemAdapter(this, (ArrayList<SngItem>) mList);
     }
 
 
@@ -75,11 +75,12 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
     }
 
+
     private void onItemMenuSelected(final int position, final Sng sng) {
 
         ArrayList<DialogItem> dialogItems = new ArrayList<>();
 
-        if (getClickType() == ClickType.Queue) {
+        if (getClickType() == SongListFragment.ClickType.Queue) {
             dialogItems.add(DialogItem.PlayInQueue); // TODO detect if current song or not by reading position
             dialogItems.add(DialogItem.RemoveFromQueue);
 
@@ -91,7 +92,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
         }
 
         if (sng.source == Source.Spotify) {
-            if (getClickType() != ClickType.LibAlbum) {
+            if (getClickType() != SongListFragment.ClickType.LibAlbum) {
                 dialogItems.add(DialogItem.OpenSpotifyAlbum);
             }
         } else if (sng.source == Source.Soundcloud) {
@@ -198,13 +199,22 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             NotInQueue,
         }
 
-
-
     }
 
-    public class QueueAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
-            implements ItemTouchHelperAdapter {
-        private ArrayList<SngItem> mDataset;
+
+
+
+
+
+
+    ////////////////////
+
+    class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
+            implements DynamicRecycleListFragment.ItemTouchHelperAdapter {
+
+
+        private SongListFragment songListFragment;
+        private ArrayList<SongListFragment.SngItem> mDataset;
 
         // Provide a reference to the views for each data item
         // Complex data items may need more than one view per item, and
@@ -212,11 +222,12 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
 
         // Provide a suitable constructor (depends on the kind of dataset)
-        public QueueAdapter(ArrayList<SngItem> dataset) {
+        public SngItemAdapter(SongListFragment songListFragment, ArrayList<SongListFragment.SngItem> dataset) {
+            this.songListFragment = songListFragment;
             mDataset = dataset;
         }
 
-        public void changeData(ArrayList<SngItem> dataset){
+        public void changeData(ArrayList<SongListFragment.SngItem> dataset) {
             mDataset = dataset;
             notifyDataSetChanged();
         }
@@ -244,7 +255,6 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
         }
 
 
-
         // Create new views (invoked by the layout manager)
         @Override
         public WPlayerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -263,9 +273,9 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             // - get element from your dataset at this position
             // - replace the contents of the view with that element
 
-            final SngItem s = mDataset.get(position);
+            final SongListFragment.SngItem s = mDataset.get(position);
 
-            if (s.type == SngItem.Type.Current) {
+            if (s.type == SongListFragment.SngItem.Type.Current) {
                 holder.mContainer.setBackgroundColor(Color.argb(50, 0, 125, 250));
             } else {
                 holder.mContainer.setBackgroundResource(R.drawable.button_bg_toolbar_default);
@@ -280,7 +290,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
             //Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
 
-            if (showAlbum()) {
+            if (songListFragment.showAlbum()) {
                 Picasso.with(holder.mContainer.getContext()).load(s.sng.artworkUrl).into(holder.mImageView);
             } else {
                 //holder.mImgGoneSpace.getLayoutParams().
@@ -291,11 +301,11 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             holder.mContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (getClickType() == ClickType.Queue) {
+                    if (songListFragment.getClickType() == SongListFragment.ClickType.Queue) {
                         WPlayer.playItemInQueue(position, s.sng);
-                    } else if (getClickType() == ClickType.SearchResult) {
+                    } else if (songListFragment.getClickType() == SongListFragment.ClickType.SearchResult) {
                         WPlayer.playSingleClearQueue(s.sng);
-                    } else if (getClickType() == ClickType.Lib || getClickType() == ClickType.LibAlbum) {
+                    } else if (songListFragment.getClickType() == SongListFragment.ClickType.Lib || songListFragment.getClickType() == SongListFragment.ClickType.LibAlbum) {
                         // TODO auto-load rest of album/playlist/artist page into queue, or an id
                         // to load more form when the time comes.
                         WPlayer.playSingleClearQueue(s.sng);
@@ -306,7 +316,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemMenuSelected(position, s.sng);
+                    songListFragment.onItemMenuSelected(position, s.sng);
                 }
             });
 
@@ -317,10 +327,10 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
         public int getItemCount() {
             return mDataset.size();
         }
+
+
+
     }
-
-
-
 
 
 

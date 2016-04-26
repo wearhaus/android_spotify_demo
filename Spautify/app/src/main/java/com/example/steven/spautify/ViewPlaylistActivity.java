@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import com.example.steven.spautify.Fragments.ViewPlaylistFragment;
 import com.example.steven.spautify.musicplayer.Playlst;
-import com.example.steven.spautify.musicplayer.SpotifyApiController;
 
 /**
  * Created by Steven on 2/10/2016.
@@ -25,7 +24,7 @@ public class ViewPlaylistActivity extends LeafActivityWithPlayerBar {
 
         onCreateAfterInflation();
 
-        Playlst p = SpotifyApiController.mPlaylstCache.get(mPlaylistId);
+        Playlst p = Playlst.mPlaylstCache.get(mPlaylistId);
 
         if (p != null) {
             setTitle("Playlist: " +  p.name);

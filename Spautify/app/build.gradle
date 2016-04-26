@@ -28,11 +28,14 @@ dependencies {
     compile project(':stevenlib')
     compile 'com.spotify.sdk:spotify-auth:1.0.0-beta12@aar'
     compile 'com.spotify.sdk:spotify-player:1.0.0-beta12@aar'
-    compile 'com.github.kaaes:spotify-web-api-android:0.2.0'
+    compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:recyclerview-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.android.support:support-v13:23.0.0'
+
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta3' // added because retrofit2 is early and has bugs it seems?
 
     compile 'com.bartoszlipinski.recyclerviewheader:library:1.2.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
