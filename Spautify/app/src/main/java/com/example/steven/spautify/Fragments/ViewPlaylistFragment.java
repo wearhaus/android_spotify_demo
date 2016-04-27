@@ -10,7 +10,10 @@ import android.widget.Button;
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Playlst;
+import com.example.steven.spautify.musicplayer.SCRetrofitService;
 import com.example.steven.spautify.musicplayer.Sng;
+import com.example.steven.spautify.musicplayer.SoundCloudApi;
+import com.example.steven.spautify.musicplayer.SoundCloudProvider;
 import com.example.steven.spautify.musicplayer.Source;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
@@ -27,6 +30,7 @@ import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit2.Call;
 
 /**
  * Created by Steven on 2/10/2016.
@@ -93,15 +97,12 @@ public class ViewPlaylistFragment extends SongListFragment {
         mPlaylst = Playlst.mPlaylstCache.get(mPlaylstId);
         mPlayButton.setVisibility(View.VISIBLE);
 
-        if (mPlaylst != null) {
-            mList = new ArrayList<>();
-            mPageLoadedCount = 0;
 
-            loadData(0);
-        } else {
-            // TODO create the getters in Playlst
-            Log.e("ViewPlaylistFragment", "Playlst is not in cache, can't render it");
-        }
+        mList = new ArrayList<>();
+        mPageLoadedCount = 0;
+
+        loadData(0);
+
 
         mPlayButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -145,17 +146,103 @@ public class ViewPlaylistFragment extends SongListFragment {
 
         if (mSource == Source.Spotify) {
             loadDataSpotify(offset);
+        } else if (mSource == Source.Soundcloud) {
+            loadDataSoundCloud(offset);
         }
 
 
     }
 
 
+    private void loadDataSoundCloud(int offset) {
+
+        if (mPlaylst == null || mPlaylst.soundcloudObject.tracks == null || mPlaylst.soundcloudObject.track_count > mPlaylst.soundcloudObject.tracks.size()) {
+            Log.e("loadDataSoundcloud", "Dont have all soundcloud track data in object");
+
+            // NOTE: http://stackoverflow.com/questions/36360202/soundcloud-api-urls-timing-out-and-then-returning-error-403-on-about-50-of-trac
+            // Tracks, anytime, can be hidden or deleted or made private, so they may return a 403 error
+            // This behavior here also assumes that we cant paginate playlist content.
+
+            setRefreshing(true);
+            mPageIsLoading = true;
+
+            Map<String, String> options = new HashMap<>();
+            options.put(SCRetrofitService.CLIENT_ID, SoundCloudApi.CLIENT_ID);
+            options.put(SCRetrofitService.OFFSET, ""+offset);
+            options.put(SCRetrofitService.LIMIT, ""+getPageSize()); // dont need to say paginated here it seems
+
+            Call<SoundCloudApi.PlaylistJson> ccc = SoundCloudApi.getApiService().getPlaylist(mPlaylst.soundcloudObject.id, options);
+            ccc.enqueue(new retrofit2.Callback<SoundCloudApi.PlaylistJson>() {
+                @Override
+                public void onResponse(Call<SoundCloudApi.PlaylistJson> call, retrofit2.Response<SoundCloudApi.PlaylistJson> response) {
+                    mPlaylst = new Playlst(response.body());
+                    ArrayList<SngItem> ss = new ArrayList<>();
+                    // tracks are not numbered, so we have to be careful about adding them
+                    for (SoundCloudApi.TrackJson tj : response.body().tracks) {
+                        if (tj != null && tj.streamable) {
+                            ss.add(new SngItem(new Sng(tj), SngItem.Type.NotInQueue));
+                            //Sng.cacheSng(
+                        } else {
+                            String g = null; g.length();
+                            // use https://api.soundcloud.com/playlists/10205283?limit=100&offset=0&client_id=5916491062a0fd0196366d76c22ac36e
+                            //ss.add(new SngItem(new Sng(), SngItem.Type.NotInQueue));
+                            Log.e("failure", "track was null/incomplete in soundcloud GetPlaylist.  Ist it private/region locked/removed?");
+                        }
+                    }
+                    //TODO cache, also note that we are not going to cache the playlist obj with the song objects
+
+
+                    setRefreshing(false);
+                    mPageIsLoading = false;
+
+                    mList.addAll(ss);
+                    mPageLoadedCount = mList.size();
+                    mPageTotalAbleToBeLoaded = mPlaylst.soundcloudObject.track_count;
+                    updateList();
+                }
+
+                @Override
+                public void onFailure(Call<SoundCloudApi.PlaylistJson> call, Throwable t) {
+                    Log.e("failure", ""+t);
+
+                    setRefreshing(false);
+                    mPageIsLoading = false;
+                }
+            });
+
+
+        } else {
+
+            // discoverd problem was that representation was ignored unless the slash was between palylists and ?
+            // strange how it didnt break any other paramsl only representation..
+
+
+            ArrayList<SngItem> ss = new ArrayList<>();
+            for (SoundCloudApi.TrackJson tj : mPlaylst.soundcloudObject.tracks) {
+                ss.add(new SngItem(new Sng(tj), SngItem.Type.NotInQueue));
+            }
+            //TODO cache
+
+            mList.addAll(ss);
+            mPageLoadedCount = mList.size();
+            mPageTotalAbleToBeLoaded = mPlaylst.soundcloudObject.track_count;
+            setRefreshing(false);
+            mPageIsLoading = false;
+
+
+            updateList();
+
+        }
+
+
+    }
     private void loadDataSpotify(int offset) {
 
         if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return;
         }
+        if (mPlaylst == null) return; // TODO
+
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
         setRefreshing(true);
@@ -180,6 +267,7 @@ public class ViewPlaylistFragment extends SongListFragment {
                 for (PlaylistTrack pt : ptp.items) {
                     ss.add(new SngItem(new Sng(pt.track), SngItem.Type.NotInQueue));
                 }
+                // TODO cache
 
                 mPageLoadedCount = ptp.offset + ptp.limit;
                 mPageTotalAbleToBeLoaded = ptp.total;
@@ -226,11 +314,14 @@ public class ViewPlaylistFragment extends SongListFragment {
             return "Player is off";
         } else if (mSource == Source.Spotify && SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return "No Spotify account found";
-        } else if (mPageIsLoading) {
-            return "loading";
-        } else if (mList == null) {
+        }
+        // No, we want the refreshing to tell us it's loading
+//        else if (mPageIsLoading) {
+//            return "loading";
+//        }
+        else if (!mPageIsLoading && mList == null) {
             return "unable to load playlist";
-        } else if (mList.size() <= 0) {
+        } else if (!mPageIsLoading && mList.size() <= 0) {
             return "playlist is empty";
         }
         return null;

@@ -4,10 +4,17 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.daasuu.ei.Ease;
+import com.daasuu.ei.EasingInterpolator;
 import com.example.Notifier;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -141,7 +148,8 @@ public class PlayButtonView extends RelativeLayout {
                     mPaused.setVisibility(GONE);
                     mPlaying.setVisibility(GONE);
                     mLoading.setVisibility(GONE);
-                    mLoading.hideAndStop();
+                    mLoading.stop();
+                    mButton.clearAnimation();
                     break;
 
                 case Loading:
@@ -151,6 +159,18 @@ public class PlayButtonView extends RelativeLayout {
                     mPlaying.setVisibility(GONE);
                     mLoading.setVisibility(VISIBLE);
                     mLoading.start();
+
+
+                    ScaleAnimation ani = new ScaleAnimation(
+                            1.0f, 0.9f, 1.0f, 0.9f,
+                            Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+//                    ani.setInterpolator(new EasingInterpolator(Ease.ELASTIC_IN_OUT));
+                    ani.setDuration(500);
+                    ani.setInterpolator(new LinearInterpolator());
+                    ani.setRepeatMode(Animation.REVERSE);
+                    ani.setRepeatCount(Animation.INFINITE);
+                    mButton.startAnimation(ani);
+
                     break;
 
                 case Paused:
@@ -159,7 +179,8 @@ public class PlayButtonView extends RelativeLayout {
                     mPaused.setVisibility(VISIBLE);
                     mPlaying.setVisibility(GONE);
                     mLoading.setVisibility(GONE);
-                    mLoading.hideAndStop();
+                    mLoading.stop();
+                    mButton.clearAnimation();
                     break;
 
                 case Playing:
@@ -168,7 +189,8 @@ public class PlayButtonView extends RelativeLayout {
                     mPaused.setVisibility(GONE);
                     mPlaying.setVisibility(VISIBLE);
                     mLoading.setVisibility(GONE);
-                    mLoading.hideAndStop();
+                    mLoading.stop();
+                    mButton.clearAnimation();
                     break;
             }
 

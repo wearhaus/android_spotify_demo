@@ -168,11 +168,9 @@ public class ViewAlbumFragment extends SongListFragment {
             return "Player is off";
         } else if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return "No Spotify account found";
-        } else if (mPageIsLoading) {
-            return "loading";
-        } else if (mList == null) {
+        } else if (!mPageIsLoading && mList == null) {
             return "unable to load album";
-        } else if (mList.size() <= 0) {
+        } else if (!mPageIsLoading && mList.size() <= 0) {
             return "album is empty";
         }
         return null;

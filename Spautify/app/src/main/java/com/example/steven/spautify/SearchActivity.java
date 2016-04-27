@@ -410,6 +410,7 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
             case Album:
             case Artist:
             case Playlist:
+                options.put(SCRetrofitService.COMPACT, "compact");
                 cc = (Call<JR>) SoundCloudApi.getApiService().searchPlaylists(options);
                 break;
 

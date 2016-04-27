@@ -53,13 +53,14 @@
         android:clickable="false"
         />
 
+
     <pl.tajchert.sample.DotsTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
 
         android:id="@+id/dots"
-        android:textSize="50dp"
+        android:textSize="45sp"
         android:textColor="#DDFFFFFF"
         dots:autoplay="false"
         dots:period="1000"

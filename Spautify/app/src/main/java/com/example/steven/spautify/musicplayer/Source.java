@@ -8,6 +8,8 @@ import com.example.steven.spautify.R;
 public enum Source {
     Spotify(SpotifyProvider.class, "sp", R.drawable.spotify_icon),
     Blank(BlankProvider.class, "bl", 0),
+    /**Represents something unable to be loaded or is forbidden.*/
+    Null(null, "nn", 0),
     Soundcloud(SoundCloudProvider.class, "sc", R.drawable.soundcloud_icon_small),
     iTunes(null, "it", 0);
 

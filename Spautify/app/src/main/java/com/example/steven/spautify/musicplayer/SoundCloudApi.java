@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.GsonConverterFactory;
@@ -41,10 +43,13 @@ public class SoundCloudApi {
     public static void init() {
         sAuthState = WMusicProvider.AuthState.NotLoggedIn;
 
-
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_URL + "/")
+                .client(client) // this allows us to set the logging level
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

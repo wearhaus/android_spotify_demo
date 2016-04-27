@@ -18,8 +18,8 @@ public class Sng {
     private static final String TAG = "Sng";
 
     // Fields always present
-    /** our custom defined songId field, separating out sources*/
-    public String songId;
+    /** our custom defined sngId field, separating out sources.  Will have 2 character prefix defining the source */
+    public String sngId;
     public Source source;
     public String name;
     public String artistPrimaryName;
@@ -41,7 +41,7 @@ public class Sng {
     public Sng(Track t) {
         spotifyUri = t.uri;
         source = Source.Spotify;
-        songId = source.prefix + t.id;
+        sngId = source.prefix + t.id;
 
 
         name = t.name;
@@ -60,7 +60,7 @@ public class Sng {
     public Sng(SoundCloudApi.TrackJson t) {
         source = Source.Soundcloud;
         soundCloudId = t.id;
-        songId = source.prefix + t.id;
+        sngId = source.prefix + t.id;
 
         name = t.title;
         artistPrimaryName = t.user.username;
@@ -69,6 +69,11 @@ public class Sng {
         artworkUrl = t.artwork_url;
 
         soundCloudJson = t;
+    }
+
+    public Sng() {
+        source = Source.Null;
+        sngId = source.prefix;
     }
 
     /** Equality check that checks for ids of songs.
@@ -148,6 +153,11 @@ public class Sng {
 
     /** Gets the sng async, saves into cache, and calls the provided listener with
      * the results.  This abstracts out which source the Sng is from. */
+    public static void cacheSng(Sng sng) {
+        mSngCache.put(sng.sngId, sng);
+
+    }
+
     public static void getSng(final String songId, final GetSongListener l) {
 
 

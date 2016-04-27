@@ -526,7 +526,7 @@ public class SpotifyApi {
             @Override
             public void success(Track track, Response response) {
                 Sng sng = new Sng(track);
-                Sng.mSngCache.put(sng.songId, sng);
+                Sng.mSngCache.put(sng.sngId, sng);
                 if (l != null) l.gotSong(sng);
             }
 

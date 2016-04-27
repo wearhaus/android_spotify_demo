@@ -1,9 +1,7 @@
 package com.example.steven.spautify;
 
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -346,7 +343,7 @@ public abstract class NavBarRootActivityMOD extends BluetoothActivityMOD {
             @Override
             public void gotSong(Sng sng) {
                 Log.w("rgsfdgs", "gotSong!" + dbgCc + ", " + dbgAA.size());
-                int i = dbgAA.indexOf(sng.songId);
+                int i = dbgAA.indexOf(sng.sngId);
                 dbgSng[i] = sng;
                 dbgGot();
             }

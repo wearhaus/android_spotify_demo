@@ -19,9 +19,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_margin="50dp"
 
             android:scaleType="fitCenter"
 
+            />
+
+        <Button
+            android:id="@+id/source_splash"
+            android:drawableLeft="@drawable/soundcloud_icon_small"
+            android:text="View on SoundCloud"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:padding="10dp"
+            android:layout_alignLeft="@+id/img"
+            android:layout_alignTop="@+id/img"
+            android:background="@drawable/button_bg_grey"
             />
 
 

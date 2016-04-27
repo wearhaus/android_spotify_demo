@@ -31,6 +31,7 @@ public class ViewPlaylistActivity extends LeafActivityWithPlayerBar {
         } else {
             setTitle("Playlist");
         }
+        // TODO should be set from fragment, not in activity, since fragment handles loading the playlist
     }
 
 

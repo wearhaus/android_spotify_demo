@@ -1,5 +1,6 @@
 package com.example.steven.spautify.musicplayer;
 
+import android.util.Log;
 import android.util.LruCache;
 
 import com.google.gson.annotations.SerializedName;
@@ -55,7 +56,10 @@ public class Playlst {
         creatorName = p.user != null ? p.user.username : "";
         artworkUrl = p.artwork_url;
 
+        // Note: it would be an error to have source marked but the corresponding object null
         soundcloudObject = p;
+        Log.w("playlst", "soundcloudObject="+soundcloudObject);
+        Log.w("playlst", "soundcloudObject="+soundcloudObject.tracks);
     }
 
 
