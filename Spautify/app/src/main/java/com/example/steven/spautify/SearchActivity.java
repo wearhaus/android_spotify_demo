@@ -22,7 +22,7 @@ import com.example.steven.spautify.Fragments.PlaylistSearchResultFragment;
 import com.example.steven.spautify.Fragments.SearchResultFragmentInterface;
 import com.example.steven.spautify.Fragments.SearchType;
 import com.example.steven.spautify.Fragments.SongListFragment;
-import com.example.steven.spautify.Fragments.SongSearchResultFragmentNEW;
+import com.example.steven.spautify.Fragments.SongSearchResultFragment;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SCRetrofitService;
 import com.example.steven.spautify.musicplayer.Sng;
@@ -640,7 +640,7 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
                     frag = new PlaylistSearchResultFragment();
                     break;
                 case Song:
-                    frag = new SongSearchResultFragmentNEW();
+                    frag = new SongSearchResultFragment();
                     break;
 
             }
