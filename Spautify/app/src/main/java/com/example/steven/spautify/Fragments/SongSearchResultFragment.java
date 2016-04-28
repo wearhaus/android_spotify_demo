@@ -47,7 +47,7 @@
 //    }
 //
 //
-//    public void setResultingLoading() {
+//    public void setResultNewQuery() {
 //        resultingItems = null;
 //        errorMsg = null;
 //        mNextPage = null;
@@ -57,7 +57,7 @@
 //        updateList();
 //    }
 //
-//    public void setResultingError(String e) {
+//    public void setResultError(String e) {
 //        resultingItems = null;
 //        errorMsg = e;
 //        mNextPage = null;
@@ -67,7 +67,7 @@
 //        updateList();
 //    }
 //
-//    public void setResultingCancelled() {
+//    public void setResultCancelled() {
 //        resultingItems = null;
 //        errorMsg = null;
 //        mNextPage = null;

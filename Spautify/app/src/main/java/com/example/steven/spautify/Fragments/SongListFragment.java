@@ -58,7 +58,8 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
 
     private enum DialogItem {
         PlayInQueue("Play"),
-        PlayFromLib("Play"),
+//        PlayFromLib("Play"),
+        PlayKeepQueueLib("Play"),
         RemoveFromQueue("Remove from queue"),
         AddToQueue("Add to queue"),
         PlayNextLib("Play next"),
@@ -85,7 +86,8 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             dialogItems.add(DialogItem.RemoveFromQueue);
 
         } else {
-            dialogItems.add(DialogItem.PlayFromLib);
+            dialogItems.add(DialogItem.PlayKeepQueueLib);
+            dialogItems.add(DialogItem.PlayNextLib);
             dialogItems.add(DialogItem.AddToQueue);
 
 
@@ -137,8 +139,9 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
                     public void onClick(DialogInterface dialog, int which) {
 
                         switch (dialogItemsFinalized.get(which)) {
-                            case PlayFromLib:
-                                WPlayer.playSingleClearQueue(sng); break;
+//                            case PlayFromLib:
+                            case PlayKeepQueueLib:
+                                WPlayer.playSingleKeepQueue(sng); break;
 
                             case PlayInQueue:
                                 WPlayer.playItemInQueue(position, sng); break;
@@ -295,6 +298,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             } else {
                 //holder.mImgGoneSpace.getLayoutParams().
                 holder.mImageView.setVisibility(View.GONE);
+                // this way goneSpace's bounds matter
             }
 
 
@@ -304,11 +308,11 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
                     if (songListFragment.getClickType() == SongListFragment.ClickType.Queue) {
                         WPlayer.playItemInQueue(position, s.sng);
                     } else if (songListFragment.getClickType() == SongListFragment.ClickType.SearchResult) {
-                        WPlayer.playSingleClearQueue(s.sng);
+//                        WPlayer.playSingleClearQueue(s.sng);
+                        onItemMenuSelected(position, s.sng);
                     } else if (songListFragment.getClickType() == SongListFragment.ClickType.Lib || songListFragment.getClickType() == SongListFragment.ClickType.LibAlbum) {
-                        // TODO auto-load rest of album/playlist/artist page into queue, or an id
-                        // to load more form when the time comes.
-                        WPlayer.playSingleClearQueue(s.sng);
+//                        WPlayer.playSingleClearQueue(s.sng);
+                        onItemMenuSelected(position, s.sng);
                     }
                 }
             });
@@ -316,7 +320,7 @@ public abstract class SongListFragment extends DynamicRecycleListFragment {
             holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    songListFragment.onItemMenuSelected(position, s.sng);
+                    onItemMenuSelected(position, s.sng);
                 }
             });
 

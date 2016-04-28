@@ -1,7 +1,13 @@
 package com.example.steven.spautify.Fragments;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+
+import com.example.steven.spautify.ViewPlaylistActivity;
+import com.example.steven.spautify.musicplayer.Source;
+import com.example.steven.spautify.musicplayer.SpotifyApi;
+import com.example.steven.spautify.musicplayer.WMusicProvider;
 
 import java.util.ArrayList;
 
@@ -21,17 +27,19 @@ public class SearchResultFragmentHelper<I,
 
     private DynamicRecycleListFragment<I, V, A> mDyrel;
 
-    SearchResultFragmentHelper(DynamicRecycleListFragment<I, V, A> dyrel) {
+    SearchResultFragmentHelper(DynamicRecycleListFragment<I, V, A> dyrel, String sourcePrefix) {
         mDyrel = dyrel;
+        mSource = Source.getSourceByPrefix(sourcePrefix);
     }
+
+
 
 
 
     protected ArrayList<SongListFragment.SngItem> resultingItems;
     private DynamicRecycleListFragment.SearchResultNextPage mNextPage;
     private String errorMsg;
-
-
+    private Source mSource;
 
     /** @param add if true, add the given items nstead of replace.  When true, r must not be null*/
     public void setResult(@NonNull ArrayList<SongListFragment.SngItem> r, DynamicRecycleListFragment.SearchResultNextPage srnp, boolean add) {
@@ -53,7 +61,7 @@ public class SearchResultFragmentHelper<I,
     }
 
 
-    public void setResultingLoading() {
+    public void setResultNewQuery() {
         resultingItems = null;
         errorMsg = null;
         mNextPage = null;
@@ -63,7 +71,7 @@ public class SearchResultFragmentHelper<I,
         mDyrel.updateList();
     }
 
-    public void setResultingError(String e) {
+    public void setResultError(String e) {
         resultingItems = null;
         errorMsg = e;
         mNextPage = null;
@@ -73,7 +81,7 @@ public class SearchResultFragmentHelper<I,
         mDyrel.updateList();
     }
 
-    public void setResultingCancelled() {
+    public void setResultCancelled() {
         resultingItems = null;
         errorMsg = null;
         mNextPage = null;
@@ -94,6 +102,8 @@ public class SearchResultFragmentHelper<I,
         //} else
         if (errorMsg != null) {
             badWhy = errorMsg;
+        } else if (mSource.isPlaybackAuthedErrorString() != null) {
+            badWhy = mSource.isPlaybackAuthedErrorString();
         } else if (mDyrel.getList() == null) {
             badWhy = "";
         } else if (mDyrel.getList().size() <= 0) {

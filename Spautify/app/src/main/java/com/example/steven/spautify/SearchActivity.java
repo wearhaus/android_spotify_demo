@@ -1,36 +1,41 @@
 package com.example.steven.spautify;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.steven.spautify.Fragments.AlbumSearchResultFragment;
 import com.example.steven.spautify.Fragments.DynamicRecycleListFragment;
 import com.example.steven.spautify.Fragments.PlaylistSearchResultFragment;
 import com.example.steven.spautify.Fragments.SearchResultFragmentInterface;
+import com.example.steven.spautify.Fragments.SearchType;
 import com.example.steven.spautify.Fragments.SongListFragment;
 import com.example.steven.spautify.Fragments.SongSearchResultFragmentNEW;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SCRetrofitService;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SoundCloudApi;
+import com.example.steven.spautify.musicplayer.Source;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
-import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistsPager;
 import kaaes.spotify.webapi.android.models.Track;
@@ -48,37 +53,38 @@ import retrofit2.Call;
  * Created by Steven on 7/16/2015.
  */
 public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultFragmentInterface, JR> extends LeafActivity {
-    private static final String FRAGMENT_ID_RESULT = "search_result_frag";
 
     private static final boolean AUTO_SEARCH_DURING_TYPING = false;
     private static final String TAG = "SearchActivity";
 
 
-    private View mSearchResultContainer;
-    private View mSearchResultContainer2;
     private TextView mSearchText;
     private TextView mDisabledText;
     private ImageView mSearchCancel;
     private ImageView mSearchStart;
 
-    private S mFragResult;
-
     private MusicPlayerBar mMusicPlayerBar;
 
 
-    private View mSearchOptionsLayout1;
+//    private View mSearchOptionsLayout1;
     private View mSearchOptionsLayout2;
-    private CheckBox mCheckBoxSpotify;
-    private CheckBox mCheckBoxSoundCloud;
+
+//    private CheckBox mCheckBoxSpotify;
+//    private CheckBox mCheckBoxSoundCloud;
     private CheckBox mCheckBoxTracks;
     private CheckBox mCheckBoxAlbums;
     private CheckBox mCheckBoxArtist;
     private CheckBox mCheckBoxPlaylist;
 
 
+    private MyViewPageAdapter mViewPagerAdapter;
+    private ViewPager mViewPager;
+    private TabLayout mTabLayout;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("FriendsActivity", "FriendsActivity onCreate");
+        Log.d(TAG, "FriendsActivity onCreate");
         super.onCreate(savedInstanceState);
 
 
@@ -93,40 +99,55 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
 
         mDisabledText = (TextView) findViewById(R.id.disabled_text);
 
-        mSearchResultContainer = findViewById(R.id.search_result_container);
+//        mSearchResultContainer = findViewById(R.id.search_result_container);
         mSearchText = (TextView) findViewById(R.id.search_text);
         mSearchCancel = (ImageView) findViewById(R.id.cancel_button);
         mSearchStart = (ImageView) findViewById(R.id.search_button);
 
 
+        mViewPager = (ViewPager) findViewById(R.id.view_pager);
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+
+        FragmentManager fm = getFragmentManager();
 
 
-        mSearchOptionsLayout1 = findViewById(R.id.search_options);
+        mSearchType = SearchType.Song; // CAnt be null or else adapter freaks out about null Fragments from getItem
+        mViewPagerAdapter = new MyViewPageAdapter(fm);
+        mViewPager.setAdapter(mViewPagerAdapter);
+        mViewPager.addOnPageChangeListener(mViewPagerListener);
+        mTabLayout.setupWithViewPager(mViewPager);
+
+
+
+
+
+
+//        mSearchOptionsLayout1 = findViewById(R.id.search_options);
         mSearchOptionsLayout2 = findViewById(R.id.search_options_2);
 
         View.OnClickListener ccc = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-                    case R.id.option_spotify:
-                        if (SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
-                            //mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
-                        } else {
-                            //mCheckBoxSoundCloud.setChecked(true);
-                            mCheckBoxSpotify.setChecked(false);
-                            Toast toast = Toast.makeText(SearchActivity.this, "Log into Spotify to access Spotify music", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-
-                        break;
-                    case R.id.option_soundcloud:
-                        if (SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
-                            //mCheckBoxSpotify.setChecked(!mCheckBoxSoundCloud.isChecked());
-                        } else {
-//                            mCheckBoxSoundCloud.setChecked(true);
+//                    case R.id.option_spotify:
+//                        if (SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+//                            //mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
+//                        } else {
+//                            //mCheckBoxSoundCloud.setChecked(true);
 //                            mCheckBoxSpotify.setChecked(false);
-                        }
-                        break;
+//                            Toast toast = Toast.makeText(SearchActivity.this, "Log into Spotify to access Spotify music", Toast.LENGTH_SHORT);
+//                            toast.show();
+//                        }
+//
+//                        break;
+//                    case R.id.option_soundcloud:
+//                        if (SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+//                            //mCheckBoxSpotify.setChecked(!mCheckBoxSoundCloud.isChecked());
+//                        } else {
+////                            mCheckBoxSoundCloud.setChecked(true);
+////                            mCheckBoxSpotify.setChecked(false);
+//                        }
+//                        break;
 
 
                     case R.id.option_tracks:
@@ -146,10 +167,10 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
             }
         };
 
-        mCheckBoxSpotify = (CheckBox) findViewById(R.id.option_spotify);
-        mCheckBoxSoundCloud = (CheckBox) findViewById(R.id.option_soundcloud);
-        mCheckBoxSpotify.setOnClickListener(ccc);
-        mCheckBoxSoundCloud.setOnClickListener(ccc);
+//        mCheckBoxSpotify = (CheckBox) findViewById(R.id.option_spotify);
+//        mCheckBoxSoundCloud = (CheckBox) findViewById(R.id.option_soundcloud);
+//        mCheckBoxSpotify.setOnClickListener(ccc);
+//        mCheckBoxSoundCloud.setOnClickListener(ccc);
 
         mCheckBoxTracks = (CheckBox) findViewById(R.id.option_tracks);
         mCheckBoxAlbums = (CheckBox) findViewById(R.id.option_album);
@@ -165,9 +186,10 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
 
         mMusicPlayerBar = (MusicPlayerBar) findViewById(R.id.music_player_bar);
 
-        mCheckBoxSpotify.setChecked(SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn);
-        mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
+//        mCheckBoxSpotify.setChecked(SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn);
+//        mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
         mCheckBoxTracks.setChecked(true);
+
     }
 
 
@@ -189,7 +211,7 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
 
     private void refreshUI() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
-            mSearchResultContainer.setVisibility(View.GONE);
+//            mSearchResultContainer.setVisibility(View.GONE);
             mSearchText.setVisibility(View.GONE);
             mSearchCancel.setVisibility(View.GONE);
 
@@ -197,14 +219,14 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
             mDisabledText.setText("Player is off");
 
             mMusicPlayerBar.setVisibility(View.GONE);
-            mSearchOptionsLayout1.setVisibility(View.GONE);
+//            mSearchOptionsLayout1.setVisibility(View.GONE);
             mSearchOptionsLayout2.setVisibility(View.GONE);
 
 
         } else {
 
             mDisabledText.setVisibility(View.GONE);
-            mSearchOptionsLayout1.setVisibility(View.VISIBLE);
+//            mSearchOptionsLayout1.setVisibility(View.VISIBLE);
             mSearchOptionsLayout2.setVisibility(View.VISIBLE);
 
 
@@ -213,7 +235,8 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
                 public void onClick(View v) {
                     startAniCloseSearch();
                     mSearchText.setText("");
-                    mFragResult.setResultingCancelled();
+                    // TODO cancel queries
+                    mViewPagerAdapter.setResultAllCancelled();
 //                if (AUTO_SEARCH_DURING_TYPING && mhhh != null) {
 //                    mhhh.cancel();
 //                    mhhh = null;
@@ -224,7 +247,7 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
             mSearchStart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    doSearch();
+                    doSearch("" + mSearchText.getText());
                 }
             });
 
@@ -277,8 +300,14 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
     private int mSearchHash = 0;
     private SearchType mSearchType = null;
 
+    // TODO this concept will expand to inlcude the storage for the actual data we load,
+    // so when 2 have 3+ frags in the tabs, we can search on all 3, and not worry about data loss or null fragments
+    /** The suffix to add to end of tab title, "" means nothing, Set back to "" when a tab is selected*/
+    private String[] mTabTitleSuffix = new String[]{"",""};
 
-    private void doSearch() {
+
+    private void doSearch(String query) {
+        if (query == null || query.length() <= 0) return;
         if (!mSearchOpened) {
             mSearchOpened = true;
             mSearchCancel.setVisibility(View.VISIBLE);
@@ -301,37 +330,33 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
         if (mSearchType != newSearchType) {
             mSearchType = newSearchType;
             Log.i("search", "Switching type of result fragment");
-            switch (mSearchType) {
-                case Album:
-                    mFragResult = (S) new AlbumSearchResultFragment();
-                    break;
-                case Artist:
-                case Playlist:
-                    mFragResult = (S) new PlaylistSearchResultFragment();
-                    break;
-                case Song:
-                    mFragResult = (S) new SongSearchResultFragmentNEW();
-                    break;
+            // so we need a new adapter:
+            mViewPagerAdapter.notifyDataSetChanged();
+            // notify plus overriding getItemPosition in the adapter allows us to change the fragments
 
+//            FragmentManager fm = getFragmentManager();
+//            mViewPagerAdapter = new MyViewPageAdapter(fm);
+//            mViewPager.setAdapter(mViewPagerAdapter);
+//            mTabLayout.setupWithViewPager(mViewPager);
+
+        }
+
+        if (Source.Spotify.isPlaybackAuthed()) {
+            S frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
+            if (frag != null) {
+                frag.setResultNewQuery();
             }
-
-            FragmentManager fm = getFragmentManager();
-            fm.beginTransaction()
-                    .replace(R.id.search_result_container, mFragResult, FRAGMENT_ID_RESULT)
-                    .commit();
-
-
+            searchSpotifyApi(mSearchType, query, mSearchHash, 0, 12);
         }
 
-        if (mCheckBoxSpotify.isChecked()) {
-            searchSpotifyApi(mSearchType, "" + mSearchText.getText(), mSearchHash, 0, 12);
-        } else {
-            searchSoundCloudApi(mSearchType, "" + mSearchText.getText(), mSearchHash, 0, 12);
+        if (Source.Soundcloud.isPlaybackAuthed()) {
+            S frag = mViewPagerAdapter.getFragmentBySource(Source.Soundcloud);
+            if (frag != null) {
+                frag.setResultNewQuery();
+            }
+            searchSoundCloudApi(mSearchType, query, mSearchHash, 0, 12);
         }
 
-
-
-        mFragResult.setResultingLoading();
     }
 
     private void startAniCloseSearch() {
@@ -342,20 +367,8 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
     }
 
 
-    private enum SearchType {
-        Song(),
-        Playlist(),
-        Artist(),
-        Album();
-    }
 
 
-//    private void doSearch() {
-//
-//
-//    }
-//
-//
 //    private TextWatcher mTextWatcher = new TextWatcher() {
 //        @Override
 //        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -368,13 +381,13 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
 ////                searchSpotifyApi("" + mSearchText.getText());
 ////
 ////
-////                mFragResult.setResultingLoading();
+////                mFragResult.setResultNewQuery();
 ////                // Nope.. NEED to use a search button since this isn't going to our API backend, its using Spotify's,
 //                // So we don't want to get our App throttled/banned from too much redundant activity.
 //
 //
 //            } else {
-//                mFragResult.setResultingLoading();
+//                mFragResult.setResultNewQuery();
 //                startAniCloseSearch();
 //            }
 //        }
@@ -394,6 +407,7 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
         // Breaks with spaces.
         String q = query.replace(" ", "-");
         // limit max is 200, default is 10
+        setTabSuffix(Source.Soundcloud, "...");
 
         Map<String, String> options = new HashMap<>();
         options.put(SCRetrofitService.CLIENT_ID, SoundCloudApi.CLIENT_ID);
@@ -401,6 +415,7 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
         options.put(SCRetrofitService.LIMIT, ""+limit);
         options.put(SCRetrofitService.QUERY, query);
         options.put(SCRetrofitService.PAGINATE, ""+1);
+
 
         Call<JR> cc = null;
         switch (st) {
@@ -442,54 +457,36 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
                 }
 
 
-
-                mFragResult.setResult(jrList, new DynamicRecycleListFragment.SearchResultNextPage() {
-                    @Override
-                    public void requestNextPage() {
-                        searchSoundCloudApi(st, query, hash, offset+limit, limit);
+                setTabSuffix(Source.Soundcloud, jrList);
+                S frag = mViewPagerAdapter.getFragmentBySource(Source.Soundcloud);
+                if (frag != null) {
+                    DynamicRecycleListFragment.SearchResultNextPage nextPage = null;
+                    if (jrList.size() >= limit) {
+                        nextPage = new DynamicRecycleListFragment.SearchResultNextPage() {
+                            @Override
+                            public void requestNextPage() {
+                                searchSoundCloudApi(st, query, hash, offset + limit, limit);
+                            }
+                        };
                     }
-                }, (offset>0));
+                    frag.setResult(jrList, nextPage, (offset > 0));
+                }
+                // TODO store data nstead of store inside frag.  This means setResult adding is deprecated
             }
 
             @Override
             public void onFailure(Call<JR> call, Throwable t) {
                 Log.e(TAG, "Server Error: " + t);
                 if (hash != mSearchHash) return;
-                mFragResult.setResultingError("Server Error!");
+                setTabSuffix(Source.Soundcloud, "");
+                S frag = mViewPagerAdapter.getFragmentBySource(Source.Soundcloud);
+                if (frag != null) {
+                    frag.setResultError("Server Error!");
+                }
             }
+
         });
     }
-
-//    private void searchSoundCloudApi(final SearchType st, final String query, final int hash, final int offset, final int limit) {
-//
-//        // this only does track title, not author, or smart features like soundclouds
-//        SoundCloudApiController.searchTrack(query, new SoundCloudApiController.GotTrackArray() {
-//            @Override
-//            public void gotItem(SoundCloudApiController.TrackJson[] trackJsons) {
-//                if (hash != mSearchHash) return;
-//
-//                ArrayList<SongListFragment.SngItem> songs = new ArrayList<>();
-//                for (SoundCloudApiController.TrackJson t : trackJsons) {
-//                    songs.add(new SongListFragment.SngItem(new Sng(t), SongListFragment.SngItem.Type.NotInQueue));
-//                }
-//
-//
-//                mFragResult.setResult(songs, new DynamicRecycleListFragment.SearchResultNextPage() {
-//                    @Override
-//                    public void requestNextPage() {
-//                        searchSoundCloudApi(st, query, hash, offset+limit, limit);
-//                    }
-//                }, (offset>0));
-//
-//            }
-//
-//            @Override
-//            public void failure() {
-//                if (hash != mSearchHash) return;
-//                mFragResult.setResultingError("Server Error!");
-//            }
-//        }, offset, limit);
-//    }
 
 
 
@@ -503,6 +500,7 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
         options.put(SCRetrofitService.OFFSET, ""+offset);
         options.put(SCRetrofitService.LIMIT, ""+limit);
         ////////
+        setTabSuffix(Source.Spotify, "...");
 
         Call<JR> cc = null;
         switch (st) {
@@ -518,19 +516,34 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
                             songs.add(new SongListFragment.SngItem(new Sng(t), SongListFragment.SngItem.Type.NotInQueue));
                         }
 
-                        mFragResult.setResult(songs, new DynamicRecycleListFragment.SearchResultNextPage() {
-                            @Override
-                            public void requestNextPage() {
-                                searchSpotifyApi(st, query, hash, offset+limit, limit);
+                        setTabSuffix(Source.Spotify, songs);
+                        S frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
+                        if (frag != null) {
+                            DynamicRecycleListFragment.SearchResultNextPage nextPage = null;
+                            if (songs.size() >= limit) {
+                                nextPage = new DynamicRecycleListFragment.SearchResultNextPage() {
+                                    @Override
+                                    public void requestNextPage() {
+                                        searchSpotifyApi(st, query, hash, offset + limit, limit);
+                                    }
+                                };
                             }
-                        }, (offset>0));
+                            frag.setResult(songs, nextPage, (offset > 0));
+                        }
+
+
+
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
                         Log.e(TAG, "Server Error: " + error);
                         if (hash != mSearchHash) return;
-                        mFragResult.setResultingError("Server Error!");
+                        setTabSuffix(Source.Spotify, "");
+                        S frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
+                        if (frag != null) {
+                            frag.setResultError("Server Error!");
+                        }
                     }
 
                 });
@@ -551,19 +564,31 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
                             list.add(new Playlst(t));
                         }
 
-                        mFragResult.setResult(list, new DynamicRecycleListFragment.SearchResultNextPage() {
-                            @Override
-                            public void requestNextPage() {
-                                searchSpotifyApi(st, query, hash, offset+limit, limit);
+                        setTabSuffix(Source.Spotify, list);
+                        S frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
+                        if (frag != null) {
+                            DynamicRecycleListFragment.SearchResultNextPage nextPage = null;
+                            if (list.size() >= limit) {
+                                nextPage = new DynamicRecycleListFragment.SearchResultNextPage() {
+                                    @Override
+                                    public void requestNextPage() {
+                                        searchSpotifyApi(st, query, hash, offset + limit, limit);
+                                    }
+                                };
                             }
-                        }, (offset>0));
+                            frag.setResult(list, nextPage, (offset > 0));
+                        }
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
                         Log.e(TAG, "Server Error: " + error);
                         if (hash != mSearchHash) return;
-                        mFragResult.setResultingError("Server Error!");
+                        setTabSuffix(Source.Spotify, "");
+                        S frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
+                        if (frag != null) {
+                            frag.setResultError("Server Error!");
+                        }
                     }
 
                 });
@@ -580,7 +605,196 @@ public class SearchActivity<S extends DynamicRecycleListFragment & SearchResultF
 
 
 
+    /**
+     * TODO when we have a 3rd provider, we need to worry about the lists being deloaded...
+     * This would work by storing the values here, and trying to refresh a frag when possible, but if null do nothing.
+     * Then whenever getItem is called (aka create fragment), we have the adapter catch it up to anything that happened by
+     * calling setResult with the appropriate value.  That means that we have to store loading, error, mList all here for
+     * each source, and have them abstract the searchtype away.  This will be undertajen
+     *
+     * Also, when a provider is not authed (ex/ spotify logged in to), perhaps not provide that tab at all.
+     */
+    private class MyViewPageAdapter extends FragmentPagerAdapter {
+        private final int size = 2;
+        Fragment[] instantiatedFrags = new Fragment[size];
 
+        public MyViewPageAdapter(FragmentManager fm) {
+            super(fm);
+            Log.e(TAG, "create MyViewPageAdapter");
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            Log.e(TAG, "getItem: " + i);
+            // NOte: these are independent of position; ONLY inited search type.
+            // TODO do we care about the 'proper' way to pass args to fragments (via bundle?)
+            Fragment frag = null;
+            switch (mSearchType) {
+                case Album:
+                    frag = new AlbumSearchResultFragment();
+                    break;
+                case Artist:
+                    frag = new PlaylistSearchResultFragment(); ////// TODO TODO TODO
+                    break;
+                case Playlist:
+                    frag = new PlaylistSearchResultFragment();
+                    break;
+                case Song:
+                    frag = new SongSearchResultFragmentNEW();
+                    break;
+
+            }
+
+            Bundle args = new Bundle();
+            Source source;
+            if (i == 0) {
+                source = Source.Spotify;
+            } else {
+                source = Source.Soundcloud;
+            }
+            args.putString(SearchResultFragmentInterface.TAG_SOURCE_PREFIX, source.prefix);
+            frag.setArguments(args);
+            return frag;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            // need to mark items with it's searchtype, so if we switch, the adapter knows it's old
+            // we dont lookup the item, since this is only assigned at items, creation, and when we want to check if we are to
+            // create a new item, it checks if an item with this itemid exists.  To switch search Types, we need to invalidate
+            // all ids that were created by using the universal search type in the itemid
+            return super.getItemId(position) + (mSearchType.ordinal()*100);
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            S frag = (S) object;
+
+            if (mSearchType == frag.getSearchType()) {
+                Log.e(TAG, "getItemPosition: same class");
+                return super.getItemPosition(object);
+            } else {
+                Log.e(TAG, "getItemPosition: POSITION_NONE");
+                // This lets the adapter know it has to recreate the fragment instead of keeping it around, allowing getItem to create a new one
+                return POSITION_NONE;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return size;
+        }
+
+        @Override
+        public String getPageTitle(int position) {
+            String suffix = mTabTitleSuffix[position];
+            if (suffix == null) suffix = "";
+            switch (position) {
+                case 0:  return "Spotify" + suffix;
+                case 1:  return "SoundCloud" + suffix;
+                // TODO figure out how to include waiting dots in tablayout; may require some ultra-hacking though,
+                // or not using TabLayout's setupWithViewPager
+            }
+
+            // To change the name of the tab, you need to call adapter.notifyDataSetChanged(), but this also results in
+            // getItem being called again and new Fragments being created
+            // Update: it seems calling setupWithViewPager again will cause the titles to be regrabbed
+            return null;
+        }
+
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment frag = (Fragment) super.instantiateItem(container, position);
+            Log.e(TAG, "instantiateItem: " + ((S) frag).getSearchType() + ",  " + getItemId(position));
+            instantiatedFrags[position] = frag;
+            return frag;
+        }
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            Log.d(TAG, "destroyItem: " + position);
+            instantiatedFrags[position] = null;
+            super.destroyItem(container, position, object);
+        }
+
+        /** Our custom method to retrieve a fragment without forcibly creating a new one.
+         * Is null if the item hasn't yet been created.
+         * See: http://stackoverflow.com/questions/8785221/retrieve-a-fragment-from-a-viewpager*/
+        @Nullable
+        public Fragment getInstantiatedItem(int position) {
+            Log.d(TAG, "getInstantiatedItem: " + position + ", " + instantiatedFrags[position]);
+            return instantiatedFrags[position];
+        }
+
+        void setResultAllCancelled() {
+            for (Fragment f : instantiatedFrags) {
+                if (f != null) {
+                    ((SearchResultFragmentInterface) f).setResultCancelled();
+                }
+            }
+        }
+//        void setResultAllLoading() {
+//            for (Fragment f : instantiatedFrags) {
+//                if (f != null) {
+//                    ((SearchResultFragmentInterface) f).setResultNewQuery();
+//                }
+//            }
+//        }
+
+        S getFragmentBySource(Source s) {
+            if (s == Source.Spotify) return (S) instantiatedFrags[0];
+            if (s == Source.Soundcloud) return (S) instantiatedFrags[1];
+            return null;
+        }
+
+    }
+
+    private void setTabSuffix(Source source, @NonNull List l) {
+        if (l.size() > 0) {
+            setTabSuffix(source, l.size() + "+");
+        } else {
+            setTabSuffix(source, "0");
+        }
+    }
+    private void setTabSuffix(Source source, String s) {
+        int position;
+        if (source == Source.Spotify) {
+            position = 0;
+        } else {
+            position = 1;
+        }
+
+
+        if (s == "" || mViewPager.getCurrentItem() != position) {
+            if (s != "") s = " (" + s + ")";
+            mTabTitleSuffix[position] = s;
+            mTabLayout.setupWithViewPager(mViewPager);
+        }
+    }
+
+
+    ViewPager.OnPageChangeListener mViewPagerListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            // use mViewPager.getCurrentItem() to get current position outside of here.
+            // if the tab is selected, dont need the title to display any action
+            if (mTabTitleSuffix[position] != "") {
+                mTabTitleSuffix[position] = "";
+                mTabLayout.setupWithViewPager(mViewPager);
+            }
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
 
 
 

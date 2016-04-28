@@ -15,12 +15,30 @@ public enum Source {
 
 
     Class providerClass;
-    String prefix;
+    public String prefix;
     public int sourceSplashRes;
     Source(Class pc, String p, int ss) {
         providerClass = pc;
         prefix = p;
         sourceSplashRes = ss;
+    }
+
+//    public WMusicProvider.AuthState getSourcePlaybackAuthState() {
+    public boolean isPlaybackAuthed() {
+        return isPlaybackAuthedErrorString() == null;
+    }
+
+    /** Null means good, String means not good as well as human reason why. */
+    public String isPlaybackAuthedErrorString() {
+        if (this == Spotify) {
+            if (SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
+                return null;
+            } else {
+                return "Not logged into Spotify";
+            }
+        }
+        if (this == Soundcloud) return null; // do need for authentication for playback
+        return ""; // source not yet supported
     }
 
     /** Valid for Songs, Playlists, and Albums */
@@ -37,5 +55,12 @@ public enum Source {
     public static String get3rdPartyId(String id) {
         if (id == null || id.length() <= 2) return null;
         return id.substring(2);
+    }
+
+    public static Source getSourceByPrefix(String prefix) {
+        for (Source s : values()) {
+            if (s.prefix.equals(prefix)) return s;
+        }
+        return null;
     }
 }

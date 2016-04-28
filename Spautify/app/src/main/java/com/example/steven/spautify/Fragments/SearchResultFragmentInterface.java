@@ -11,15 +11,18 @@ import java.util.ArrayList;
  */
 public interface SearchResultFragmentInterface<I> {
 
+    public static final String TAG_SOURCE_PREFIX = "arg_source_prefix";
 
     /** @param add if true, add the given items nstead of replace.  When true, r must not be null*/
     void setResult(@NonNull ArrayList<I> r, DynamicRecycleListFragment.SearchResultNextPage srnp, boolean add);
 
-    void setResultingLoading();
+    void setResultNewQuery();
 
-    void setResultingError(String e);
+    void setResultError(String e);
 
-    void setResultingCancelled();
+    void setResultCancelled();
+
+    SearchType getSearchType();
 
 
 }

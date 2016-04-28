@@ -665,8 +665,7 @@ public class WPlayer {
     }
 
 
-    @NonNull
-    public static void playManyClearQueue(ArrayList<Sng> sngs) {
+    public static void playManyClearQueue(@NonNull ArrayList<Sng> sngs) {
         Log.i(TAG, "playManyClearQueue() size=" + sngs.size());
         mQueue.clear();
         mQueueBack.clear();
@@ -682,8 +681,7 @@ public class WPlayer {
 
 
 
-    @NonNull
-    public static void playSingleClearQueue(Sng sng) {
+    public static void playSingleClearQueue(@NonNull Sng sng) {
         mQueue.clear();
         mQueueBack.clear();
 
@@ -694,8 +692,17 @@ public class WPlayer {
         mNotifier.notifyListeners(Notif.PlaybackAndQueue);
     }
 
+
+    public static void playSingleKeepQueue(@NonNull Sng sng) {
+        mQueueBack.add(mCurrentSng);
+        mCurrentSng = sng;
+        internalPlay();
+
+        mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+    }
+
     /** position is 0 indexed and includes the current playing one*/
-    public static void playItemInQueue(int pos, Sng sng) {
+    public static void playItemInQueue(int pos, @NonNull Sng sng) {
         // queue may have been changed since pos was chosen, we double check the sng and also the range
         // this leaves the rare possibility of a glitch when the same song is queued 2+ times, and the queue changes between pos being set and this method being called.
 
@@ -781,13 +788,13 @@ public class WPlayer {
 
 
     /** pos includes queueback.*/
-    public static void removeFromQueue(int pos, Sng sng) {
+    public static void removeFromQueue(int pos, @NonNull Sng sng) {
         Notif n = removeFromQueueInternal(pos, sng);
         mNotifier.notifyListeners(n);
     }
 
     /** Does not call any Notifiers */
-    private static Notif removeFromQueueInternal(int pos, Sng sng) {
+    private static Notif removeFromQueueInternal(int pos, @NonNull Sng sng) {
         if (pos < mQueueBack.size()) {
 
 
@@ -830,7 +837,7 @@ public class WPlayer {
     }
 
 
-    public static void addtoEndOfQueue(Sng sng) {
+    public static void addtoEndOfQueue(@NonNull Sng sng) {
         // TODO is a null check best way??
 
         // Depends on updateQueue working AND a marker for when we are at the end of a queue and a song has laready finished playing
@@ -849,13 +856,13 @@ public class WPlayer {
 
     /** aka Play Next, adds to front of future queue, but not into queueBack,
      * so that way this song is played right after CurrentSng finishes/skips*/
-    public static void addToFrontOfQueue(Sng sng) {
+    public static void addToFrontOfQueue(@NonNull Sng sng) {
         mQueue.add(0, sng);
         mNotifier.notifyListeners(Notif.Queue);
     }
 
 
-    public static void insertIntoQueue(int pos, Sng sng) {
+    public static void insertIntoQueue(int pos, @NonNull Sng sng) {
 
         if (pos < mQueueBack.size()) {
 
@@ -879,7 +886,7 @@ public class WPlayer {
     }
 
 
-    public static void swapQueueItems(int oldPos, int newPos, Sng draggedSng) {
+    public static void swapQueueItems(int oldPos, int newPos, @NonNull Sng draggedSng) {
         Notif n = removeFromQueueInternal(oldPos, draggedSng);
 
         //if (newPos > oldPos) newPos -= 1;

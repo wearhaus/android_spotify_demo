@@ -21,52 +21,55 @@
 
     <!-- One other option for search is to use a ViewPager/Tab to handle the different apis together.  No zipping would occur-->
 
-    <LinearLayout
-        android:id="@+id/search_options"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <!--<LinearLayout-->
+        <!--android:id="@+id/search_options"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
 
-        android:layout_below="@+id/toolbar"
-        android:orientation="horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        >
+        <!--android:layout_below="@+id/toolbar"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_marginTop="5dp"-->
+        <!--android:layout_marginBottom="5dp"-->
+        <!--&gt;-->
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5">
-            <CheckBox
-                android:id="@+id/option_spotify"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Spotify"
-                android:layout_weight="0.5"
-                android:layout_gravity="center_horizontal"/>
-        </FrameLayout>
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5">
-            <CheckBox
-                android:id="@+id/option_soundcloud"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SoundCloud"
-                android:layout_gravity="center_horizontal"
-                />
-        </FrameLayout>
-    </LinearLayout>
+        <!--<FrameLayout-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5">-->
+            <!--<CheckBox-->
+                <!--android:id="@+id/option_spotify"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Spotify"-->
+                <!--android:layout_weight="0.5"-->
+                <!--android:layout_gravity="center_horizontal"/>-->
+        <!--</FrameLayout>-->
+        <!--<FrameLayout-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="0.5">-->
+            <!--<CheckBox-->
+                <!--android:id="@+id/option_soundcloud"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="SoundCloud"-->
+                <!--android:layout_gravity="center_horizontal"-->
+                <!--/>-->
+        <!--</FrameLayout>-->
+    <!--</LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/search_options_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:layout_below="@+id/search_options"
+        android:background="?attr/colorPrimary"
+        android:elevation="6dp"
+
+        android:layout_below="@+id/toolbar"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         >
 
         <CheckBox
@@ -97,18 +100,53 @@
     </LinearLayout>
 
 
-    <!-- This layout only is visible when the toolbar disappears.-->
-    <FrameLayout
-        android:id="@+id/search_result_container"
 
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tab_layout"
         android:layout_below="@+id/search_options_2"
-        android:layout_above="@+id/music_player_bar"
 
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="wrap_content"
 
-    </FrameLayout>
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+
+        android:elevation="6dp"
+        app:tabIndicatorColor="@color/cyan"
+        />
+
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+
+
+        android:layout_below="@+id/tab_layout"
+        android:layout_above="@+id/music_player_bar"
+
+        android:background="@color/bg_black_really_dark_grey"
+        >
+    </android.support.v4.view.ViewPager>
+
+
+
+
+
+    <!-- This layout only is visible when the toolbar disappears.-->
+    <!--<FrameLayout-->
+        <!--android:id="@+id/search_result_container"-->
+
+        <!--android:layout_below="@+id/search_options_2"-->
+        <!--android:layout_above="@+id/music_player_bar"-->
+
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--&gt;-->
+
+    <!--</FrameLayout>-->
 
 
 

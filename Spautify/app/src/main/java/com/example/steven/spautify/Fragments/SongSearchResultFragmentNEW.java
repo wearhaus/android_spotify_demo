@@ -1,5 +1,6 @@
 package com.example.steven.spautify.Fragments;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -10,7 +11,12 @@ import java.util.List;
  */
 public class SongSearchResultFragmentNEW extends SongListFragment implements SearchResultFragmentInterface {
 
-    private SearchResultFragmentHelper mHelper = new SearchResultFragmentHelper(this);
+    private SearchResultFragmentHelper mHelper;
+
+    @Override
+    public SearchType getSearchType() {
+        return SearchType.Song;
+    }
 
 
     @Override
@@ -23,23 +29,27 @@ public class SongSearchResultFragmentNEW extends SongListFragment implements Sea
         return mHelper.resultingItems;
     }
 
-
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mHelper = new SearchResultFragmentHelper(this, getArguments().getString(TAG_SOURCE_PREFIX));
+    }
 
     /** @param add if true, add the given items nstead of replace.  When true, r must not be null*/
     public void setResult(@NonNull ArrayList r, SearchResultNextPage srnp, boolean add) {
         mHelper.setResult(r, srnp, add);
     }
 
-    public void setResultingLoading() {
-        mHelper.setResultingLoading();
+    public void setResultNewQuery() {
+        mHelper.setResultNewQuery();
     }
 
-    public void setResultingError(String e) {
-        mHelper.setResultingError(e);
+    public void setResultError(String e) {
+        mHelper.setResultError(e);
     }
 
-    public void setResultingCancelled() {
-        mHelper.setResultingCancelled();
+    public void setResultCancelled() {
+        mHelper.setResultCancelled();
     }
 
 
