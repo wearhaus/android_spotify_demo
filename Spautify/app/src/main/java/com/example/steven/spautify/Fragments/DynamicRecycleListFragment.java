@@ -132,16 +132,6 @@ public abstract class DynamicRecycleListFragment<
 
 
         mSwipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
-        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                mSwipeRefresh.setRefreshing(true);
-
-                onSwipeRefresh();
-            }
-
-        });
         mSwipeRefresh.setColorSchemeResources(
                 R.color.cyan,
                 android.R.color.holo_blue_dark,
@@ -149,6 +139,16 @@ public abstract class DynamicRecycleListFragment<
                 R.color.cyan_halved_with_white);
 
         if (!canSwipeToRefresh()) {
+            mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+                @Override
+                public void onRefresh() {
+                    mSwipeRefresh.setRefreshing(true);
+
+                    onSwipeRefresh();
+                }
+
+            });
             mSwipeRefresh.setEnabled(false);
         }
 

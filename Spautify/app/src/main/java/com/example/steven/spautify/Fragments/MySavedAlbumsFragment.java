@@ -26,8 +26,12 @@ import retrofit.client.Response;
 /**
  * Created by Steven on 2/11/2016.
  */
-public class MySavedAlbumsFragment extends AlbumsFragment {
+public class MySavedAlbumsFragment extends MusicLibFragment {
 
+    @Override
+    public MusicLibType getMusicLibType() {
+        return MusicLibType.Album;
+    }
 
     private ArrayList<Album> mList;
 
@@ -79,14 +83,7 @@ public class MySavedAlbumsFragment extends AlbumsFragment {
         return null;
     }
 
-    @Override
-    protected boolean canSwipeToRefresh() {
-        return false;
-    }
 
-    @Override
-    protected void onSwipeRefresh() {
-    }
     @Override
     protected boolean paginated() {
         return true;

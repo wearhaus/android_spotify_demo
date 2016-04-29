@@ -16,6 +16,8 @@ public interface SCRetrofitService {
     String OFFSET = "offset";
     String QUERY = "q";
     String CLIENT_ID = "client_id";
+    /**Note: This field can change the resulting json for searches to be a different object
+     * aka, changes from list of songs (which is not really gson-able) to a SearchTrackJson object*/
     String PAGINATE = "linked_partitioning";
     /** For playlists, returns it without tracks, or with just track ids: values: 'compact' or 'id'*/
     String COMPACT = "representation";
@@ -25,13 +27,22 @@ public interface SCRetrofitService {
     @GET("tracks/")
     Call<SoundCloudApi.SearchTrackJson> searchTracks(@QueryMap Map<String, String> options);
 
-
     @GET("playlists/")
     Call<SoundCloudApi.SearchPlaylistJson> searchPlaylists(@QueryMap Map<String, String> options);
 
+    @GET("playlists/")
+    Call<SoundCloudApi.SearchPlaylistJson> searchUsers(@QueryMap Map<String, String> options);
+
+
+    @GET("tracks/{id}")
+    Call<SoundCloudApi.TrackJson> getTrack(@Path("id") int id, @QueryMap Map<String, String> options);
+
 
     @GET("playlists/{id}")
-    Call<SoundCloudApi.PlaylistJson> getPlaylist(@Path("id") int playlistId, @QueryMap Map<String, String> options);
+    Call<SoundCloudApi.PlaylistJson> getPlaylist(@Path("id") int id, @QueryMap Map<String, String> options);
+
+    @GET("users/{id}")
+    Call<SoundCloudApi.UserJson> getUser(@Path("id") int id, @QueryMap Map<String, String> options);
 
     //playlists?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=0&q=undertale&limit=10
 

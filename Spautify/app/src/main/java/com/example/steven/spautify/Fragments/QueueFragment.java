@@ -1,5 +1,7 @@
 package com.example.steven.spautify.Fragments;
 
+import android.util.Log;
+
 import com.example.Notifier;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.WPlayer;
@@ -10,14 +12,15 @@ import java.util.List;
 /**
  * Created by Steven on 2/5/2016.
  */
-public class QueueFragment extends SongListFragment {
+public class QueueFragment extends MusicLibFragment {
 
     private Notifier.Listener<WPlayer.Notif> mWPSL;
 
     @Override
-    protected ClickType getClickType() {
-        return ClickType.Queue;
+    public MusicLibType getMusicLibType() {
+        return MusicLibType.SongInQueue;
     }
+
 
     @Override
     protected List getList() {
@@ -70,26 +73,11 @@ public class QueueFragment extends SongListFragment {
         return null;
     }
 
-    @Override
-    protected boolean canSwipeToRefresh() {
-        return false;
-    }
-
-    @Override
-    protected void onSwipeRefresh() {
-    }
-
-    @Override
-    protected boolean showAlbum() {
-        return true;
-    }
 
     @Override
     protected boolean paginated() {
         return false;
     }
-
-
 
 
     private class WPlayerStateListener implements Notifier.Listener<WPlayer.Notif> {

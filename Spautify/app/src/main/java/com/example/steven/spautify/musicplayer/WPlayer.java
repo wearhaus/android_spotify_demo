@@ -694,11 +694,40 @@ public class WPlayer {
 
 
     public static void playSingleKeepQueue(@NonNull Sng sng) {
-        mQueueBack.add(mCurrentSng);
+        if (mCurrentSng != null) {
+            // is null at start
+            mQueueBack.add(mCurrentSng);
+        }
+
         mCurrentSng = sng;
+        mAutoplayQueueAdditions = false;
         internalPlay();
 
         mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+    }
+
+    public static void addtoEndOfQueue(@NonNull Sng sng) {
+        // TODO is a null check best way??
+
+        // Depends on updateQueue working AND a marker for when we are at the end of a queue and a song has laready finished playing
+        // This may not be easy to know, TEST what Spotify does
+
+        if (mAutoplayQueueAdditions) {
+            mCurrentSng = sng;
+            mAutoplayQueueAdditions = false;
+            internalPlay();
+            mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+        } else {
+            mQueue.add(sng);
+            mNotifier.notifyListeners(Notif.Queue);
+        }
+    }
+
+    /** aka Play Next, adds to front of future queue, but not into queueBack,
+     * so that way this song is played right after CurrentSng finishes/skips*/
+    public static void addToFrontOfQueue(@NonNull Sng sng) {
+        mQueue.add(0, sng);
+        mNotifier.notifyListeners(Notif.Queue);
     }
 
     /** position is 0 indexed and includes the current playing one*/
@@ -834,31 +863,6 @@ public class WPlayer {
         }
 
 
-    }
-
-
-    public static void addtoEndOfQueue(@NonNull Sng sng) {
-        // TODO is a null check best way??
-
-        // Depends on updateQueue working AND a marker for when we are at the end of a queue and a song has laready finished playing
-        // This may not be easy to know, TEST what Spotify does
-
-        if (mAutoplayQueueAdditions) {
-            mCurrentSng = sng;
-            mAutoplayQueueAdditions = false;
-            internalPlay();
-            mNotifier.notifyListeners(Notif.PlaybackAndQueue);
-        } else {
-            mQueue.add(sng);
-            mNotifier.notifyListeners(Notif.Queue);
-        }
-    }
-
-    /** aka Play Next, adds to front of future queue, but not into queueBack,
-     * so that way this song is played right after CurrentSng finishes/skips*/
-    public static void addToFrontOfQueue(@NonNull Sng sng) {
-        mQueue.add(0, sng);
-        mNotifier.notifyListeners(Notif.Queue);
     }
 
 

@@ -267,7 +267,7 @@ public class SoundCloudApi {
         public String original_format; // ex/"m4a",
         public String license; // ex/"all-rights-reserved",
         public String uri; // ex/"https://api.soundcloud.com/tracks/13158665",
-        public SoundCloudApi.UserJson user;
+        public SoundCloudApi.UserSimpleJson user;
         public SoundCloudApi.CreatedWithJson created_with;
         public String permalink_url; // ex/"http://soundcloud.com/alex-stevenson/munching-at-tiannas-house",
         public String artwork_url; // ex/null,
@@ -282,7 +282,7 @@ public class SoundCloudApi {
     }
 
 
-    public static class UserJson {
+    public static class UserSimpleJson {
         public int id; // ex/3699101,
         public String kind; // ex/"user",
         public String permalink; // ex/"alex-stevenson",
@@ -300,18 +300,6 @@ public class SoundCloudApi {
         public String uri; // ex/"https://api.soundcloud.com/apps/124",
         public String permalink_url; // ex/"http://developers.soundcloud.com/",
         public String external_url; // ex/"http://itunes.com/app/soundcloud"
-    }
-
-
-    public static class SearchTrackJson {
-        public TrackJson[] collection; //
-        public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
-    }
-
-
-    public static class SearchPlaylistJson {
-        public PlaylistJson[] collection; //
-        public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
     }
 
     /**Note: potentially 100kb size in son format!  crazy*/
@@ -349,11 +337,60 @@ public class SoundCloudApi {
         public String artwork_url; //"https://i1.sndcdn.com/artworks-000025801802-1msl1i-large.jpg",
         public String ean; //"",
         public boolean streamable; //true,
-        public UserJson user; //{  },
+        public UserSimpleJson user; //{  },
         public String embeddable_by; //"me",
         public String label_id; //null
 
+    }
 
+
+
+    public static class UserJson {
+        public int id; // 3207,
+        public String kind; // "user",
+        public String permalink; // "jwagener",
+        public String username; // "Johannes Wagener",
+        public String last_modified; // "2016/04/18 13:58:15 +0000",
+        public String uri; // "https://api.soundcloud.com/users/3207",
+        public String permalink_url; // "http://soundcloud.com/jwagener",
+        public String avatar_url; // "https://i1.sndcdn.com/avatars-000214493195-8h8dpe-large.jpg",
+        public String country; // "Germany",
+        public String first_name; // "Johannes",
+        public String last_name; // "Wagener",
+        public String full_name; // "Johannes Wagener",
+        public String description; // "",
+        public String city; // "Berlin",
+        public String discogs_name; // null,
+        public String myspace_name; // null,
+        public String website; // "http://johannes.wagener.cc",
+        public String website_title; // "johannes.wagener.cc",
+        public boolean online; // false,
+        public int track_count; // 55,
+        public int playlist_count; // 3,
+        public String plan; // "Free",
+        public int public_favorites_count; // 236,
+        public String subscriptions; // [],
+        public int followers_count; // 2139,
+        public int followings_count; // 346
+
+    }
+
+
+
+    public static class SearchTrackJson {
+        public TrackJson[] collection; //
+        public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
+    }
+
+
+    public static class SearchPlaylistJson {
+        public PlaylistJson[] collection; //
+        public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
+    }
+
+    public static class SearchUserJson {
+        public UserJson[] collection; //
+        public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
     }
 
 

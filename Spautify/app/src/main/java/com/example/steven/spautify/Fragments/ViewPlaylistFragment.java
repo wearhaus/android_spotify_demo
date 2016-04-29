@@ -13,7 +13,6 @@ import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SCRetrofitService;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SoundCloudApi;
-import com.example.steven.spautify.musicplayer.SoundCloudProvider;
 import com.example.steven.spautify.musicplayer.Source;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
@@ -37,14 +36,19 @@ import retrofit2.Call;
  *
  * It is an error to not have a TAG_ID argument
  */
-public class ViewPlaylistFragment extends SongListFragment {
+public class ViewPlaylistFragment extends MusicLibFragment {
 
     private String mPlaylstId;
     private Source mSource;
-    private ArrayList<SongListFragment.SngItem> mList;
+    private ArrayList<SngItem> mList;
     private Button mPlayButton;
 
     private Playlst mPlaylst;
+
+    @Override
+    public MusicLibType getMusicLibType() {
+        return MusicLibType.Song;
+    }
 
     // TODO if we detect WPlayer's autosource matches our mPlaylstId, then display that here and mark the current song
 
@@ -295,11 +299,6 @@ public class ViewPlaylistFragment extends SongListFragment {
 
 
     @Override
-    protected SongListFragment.ClickType getClickType() {
-        return ClickType.Lib;
-    }
-
-    @Override
     protected List getList() {
         return mList;
     }
@@ -326,11 +325,5 @@ public class ViewPlaylistFragment extends SongListFragment {
         }
         return null;
     }
-
-    @Override
-    protected boolean canSwipeToRefresh() {
-        return false;
-    }
-
 
 }

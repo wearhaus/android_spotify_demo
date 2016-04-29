@@ -31,7 +31,7 @@ import retrofit.client.Response;
 /**
  * Created by Steven on 2/10/2016.
  */
-public class ViewAlbumFragment extends SongListFragment {
+public class ViewAlbumFragment extends MusicLibFragment {
 
     private String mAlbumId;
     private ArrayList<SngItem> mList;
@@ -39,6 +39,11 @@ public class ViewAlbumFragment extends SongListFragment {
     private boolean mSetActivityTitle = false;
 
     private Album mAlbum;
+
+    @Override
+    public MusicLibType getMusicLibType() {
+        return MusicLibType.Song;
+    }
 
 
     /** The proper way to create a new Fragment with a passed arg. */
@@ -152,10 +157,7 @@ public class ViewAlbumFragment extends SongListFragment {
         return view;
     }
 
-    @Override
-    protected ClickType getClickType() {
-        return ClickType.LibAlbum;
-    }
+
 
     @Override
     protected List getList() {
@@ -176,15 +178,6 @@ public class ViewAlbumFragment extends SongListFragment {
         return null;
     }
 
-    @Override
-    protected boolean canSwipeToRefresh() {
-        return false;
-    }
-
-    @Override
-    protected void onSwipeRefresh() {
-
-    }
 
     @Override
     protected boolean paginated() {

@@ -17,7 +17,7 @@
 
 
 
-    <include layout="@layout/toolbar_music"/>
+    <include layout="@layout/toolbar_search"/>
 
     <!-- One other option for search is to use a ViewPager/Tab to handle the different apis together.  No zipping would occur-->
 

@@ -26,12 +26,15 @@ import retrofit.client.Response;
 /**
  * Created by Steven on 2/10/2016.
  */
-public class MyPlaylistsFragment extends PlaylistsFragment {
+public class MyPlaylistsFragment extends MusicLibFragment {
 
     private ArrayList<Playlst> mList;
     private String mUserId;
 
-
+    @Override
+    public MusicLibType getMusicLibType() {
+        return MusicLibType.Playlist;
+    }
 
     @Override
     protected List getList() {
