@@ -45,7 +45,6 @@ public class MyPlaylistsFragment extends MusicLibFragment {
 
     @Override
     protected void updateList() {
-        Log.w("updateList", "unAuthed" + unAuthed);
         if (unAuthed && SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
             init();
         }
@@ -54,7 +53,6 @@ public class MyPlaylistsFragment extends MusicLibFragment {
 
 
     private void init() {
-        Log.e("BAA", "init");
         unAuthed = SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn;
         if (unAuthed) {
             return;
@@ -71,8 +69,6 @@ public class MyPlaylistsFragment extends MusicLibFragment {
         View view =  super.onCreateView(inflater, container, savedInstanceState);
 
         init();
-
-        Log.e("unAuthed", "unAuthed" + unAuthed);
 
 
         return view;

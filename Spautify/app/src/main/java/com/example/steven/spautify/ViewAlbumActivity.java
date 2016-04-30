@@ -3,6 +3,7 @@ package com.example.steven.spautify;
 import android.app.Fragment;
 import android.os.Bundle;
 
+import com.example.steven.spautify.Fragments.MusicLibFragment;
 import com.example.steven.spautify.Fragments.ViewAlbumFragment;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 
@@ -12,13 +13,12 @@ import kaaes.spotify.webapi.android.models.Album;
  * Created by Steven on 2/10/2016.
  */
 public class ViewAlbumActivity extends LeafActivityWithPlayerBar {
-    public static final String TAG_ID = "arg_playlst_id";
 
     private String mAlbumId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mAlbumId = getIntent().getExtras().getString(TAG_ID);
+        mAlbumId = getIntent().getExtras().getString(MusicLibFragment.TAG_ID);
         // get mUserId before we call super.conCreate, since that creates the fragment.
 
         super.onCreate(savedInstanceState);

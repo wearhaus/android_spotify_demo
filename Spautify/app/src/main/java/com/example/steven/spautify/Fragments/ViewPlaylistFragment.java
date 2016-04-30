@@ -1,5 +1,6 @@
 package com.example.steven.spautify.Fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import com.example.steven.spautify.musicplayer.Source;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +62,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
         ViewPlaylistFragment frag = new ViewPlaylistFragment();
 
         Bundle args = new Bundle();
-        args.putString(ViewPlaylistActivity.TAG_ID, id);
+        args.putString(TAG_ID, id);
         frag.setArguments(args);
 
         return frag;
@@ -69,7 +71,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPlaylstId = getArguments().getString(ViewPlaylistActivity.TAG_ID);
+        mPlaylstId = getArguments().getString(TAG_ID);
         mSource = Source.getSource(mPlaylstId);
     }
 
@@ -105,6 +107,8 @@ public class ViewPlaylistFragment extends MusicLibFragment {
         mList = new ArrayList<>();
         mPageLoadedCount = 0;
 
+        refreshHeaderUI();
+
         loadData(0);
 
 
@@ -138,6 +142,45 @@ public class ViewPlaylistFragment extends MusicLibFragment {
 
         return view;
     }
+
+
+    private void refreshHeaderUI() {
+        // this never fires off any loads, it just reacts to current data
+
+        if (mPlaylst == null) {
+            mPlayButton.setVisibility(View.INVISIBLE);
+        } else {
+            mPlayButton.setVisibility(View.VISIBLE);
+//            if (mArtst.artworkUrl != null) {
+//                Picasso.with(getActivity()).load(mArtst.artworkUrl).into(mImageView);
+//            } else {
+//                mImageView.setImageResource(0);
+//            }
+
+            mPlayButton.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ArrayList<Sng> songlist = new ArrayList<>();
+                            for (SngItem si : mList) {
+                                songlist.add(si.sng);
+                            }
+                            WPlayer.playManyClearQueue(songlist);
+                            //WPlayer.playpause();
+                        }
+                    });
+
+            Activity act = getActivity();
+            if (act != null) {
+                act.setTitle("Playlist: " + mPlaylst.name);
+            }
+
+        }
+
+
+    }
+
+
 
     @Override
     protected boolean paginated() {
@@ -183,13 +226,14 @@ public class ViewPlaylistFragment extends MusicLibFragment {
                     ArrayList<SngItem> ss = new ArrayList<>();
                     // tracks are not numbered, so we have to be careful about adding them
                     for (SoundCloudApi.TrackJson tj : response.body().tracks) {
-                        if (tj != null && tj.streamable) {
+                        if (tj != null) {  //  && tj.streamable
                             ss.add(new SngItem(new Sng(tj), SngItem.Type.NotInQueue));
                             //Sng.cacheSng(
                         } else {
                             String g = null; g.length();
                             // use https://api.soundcloud.com/playlists/10205283?limit=100&offset=0&client_id=5916491062a0fd0196366d76c22ac36e
                             //ss.add(new SngItem(new Sng(), SngItem.Type.NotInQueue));
+                            // when streamable is false,
                             Log.e("failure", "track was null/incomplete in soundcloud GetPlaylist.  Ist it private/region locked/removed?");
                         }
                     }
@@ -202,13 +246,13 @@ public class ViewPlaylistFragment extends MusicLibFragment {
                     mList.addAll(ss);
                     mPageLoadedCount = mList.size();
                     mPageTotalAbleToBeLoaded = mPlaylst.soundcloudObject.track_count;
+                    refreshHeaderUI();
                     updateList();
                 }
 
                 @Override
                 public void onFailure(Call<SoundCloudApi.PlaylistJson> call, Throwable t) {
                     Log.e("failure", ""+t);
-
                     setRefreshing(false);
                     mPageIsLoading = false;
                 }
@@ -237,8 +281,6 @@ public class ViewPlaylistFragment extends MusicLibFragment {
             updateList();
 
         }
-
-
     }
     private void loadDataSpotify(int offset) {
 

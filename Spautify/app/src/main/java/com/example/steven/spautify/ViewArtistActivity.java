@@ -4,31 +4,33 @@ import android.app.Fragment;
 import android.os.Bundle;
 
 import com.example.steven.spautify.Fragments.MusicLibFragment;
+import com.example.steven.spautify.Fragments.ViewArtstFragment;
 import com.example.steven.spautify.Fragments.ViewPlaylistFragment;
+import com.example.steven.spautify.musicplayer.Artst;
 import com.example.steven.spautify.musicplayer.Playlst;
 
 /**
  * Created by Steven on 2/10/2016.
  */
-public class ViewPlaylistActivity extends LeafActivityWithPlayerBar {
+public class ViewArtistActivity extends LeafActivityWithPlayerBar {
 
-    private String mPlaylistId;
+    private String mArtstId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mPlaylistId = getIntent().getExtras().getString(MusicLibFragment.TAG_ID);
+        mArtstId = getIntent().getExtras().getString(MusicLibFragment.TAG_ID);
         // get mUserId before we call super.conCreate, since that creates the fragment.
 
         super.onCreate(savedInstanceState);
 
         onCreateAfterInflation();
 
-        Playlst p = Playlst.mPlaylstCache.get(mPlaylistId);
+        Artst p = Artst.mArtstCache.get(mArtstId);
 
         if (p != null) {
-            setTitle("Playlist: " +  p.name);
+            setTitle("Artist: " +  p.name);
         } else {
-            setTitle("Playlist");
+            setTitle("Artist");
         }
         // TODO should be set from fragment, not in activity, since fragment handles loading the playlist
     }
@@ -37,7 +39,7 @@ public class ViewPlaylistActivity extends LeafActivityWithPlayerBar {
 
     @Override
     protected Fragment getFragmentForShellActivity() {
-        return ViewPlaylistFragment.newInstance(mPlaylistId);
+        return ViewArtstFragment.newInstance(mArtstId);
     }
 
     @Override

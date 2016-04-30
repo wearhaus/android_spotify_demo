@@ -101,7 +101,7 @@ public class PlaylstAdapter extends RecyclerView.Adapter<WPlayerViewHolder> impl
                 Activity act = mFragment.getActivity();
                 if (act != null) {
                     Intent intent = new Intent(act, ViewPlaylistActivity.class);
-                    intent.putExtra(ViewPlaylistActivity.TAG_ID, p.playlstId);
+                    intent.putExtra(MusicLibFragment.TAG_ID, p.playlstId);
                     act.startActivity(intent);
 
                 }

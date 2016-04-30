@@ -20,6 +20,7 @@ import com.example.steven.spautify.Fragments.DynamicRecycleListFragment;
 import com.example.steven.spautify.Fragments.MusicLibType;
 import com.example.steven.spautify.Fragments.SearchResultFragment;
 import com.example.steven.spautify.Fragments.SngItem;
+import com.example.steven.spautify.musicplayer.Artst;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SCRetrofitService;
 import com.example.steven.spautify.musicplayer.Sng;
@@ -33,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistsPager;
 import kaaes.spotify.webapi.android.models.Track;
@@ -301,7 +304,7 @@ public class SearchActivity<JR> extends LeafActivity {
     // so when 2 have 3+ frags in the tabs, we can search on all 3, and not worry about data loss or null fragments
     /** The suffix to add to end of tab title, "" means nothing, Set back to "" when a tab is selected*/
     private String[] mTabTitleSuffix = new String[]{"",""};
-    private Boolean[] mTabIsLoading = new Boolean[]{false,false};
+    private Boolean[] mTabIsLoading = new Boolean[]{false,false}; // TODO doesnt work unless read from the frag when it is ready
 
 
 
@@ -333,10 +336,6 @@ public class SearchActivity<JR> extends LeafActivity {
             mViewPagerAdapter.notifyDataSetChanged();
             // notify plus overriding getItemPosition in the adapter allows us to change the fragments
 
-//            FragmentManager fm = getFragmentManager();
-//            mViewPagerAdapter = new MyViewPageAdapter(fm);
-//            mViewPager.setAdapter(mViewPagerAdapter);
-//            mTabLayout.setupWithViewPager(mViewPager);
 
         }
 
@@ -425,6 +424,8 @@ public class SearchActivity<JR> extends LeafActivity {
                 break;
             case Album:
             case Artist:
+                cc = (Call<JR>) SoundCloudApi.getApiService().searchUsers(options);
+                break;
             case Playlist:
                 options.put(SCRetrofitService.COMPACT, "compact");
                 cc = (Call<JR>) SoundCloudApi.getApiService().searchPlaylists(options);
@@ -446,13 +447,24 @@ public class SearchActivity<JR> extends LeafActivity {
                 switch (st) {
                     case Song:
                         jrList =  new ArrayList<SngItem>();
-                        for (SoundCloudApi.TrackJson t : ((SoundCloudApi.SearchTrackJson) response.body()).collection) {
+                        for (SoundCloudApi.TrackJson t : ((SoundCloudApi.PagedTrackJson) response.body()).collection) {
+//                            if (t.streamable) {
+                            // To ignore unsearchable results, we need to tally these so offset for NextPage doesnt cause a few duplicates
+                            // and that we also dont
                             ((ArrayList<SngItem>) jrList).add(new SngItem(new Sng(t), SngItem.Type.NotInQueue));
                         }
                         break;
+
+                    case Artist:
+                        jrList =  new ArrayList<Artst>();
+                        for (SoundCloudApi.UserJson t : ((SoundCloudApi.PagedUserJson) response.body()).collection) {
+                            ((ArrayList<Artst>) jrList).add(new Artst(t));
+                        }
+                        break;
+
                     case Playlist:
                         jrList =  new ArrayList<Playlst>();
-                        for (SoundCloudApi.PlaylistJson t : ((SoundCloudApi.SearchPlaylistJson) response.body()).collection) {
+                        for (SoundCloudApi.PlaylistJson t : ((SoundCloudApi.PagedPlaylistJson) response.body()).collection) {
                             ((ArrayList<Playlst>) jrList).add(new Playlst(t));
                         }
                         break;
@@ -529,14 +541,36 @@ public class SearchActivity<JR> extends LeafActivity {
 
                 });
 
-
                 break;
+
             case Album:
                 // API search albums returns albumssimple rather than Album, which doesnt contain Artist.  So
                 // to display artist, we would need to do a get on each ablum separately
 //                SpotifyApi.getTempApi().searchAlbums(query, options, new Callback<AlbumsPager>() {
                 break;
+
             case Artist:
+                SpotifyApi.getTempApi().searchArtists(query, options, new Callback<ArtistsPager>() {
+                    @Override
+                    public void success(final ArtistsPager aaa, Response response) {
+                        if (hash != mSearchHash) return;
+
+                        ArrayList<Artst> list = new ArrayList<>();
+                        for (Artist t : aaa.artists.items) {
+                            list.add(new Artst(t));
+                        }
+
+                        searchSpotifyApiGot(st, query, hash, offset, limit, list);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        searchSpotifyApiError(hash, error);
+                    }
+
+                });
+                break;
+
             case Playlist:
 
                 SpotifyApi.getTempApi().searchPlaylists(query, options, new Callback<PlaylistsPager>() {

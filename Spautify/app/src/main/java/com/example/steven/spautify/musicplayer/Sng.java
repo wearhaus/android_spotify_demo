@@ -5,9 +5,14 @@ import android.util.Log;
 import android.util.LruCache;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Track;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by Steven on 1/8/2016.
@@ -25,7 +30,13 @@ public class Sng {
     public String artistPrimaryName;
     public String albumName;
     public String artworkUrl;
+    /* Shouldn't be null, but may possibly be... Lookup track on it's source to resolve*/
+    public String artstId;
     public int durationInMs;
+    /** Usually true, but its possible to find songs that aren't streamable in SoundCloud, and if in aplaylist, we dont want to cause
+     * confusion  by not showing it.  Instead we just tell the user its not streamable, and skip it if they try to play it.
+     * If we ignore it, the MediaPlayer will through an error in 30seconds that we would catch and tel lthe UI.*/
+    public boolean streamable;
 
     // Fields available depending on source type
     public String spotifyUri;
@@ -43,24 +54,34 @@ public class Sng {
         source = Source.Spotify;
         sngId = source.prefix + t.id;
 
+        if (t.artists != null && !t.artists.isEmpty()) {
+            artstId = source.prefix + t.artists.get(0).id;
+        }
+        // TODO if more than 1 artist....
+
 
         name = t.name;
         artistPrimaryName = t.artists.get(0).name;
         albumName = t.album.name;
         durationInMs = (int) t.duration_ms;
-        artworkUrl = t.album.images.get(0).url;
+
+        if (t.album != null && t.album.images != null && !t.album.images.isEmpty()) {
+            artworkUrl = t.album.images.get(0).url;
+        }
 
         spotifyAlbumId = t.album.id;
         spotifyArtistIds = new ArrayList<>();
         for (ArtistSimple art : t.artists) {
             spotifyArtistIds.add(art.id);
         }
+        streamable = true;
     }
 
     public Sng(SoundCloudApi.TrackJson t) {
         source = Source.Soundcloud;
         soundCloudId = t.id;
         sngId = source.prefix + t.id;
+        artstId = source.prefix + t.user_id;
 
         name = t.title;
         artistPrimaryName = t.user.username;
@@ -69,6 +90,7 @@ public class Sng {
         artworkUrl = t.artwork_url;
 
         soundCloudJson = t;
+        streamable = soundCloudJson.streamable;
     }
 
     public Sng() {
@@ -116,17 +138,10 @@ public class Sng {
         return null;
     }
 
-//    @Override
-//    public String toString() {
-//        if (source == Source.Spotify) {
-//            Track t = SpotifyApiController.getTrackOnlyIfCached(spotifyUri);
-//            if (t != null) return t.name;
-//            return spotifyUri;
-//        } else if (source == Source.Soundcloud) {
-//            return ""+soundCloudId;
-//        }
-//        return "what??";
-//    }
+    @Override
+    public String toString() {
+        return name;
+    }
 
 
 
@@ -171,23 +186,28 @@ public class Sng {
 
                 return;
             } else if (s == Source.Soundcloud) {
+                Map<String, String> options = new HashMap<>();
+                options.put(SCRetrofitService.CLIENT_ID, SoundCloudApi.CLIENT_ID);
 
+                Call<SoundCloudApi.TrackJson> cc = SoundCloudApi.getApiService().getTrack(Integer.parseInt(Source.get3rdPartyId(songId)), options);
+                cc.enqueue(new Callback<SoundCloudApi.TrackJson>() {
+                       @Override
+                       public void onResponse(Call<SoundCloudApi.TrackJson> call, Response<SoundCloudApi.TrackJson> response) {
+                           if (response.code() == 200) {
+                               Sng sng = new Sng(response.body());
+                               mSngCache.put(songId, sng);
+                               if (l != null) l.gotSong(sng);
+                           } else {
+                               if (l != null) l.failed(songId);
+                           }
+                       }
 
-                SoundCloudApi.getTrackByIdOnline(Integer.parseInt(Source.get3rdPartyId(songId)), new SoundCloudApi.GotItem<SoundCloudApi.TrackJson>() {
-                    @Override
-                    public void gotItem(SoundCloudApi.TrackJson trackJson) {
-                        Sng sng = new Sng(trackJson);
-                        mSngCache.put(songId, sng);
-                        if (l != null) l.gotSong(sng);
-                    }
-
-                    @Override
-                    public void failure(String e) {
-                        Log.e(TAG, "Failure getting sng: " + e);
-                        if (l != null) l.failed(songId);
-
-                    }
-                });
+                       @Override
+                       public void onFailure(Call<SoundCloudApi.TrackJson> call, Throwable t) {
+                           Log.e(TAG, "Failure getting sng: " + t);
+                           if (l != null) l.failed(songId);
+                       }
+                   });
 
                 return;
             }

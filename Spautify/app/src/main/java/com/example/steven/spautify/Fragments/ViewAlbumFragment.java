@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.steven.spautify.R;
+import com.example.steven.spautify.ViewAlbumActivity;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
@@ -42,7 +43,7 @@ public class ViewAlbumFragment extends MusicLibFragment {
 
     @Override
     public MusicLibType getMusicLibType() {
-        return MusicLibType.Song;
+        return MusicLibType.SongInLibAlbum;
     }
 
 
@@ -51,10 +52,8 @@ public class ViewAlbumFragment extends MusicLibFragment {
         ViewAlbumFragment frag = new ViewAlbumFragment();
 
         Bundle args = new Bundle();
-        args.putString(ViewPlaylistActivity.TAG_ID, id);
-        args.putBoolean(ViewPlaylistActivity.TAG_SET_ACTIVITY_TITLE, true);
+        args.putString(TAG_ID, id);
         frag.setArguments(args);
-
 
         return frag;
     }
@@ -65,8 +64,7 @@ public class ViewAlbumFragment extends MusicLibFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAlbumId = getArguments().getString(ViewPlaylistActivity.TAG_ID);
-        mSetActivityTitle = getArguments().getBoolean(ViewPlaylistActivity.TAG_SET_ACTIVITY_TITLE);
+        mAlbumId = getArguments().getString(MusicLibFragment.TAG_ID);
     }
 
     private boolean unAuthed = false;
@@ -195,6 +193,9 @@ public class ViewAlbumFragment extends MusicLibFragment {
         if (SpotifyApi.getAuthState() != WMusicProvider.AuthState.LoggedIn) {
             return;
         }
+
+        Activity act = getActivity();
+        if (act!= null) act.setTitle("Album: " + mAlbum.name);
 
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 

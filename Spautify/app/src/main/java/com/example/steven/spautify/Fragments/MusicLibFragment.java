@@ -15,6 +15,8 @@ import kaaes.spotify.webapi.android.models.Album;
  */
 public abstract class MusicLibFragment extends DynamicRecycleListFragment {
 
+    public static final String TAG_ID = "arg_tag_id";
+
     /** This needs to be set/unchanging from when onCreateView gets called
      * To change after that, just remove the fragment and create a new one. */
     public abstract MusicLibType getMusicLibType();
@@ -29,6 +31,7 @@ public abstract class MusicLibFragment extends DynamicRecycleListFragment {
             case Song:
             case SongInLibAlbum:
             case SongInQueue:
+            case SongInLibArtst:
                 return new SngItemAdapter(this, (ArrayList<SngItem>) list, getMusicLibType());
 
             case Playlist:

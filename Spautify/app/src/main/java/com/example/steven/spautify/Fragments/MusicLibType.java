@@ -7,6 +7,7 @@ public enum MusicLibType {
     Song,
     SongInQueue,
     SongInLibAlbum,
+    SongInLibArtst,
     Playlist,
     Artist,
     Album;

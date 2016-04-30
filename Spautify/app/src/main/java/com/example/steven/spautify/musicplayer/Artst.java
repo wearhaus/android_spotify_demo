@@ -1,5 +1,7 @@
 package com.example.steven.spautify.musicplayer;
 
+import android.util.LruCache;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +56,9 @@ public class Artst {
         artstId = source.prefix + as.id;
         name = as.name;
 
-        artworkUrl = as.images.get(0).url;
+        if (as.images != null && !as.images.isEmpty()) {
+            artworkUrl = as.images.get(0).url;
+        }
 
         spotifyArtistFull = as;
     }
@@ -69,6 +73,11 @@ public class Artst {
 
         soundCloudJson = t;
     }
+
+
+    /** TODO temp*/
+    public static LruCache<String, Artst> mArtstCache = new LruCache<>(50);
+
 
 
 

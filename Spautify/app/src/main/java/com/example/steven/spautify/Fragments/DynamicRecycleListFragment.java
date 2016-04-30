@@ -259,7 +259,7 @@ public abstract class DynamicRecycleListFragment<
 
     /** Returns 0 by default which means no header layout.
      * Override and return the resid of a layout which will finish inflating
-     * at the end of onCreateView*/
+     * at the end of super.onCreateView*/
     protected int getHeaderXml() {
         return 0;
     }

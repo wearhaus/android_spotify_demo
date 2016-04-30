@@ -97,7 +97,7 @@ public class AlbmAdapter extends RecyclerView.Adapter<WPlayerViewHolder> impleme
                 Activity act = mFragment.getActivity();
                 if (act != null) {
                     Intent intent = new Intent(act, ViewAlbumActivity.class);
-                    intent.putExtra(ViewAlbumActivity.TAG_ID, a.id);
+                    intent.putExtra(MusicLibFragment.TAG_ID, a.id);
                     act.startActivity(intent);
 
                 }

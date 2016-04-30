@@ -23,26 +23,35 @@ public interface SCRetrofitService {
     String COMPACT = "representation";
 
 
+    //////// Search
 
     @GET("tracks/")
-    Call<SoundCloudApi.SearchTrackJson> searchTracks(@QueryMap Map<String, String> options);
+    /**requires q param*/
+    Call<SoundCloudApi.PagedTrackJson> searchTracks(@QueryMap Map<String, String> options);
 
     @GET("playlists/")
-    Call<SoundCloudApi.SearchPlaylistJson> searchPlaylists(@QueryMap Map<String, String> options);
+    /**requires q param*/
+    Call<SoundCloudApi.PagedPlaylistJson> searchPlaylists(@QueryMap Map<String, String> options);
 
-    @GET("playlists/")
-    Call<SoundCloudApi.SearchPlaylistJson> searchUsers(@QueryMap Map<String, String> options);
+    @GET("users/")
+    /**requires q param*/
+    Call<SoundCloudApi.PagedUserJson> searchUsers(@QueryMap Map<String, String> options);
 
+
+
+    ////// Get
 
     @GET("tracks/{id}")
     Call<SoundCloudApi.TrackJson> getTrack(@Path("id") int id, @QueryMap Map<String, String> options);
-
 
     @GET("playlists/{id}")
     Call<SoundCloudApi.PlaylistJson> getPlaylist(@Path("id") int id, @QueryMap Map<String, String> options);
 
     @GET("users/{id}")
     Call<SoundCloudApi.UserJson> getUser(@Path("id") int id, @QueryMap Map<String, String> options);
+
+    @GET("users/{id}/tracks/")
+    Call<SoundCloudApi.PagedTrackJson> getUserTracks(@Path("id") int id, @QueryMap Map<String, String> options);
 
     //playlists?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=0&q=undertale&limit=10
 

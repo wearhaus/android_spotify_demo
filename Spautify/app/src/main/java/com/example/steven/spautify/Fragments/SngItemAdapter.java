@@ -10,9 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewAlbumActivity;
+import com.example.steven.spautify.ViewArtistActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.Source;
@@ -94,11 +96,19 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
             //holder.mContainer.setBackgroundColor(Color.argb(0, 0, 0, 0));
         }
 
+        if (!s.sng.streamable) {
+            holder.mErrorView.setVisibility(View.VISIBLE);
+            holder.mAuthorView.setAlpha(0.5f);
+            holder.mTitleView.setAlpha(0.5f);
+        } else {
+            holder.mErrorView.setVisibility(View.GONE);
+            holder.mAuthorView.setAlpha(1f);
+            holder.mTitleView.setAlpha(1f);
 
+        }
         holder.mTitleView.setText("" + s.sng.name);
+
         holder.mAuthorView.setText(s.sng.getFormattedArtistAlbumString());
-
-
         holder.mSourceSplashView.setImageResource(s.sng.source.sourceSplashRes);
 
         //Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
@@ -115,7 +125,11 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
             @Override
             public void onClick(View v) {
                 if (mLibType == MusicLibType.SongInQueue) {
-                    WPlayer.playItemInQueue(position, s.sng);
+                    if (s.sng.streamable) {
+                        WPlayer.playItemInQueue(position, s.sng);
+                    } else {
+                        Toast.makeText(mFragment.getActivity(), "Track unavailable for streaming", Toast.LENGTH_SHORT).show();
+                    }
                 } else  {
 //                        WPlayer.playSingleClearQueue(s.sng);
                     onItemMenuSelected(position, s.sng);
@@ -123,12 +137,16 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
             }
         });
 
-        holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onItemMenuSelected(position, s.sng);
-            }
-        });
+        if (mLibType == MusicLibType.SongInQueue) {
+            holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemMenuSelected(position, s.sng);
+                }
+            });
+        } else {
+            holder.mExtendedMenuButton.setVisibility(View.GONE);
+        }
 
     }
 
@@ -153,7 +171,8 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
         RemoveFromQueue("Remove from queue"),
         AddToQueue("Add to end of queue"),
         PlayNextLib("Play next"),
-        OpenSpotifyAlbum("Open album"),
+        OpenSpotifyAlbum("View album"),
+        OpenArtist("View artist"),
         //OpenInSoundCloud("Open in SoundCloud"),
         Back("Cancel"),
 
@@ -172,23 +191,32 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
         ArrayList<DialogItem> dialogItems = new ArrayList<>();
 
         if (mLibType == MusicLibType.SongInQueue) {
-            dialogItems.add(DialogItem.PlayInQueue); // TODO detect if current song or not by reading position
+
+            if (sng.streamable) {
+                dialogItems.add(DialogItem.PlayInQueue);
+            }
+            // TODO detect if current song or not by reading position
             dialogItems.add(DialogItem.RemoveFromQueue);
 
         } else {
-            dialogItems.add(DialogItem.PlayKeepQueueLib);
-            dialogItems.add(DialogItem.PlayNextLib);
-            dialogItems.add(DialogItem.AddToQueue);
-
+            if (sng.streamable) {
+                dialogItems.add(DialogItem.PlayKeepQueueLib);
+                dialogItems.add(DialogItem.PlayNextLib);
+                dialogItems.add(DialogItem.AddToQueue);
+            }
 
         }
 
         if (sng.source == Source.Spotify) {
-            if (mLibType == MusicLibType.SongInLibAlbum) {
+            if (mLibType != MusicLibType.SongInLibAlbum && sng.spotifyAlbumId != null) {
                 dialogItems.add(DialogItem.OpenSpotifyAlbum);
             }
         } else if (sng.source == Source.Soundcloud) {
             //dialogItems.add(DialogItem.OpenInSoundCloud);
+        }
+
+        if (mLibType != MusicLibType.SongInLibArtst && sng.artstId != null) {
+            dialogItems.add(DialogItem.OpenArtist);
         }
 
 
@@ -248,6 +276,9 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
                             case OpenSpotifyAlbum:
                                 openSpotifyAlbumActivity(sng); break;
 
+                            case OpenArtist:
+                                openArtistActivity(sng); break;
+
                             case Back:
                                 break; // do nothing
                         }
@@ -267,7 +298,17 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
         Activity act = mFragment.getActivity();
         if (act != null) {
             Intent intent = new Intent(act, ViewAlbumActivity.class);
-            intent.putExtra(ViewAlbumActivity.TAG_ID, song.spotifyAlbumId);
+            intent.putExtra(MusicLibFragment.TAG_ID, song.spotifyAlbumId);
+            act.startActivity(intent);
+        }
+
+    }
+
+    private void openArtistActivity(Sng song) {
+        Activity act = mFragment.getActivity();
+        if (act != null) {
+            Intent intent = new Intent(act, ViewArtistActivity.class);
+            intent.putExtra(MusicLibFragment.TAG_ID, song.artstId);
             act.startActivity(intent);
         }
 

@@ -40,7 +40,6 @@ public class QueueFragment extends MusicLibFragment {
         for (Sng s : WPlayer.getQueue()) {
             l.add(new SngItem(s, SngItem.Type.Queue));
         }
-
         return l;
     }
 

@@ -408,6 +408,8 @@ public class WPlayer {
                 boolean startCurrentSong = false;
 
                 if (fpProviderStateNotif) {
+                    // if this is a notif, then maybe the song is done loading, and we should
+                    // change our state
 
                     if (mCurrentProvider.getProviderState() == WMusicProvider.State.LoadingSong) {
                         mPlaybackState = PlaybackState.LoadingSong;
@@ -433,12 +435,21 @@ public class WPlayer {
 
                     Log.w(TAG, "  mCurrentProvider.playSong(mCurrentSng)");
 
-                    mWPlayerState = WPlayerState.Ready;
-                    mCurrentErrorSng = null;
-                    mPlaybackState = PlaybackState.LoadingSong;
-                    positionInMs = 0;
-                    mCurrentProvider.playSong(mCurrentSng);
-                    // fpProviderStateNotif called right after, triggering the above line as well.
+
+                    if (mCurrentSng.streamable) {
+
+                        mWPlayerState = WPlayerState.Ready;
+                        mCurrentErrorSng = null;
+                        mPlaybackState = PlaybackState.LoadingSong;
+                        positionInMs = 0;
+                        mCurrentProvider.playSong(mCurrentSng);
+                        // fpProviderStateNotif called right after, triggering the above line as well.
+                    } else {
+                        // Song is not streamable, call skip.  make sure to call skip so provider knows to update to right state
+                        skipToNext();
+
+                        return;
+                    }
 
 
                 }
@@ -670,7 +681,9 @@ public class WPlayer {
         mQueue.clear();
         mQueueBack.clear();
 
-        mQueue.addAll(sngs.subList(1, sngs.size()-1));
+        // sublist first arg is index of start, while 2nd arg is index of last elem MINUS 1, so
+        // sublist(0,0) returns nothing, and sublist(0,size()) returns the same list
+        mQueue.addAll(sngs.subList(1, sngs.size()));
         mCurrentSng = sngs.get(0);
         mAutoplayQueueAdditions = false;
 

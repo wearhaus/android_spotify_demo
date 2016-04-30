@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_black_really_dark_grey"
+    >
+
+
+        <ImageView
+            android:id="@+id/img"
+
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+
+            android:layout_margin="10dp"
+            />
+
+        <LinearLayout
+            android:id="@+id/artist_stuff"
+
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:orientation="vertical"
+            android:gravity="left"
+            android:layout_toRightOf="@+id/img"
+            android:layout_margin="10dp"
+            >
+
+
+            <TextView
+                android:id="@+id/artist_title"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:textColor="#88888888"
+                android:textSize="11sp"
+                android:layout_weight="1"
+                />
+            <TextView
+                android:id="@+id/artist_name"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#ffeeeeee"
+                android:textSize="20sp"
+                android:layout_weight="1"
+                />
+
+        </LinearLayout>
+
+
+    <Button
+        android:id="@+id/play_button"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_bg_cyan_rounder"
+        style="@style/Text_Medium_White_Style"
+        android:text="Play"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/img"
+        />
+
+</RelativeLayout>
+
+

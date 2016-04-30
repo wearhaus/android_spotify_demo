@@ -49,6 +49,15 @@
                 android:value=".MusicActivity" />
         </activity>
         <activity
+            android:name=".ViewArtistActivity"
+            android:label="ViewArtistActivity"
+            android:parentActivityName=".MusicActivity"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MusicActivity" />
+        </activity>
+        <activity
             android:name=".SearchActivity"
             android:label="SearchActivity"
             android:windowSoftInputMode="adjustNothing"

@@ -63,20 +63,20 @@ public class SoundCloudApi {
     }
 
     private static void tests() {
-        GotItem gg = new GotItem<TrackJson>() {
-            @Override
-            public void gotItem(TrackJson trackJson) {
-
-            }
-
-            @Override
-            public void failure(String e) {
-
-            }
-        };
-
-        getTrackByIdOnline(156909581, gg);
-        getTrackByIdOnline(3, gg);
+//        GotItem gg = new GotItem<TrackJson>() {
+//            @Override
+//            public void gotItem(TrackJson trackJson) {
+//
+//            }
+//
+//            @Override
+//            public void failure(String e) {
+//
+//            }
+//        };
+//
+//        getTrackByIdOnline(156909581, gg);
+//        getTrackByIdOnline(3, gg);
         //getTrackByIdOnline(156909581, gg);
 
 
@@ -91,143 +91,143 @@ public class SoundCloudApi {
 
 
 
-    public static void getTrackByIdOnline(int Id, GotItem<TrackJson> listener) {
-        H_GetTrack hhh = new H_GetTrack(Id, listener);
-        hhh.execute();
-    }
+//    public static void getTrackByIdOnline(int Id, GotItem<TrackJson> listener) {
+//        H_GetTrack hhh = new H_GetTrack(Id, listener);
+//        hhh.execute();
+//    }
 
     public static SCRetrofitService getApiService() {
         return mApi;
     }
 
-    public static void searchTrack(String query, final GotTrackArray listener, int offset, int limit) {
-        // Breaks with spaces.
-        String q = query.replace(" ", "-");
-        // limit max is 200, default is 10
-//        H_SearchTrack hhh = new H_SearchTrack(q, listener, offset, limit);
-//        hhh.execute();
-
-        Map<String, String> options = new HashMap<>();
-        options.put(SCRetrofitService.OFFSET, ""+offset);
-        options.put(SCRetrofitService.LIMIT, ""+limit);
-        options.put(SCRetrofitService.QUERY, query);
-        options.put(SCRetrofitService.CLIENT_ID, CLIENT_ID);
-        options.put(SCRetrofitService.PAGINATE, ""+1);
-
-        Call<SearchTrackJson> cc = mApi.searchTracks(options);
-        cc.enqueue(new Callback<SearchTrackJson>() {
-
-            @Override
-            public void onResponse(Call<SearchTrackJson> call, Response<SearchTrackJson> response) {
-                listener.gotItem(response.body().collection);
-            }
-
-            @Override
-            public void onFailure(Call<SearchTrackJson> call, Throwable t) {
-                listener.failure();
-            }
-        });
-    }
-
-
-
-    public interface GotItem<I> {
-        void gotItem(I i);
-        void failure(String e);
-    }
-
-    public interface GotTrackArray {
-        void gotItem(TrackJson[] tj);
-        void failure();
-    }
-
-    public interface GotPlaylistArray {
-        void gotItem(PlaylistJson[] pj);
-        void failure();
-    }
-
-    public static void searchPlaylists(String query, final GotPlaylistArray listener, int offset, int limit) {
-        String q = query.replace(" ", "-");
-
-        Map<String, String> options = new HashMap<>();
-        options.put(SCRetrofitService.OFFSET, ""+offset);
-        options.put(SCRetrofitService.LIMIT, ""+limit);
-        options.put(SCRetrofitService.QUERY, query);
-        options.put(SCRetrofitService.CLIENT_ID, CLIENT_ID);
-        options.put(SCRetrofitService.PAGINATE, ""+1);
-
-        Call<SearchPlaylistJson> cc = mApi.searchPlaylists(options);
-        cc.enqueue(new Callback<SearchPlaylistJson>() {
-
-            @Override
-            public void onResponse(Call<SearchPlaylistJson> call, Response<SearchPlaylistJson> response) {
-                listener.gotItem(response.body().collection);
-            }
-
-            @Override
-            public void onFailure(Call<SearchPlaylistJson> call, Throwable t) {
-                listener.failure();
-            }
-        });
-
-    }
-
-
-    private static class H_SearchTrack extends HTTP<SearchTrackJson> {
-        // json is TrackJson[] when no linked_partitioning/offset/limit
-        // json is SearchTrackJson otherwise
-        private GotTrackArray listener;
-
-        public H_SearchTrack(String q, GotTrackArray l, int offset, int limit) {
-            super(Method.GET,
-                    API_URL + "/tracks/?linked_partitioning=1&q=" + q + "&" + CLIENT_ID_PARAM +  "&offset=" + offset + "&limit=" + limit,
-                    //TrackJson[].class
-                    SearchTrackJson.class
-            );
-            listener = l;
-        }
-
-
-        @Override
-        protected void onResponse(SearchTrackJson jr) {
-            listener.gotItem(jr.collection);
-        }
-
-        @Override
-        protected void onAnyError() {
-            listener.failure();
-
-        }
-    }
-
-    private static class H_GetTrack extends HTTP<TrackJson> {
-        private GotItem listener;
-
-        public H_GetTrack(int trackId, GotItem l) {
-            super(Method.GET,
-                    API_URL + "/tracks/" + trackId  +"?" + CLIENT_ID_PARAM,
-                    TrackJson.class);
-            listener = l;
-        }
-
-        @Override
-        protected void onResponse(TrackJson jr) {
-            listener.gotItem(jr);
-        }
-
-        @Override
-        protected void onAnyError() {
-            listener.failure("network error");
-        }
-    }
-
-
-    public static void searchPlaylist(String q, GotTrackArray l, int offset, int limit) {
+//    public static void searchTrack(String query, final GotTrackArray listener, int offset, int limit) {
+//        // Breaks with spaces.
+//        String q = query.replace(" ", "-");
+//        // limit max is 200, default is 10
+////        H_SearchTrack hhh = new H_SearchTrack(q, listener, offset, limit);
+////        hhh.execute();
+//
+//        Map<String, String> options = new HashMap<>();
+//        options.put(SCRetrofitService.OFFSET, ""+offset);
+//        options.put(SCRetrofitService.LIMIT, ""+limit);
+//        options.put(SCRetrofitService.QUERY, query);
+//        options.put(SCRetrofitService.CLIENT_ID, CLIENT_ID);
+//        options.put(SCRetrofitService.PAGINATE, ""+1);
+//
+//        Call<PagedTrackJson> cc = mApi.searchTracks(options);
+//        cc.enqueue(new Callback<PagedTrackJson>() {
+//
+//            @Override
+//            public void onResponse(Call<PagedTrackJson> call, Response<PagedTrackJson> response) {
+//                listener.gotItem(response.body().collection);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<PagedTrackJson> call, Throwable t) {
+//                listener.failure();
+//            }
+//        });
+//    }
 
 
 
+//    public interface GotItem<I> {
+//        void gotItem(I i);
+//        void failure(String e);
+//    }
+//
+//    public interface GotTrackArray {
+//        void gotItem(TrackJson[] tj);
+//        void failure();
+//    }
+//
+//    public interface GotPlaylistArray {
+//        void gotItem(PlaylistJson[] pj);
+//        void failure();
+//    }
 
-    }
+//    public static void searchPlaylists(String query, final GotPlaylistArray listener, int offset, int limit) {
+//        String q = query.replace(" ", "-");
+//
+//        Map<String, String> options = new HashMap<>();
+//        options.put(SCRetrofitService.OFFSET, ""+offset);
+//        options.put(SCRetrofitService.LIMIT, ""+limit);
+//        options.put(SCRetrofitService.QUERY, query);
+//        options.put(SCRetrofitService.CLIENT_ID, CLIENT_ID);
+//        options.put(SCRetrofitService.PAGINATE, ""+1);
+//
+//        Call<PagedPlaylistJson> cc = mApi.searchPlaylists(options);
+//        cc.enqueue(new Callback<PagedPlaylistJson>() {
+//
+//            @Override
+//            public void onResponse(Call<PagedPlaylistJson> call, Response<PagedPlaylistJson> response) {
+//                listener.gotItem(response.body().collection);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<PagedPlaylistJson> call, Throwable t) {
+//                listener.failure();
+//            }
+//        });
+//
+//    }
+
+
+//    private static class H_SearchTrack extends HTTP<PagedTrackJson> {
+//        // json is TrackJson[] when no linked_partitioning/offset/limit
+//        // json is SearchTrackJson otherwise
+//        private GotTrackArray listener;
+//
+//        public H_SearchTrack(String q, GotTrackArray l, int offset, int limit) {
+//            super(Method.GET,
+//                    API_URL + "/tracks/?linked_partitioning=1&q=" + q + "&" + CLIENT_ID_PARAM +  "&offset=" + offset + "&limit=" + limit,
+//                    //TrackJson[].class
+//                    PagedTrackJson.class
+//            );
+//            listener = l;
+//        }
+//
+//
+//        @Override
+//        protected void onResponse(PagedTrackJson jr) {
+//            listener.gotItem(jr.collection);
+//        }
+//
+//        @Override
+//        protected void onAnyError() {
+//            listener.failure();
+//
+//        }
+//    }
+
+//    private static class H_GetTrack extends HTTP<TrackJson> {
+//        private GotItem listener;
+//
+//        public H_GetTrack(int trackId, GotItem l) {
+//            super(Method.GET,
+//                    API_URL + "/tracks/" + trackId  +"?" + CLIENT_ID_PARAM,
+//                    TrackJson.class);
+//            listener = l;
+//        }
+//
+//        @Override
+//        protected void onResponse(TrackJson jr) {
+//            listener.gotItem(jr);
+//        }
+//
+//        @Override
+//        protected void onAnyError() {
+//            listener.failure("network error");
+//        }
+//    }
+
+
+//    public static void searchPlaylist(String q, GotTrackArray l, int offset, int limit) {
+//
+//
+//
+//
+//    }
 
 
     public static class TrackJson {
@@ -369,7 +369,7 @@ public class SoundCloudApi {
         public int playlist_count; // 3,
         public String plan; // "Free",
         public int public_favorites_count; // 236,
-        public String subscriptions; // [],
+        //public String subscriptions; // [], ignoring until we can figure out what data type it is
         public int followers_count; // 2139,
         public int followings_count; // 346
 
@@ -377,18 +377,18 @@ public class SoundCloudApi {
 
 
 
-    public static class SearchTrackJson {
+    public static class PagedTrackJson {
         public TrackJson[] collection; //
         public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
     }
 
 
-    public static class SearchPlaylistJson {
+    public static class PagedPlaylistJson {
         public PlaylistJson[] collection; //
         public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
     }
 
-    public static class SearchUserJson {
+    public static class PagedUserJson {
         public UserJson[] collection; //
         public String next_href; // ex/ ttps://api.soundcloud.com/tracks?linked_partitioning=1&client_id=5916491062a0fd0196366d76c22ac36e&offset=10&q=cool&limit=10
     }

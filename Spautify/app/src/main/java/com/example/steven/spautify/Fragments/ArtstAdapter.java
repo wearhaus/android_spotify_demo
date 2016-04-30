@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.steven.spautify.R;
+import com.example.steven.spautify.ViewArtistActivity;
 import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Artst;
@@ -101,6 +102,13 @@ public class ArtstAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
 //                    act.startActivity(intent);
 //
 //                }
+
+                Activity act = mFragment.getActivity();
+                if (act != null) {
+                    Intent intent = new Intent(act, ViewArtistActivity.class);
+                    intent.putExtra(MusicLibFragment.TAG_ID, p.artstId);
+                    act.startActivity(intent);
+                }
             }
         });
 
