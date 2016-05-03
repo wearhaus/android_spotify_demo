@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,7 +113,11 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
         //Picasso.with(holder.mContainer.getContext()).setIndicatorsEnabled(true);
 
         if (mFragment.showArtwork()) {
-            Picasso.with(holder.mContainer.getContext()).load(s.sng.artworkUrl).into(holder.mImageView);
+            Picasso.with(holder.mContainer.getContext())
+                    .load(s.sng.artworkUrl)
+                    .placeholder(R.drawable.track_grey)
+                    .error(R.drawable.track_grey)
+                    .into(holder.mImageView);
         } else {
             holder.mImageView.setVisibility(View.GONE);
             // this way goneSpace's bounds matter

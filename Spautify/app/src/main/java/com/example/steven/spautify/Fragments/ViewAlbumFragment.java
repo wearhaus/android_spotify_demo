@@ -46,6 +46,10 @@ public class ViewAlbumFragment extends MusicLibFragment {
         return MusicLibType.SongInLibAlbum;
     }
 
+    @Override
+    protected boolean showArtwork() {
+        return false;
+    }
 
     /** The proper way to create a new Fragment with a passed arg. */
     public static ViewAlbumFragment newInstance(String id) {

@@ -58,8 +58,8 @@ public class Playlst {
 
         // Note: it would be an error to have source marked but the corresponding object null
         soundcloudObject = p;
-        Log.w("playlst", "soundcloudObject="+soundcloudObject);
-        Log.w("playlst", "soundcloudObject="+soundcloudObject.tracks);
+//        Log.w("playlst", "soundcloudObject="+soundcloudObject);
+//        Log.w("playlst", "soundcloudObject="+soundcloudObject.tracks);
     }
 
 

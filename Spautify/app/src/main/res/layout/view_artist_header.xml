@@ -24,7 +24,9 @@
             android:orientation="vertical"
             android:gravity="left"
             android:layout_toRightOf="@+id/img"
-            android:layout_margin="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
             >
 
 
@@ -35,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
                 android:textColor="#88888888"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:layout_weight="1"
                 />
             <TextView
@@ -44,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="#ffeeeeee"
-                android:textSize="20sp"
+                android:textSize="21sp"
                 android:layout_weight="1"
                 />
 

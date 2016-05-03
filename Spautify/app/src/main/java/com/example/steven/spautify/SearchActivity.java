@@ -16,7 +16,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.steven.spautify.Fragments.DynamicRecycleListFragment;
 import com.example.steven.spautify.Fragments.MusicLibType;
 import com.example.steven.spautify.Fragments.SearchResultFragment;
 import com.example.steven.spautify.Fragments.SngItem;
@@ -31,7 +30,6 @@ import com.example.steven.spautify.musicplayer.WPlayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.models.Artist;
@@ -111,7 +109,7 @@ public class SearchActivity<JR> extends LeafActivity {
         FragmentManager fm = getFragmentManager();
 
 
-        mSearchType = MusicLibType.Song; // CAnt be null or else adapter freaks out about null Fragments from getItem
+        mLibType = MusicLibType.Song; // CAnt be null or else adapter freaks out about null Fragments from getItem
         mViewPagerAdapter = new MyViewPageAdapter(fm);
         mViewPager.setAdapter(mViewPagerAdapter);
         mViewPager.addOnPageChangeListener(mViewPagerListener);
@@ -129,27 +127,6 @@ public class SearchActivity<JR> extends LeafActivity {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-//                    case R.id.option_spotify:
-//                        if (SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
-//                            //mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
-//                        } else {
-//                            //mCheckBoxSoundCloud.setChecked(true);
-//                            mCheckBoxSpotify.setChecked(false);
-//                            Toast toast = Toast.makeText(SearchActivity.this, "Log into Spotify to access Spotify music", Toast.LENGTH_SHORT);
-//                            toast.show();
-//                        }
-//
-//                        break;
-//                    case R.id.option_soundcloud:
-//                        if (SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn) {
-//                            //mCheckBoxSpotify.setChecked(!mCheckBoxSoundCloud.isChecked());
-//                        } else {
-////                            mCheckBoxSoundCloud.setChecked(true);
-////                            mCheckBoxSpotify.setChecked(false);
-//                        }
-//                        break;
-
-
                     case R.id.option_tracks:
                     case R.id.option_album:
                     case R.id.option_artists:
@@ -167,10 +144,6 @@ public class SearchActivity<JR> extends LeafActivity {
             }
         };
 
-//        mCheckBoxSpotify = (CheckBox) findViewById(R.id.option_spotify);
-//        mCheckBoxSoundCloud = (CheckBox) findViewById(R.id.option_soundcloud);
-//        mCheckBoxSpotify.setOnClickListener(ccc);
-//        mCheckBoxSoundCloud.setOnClickListener(ccc);
 
         mCheckBoxTracks = (CheckBox) findViewById(R.id.option_tracks);
         mCheckBoxAlbums = (CheckBox) findViewById(R.id.option_album);
@@ -181,13 +154,9 @@ public class SearchActivity<JR> extends LeafActivity {
         mCheckBoxArtist.setOnClickListener(ccc);
         mCheckBoxPlaylist.setOnClickListener(ccc);
 
-        //mCheckBoxArtist.setVisibility(View.GONE); // TODO add support for
-        //mCheckBoxPlaylist.setVisibility(View.GONE); // TODO add support for
 
         mMusicPlayerBar = (MusicPlayerBar) findViewById(R.id.music_player_bar);
 
-//        mCheckBoxSpotify.setChecked(SpotifyApi.getAuthState() == WMusicProvider.AuthState.LoggedIn);
-//        mCheckBoxSoundCloud.setChecked(!mCheckBoxSpotify.isChecked());
         mCheckBoxTracks.setChecked(true);
 
     }
@@ -211,7 +180,6 @@ public class SearchActivity<JR> extends LeafActivity {
 
     private void refreshUI() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
-//            mSearchResultContainer.setVisibility(View.GONE);
             mSearchText.setVisibility(View.GONE);
             mSearchCancel.setVisibility(View.GONE);
 
@@ -219,14 +187,12 @@ public class SearchActivity<JR> extends LeafActivity {
             mDisabledText.setText("Player is off");
 
             mMusicPlayerBar.setVisibility(View.GONE);
-//            mSearchOptionsLayout1.setVisibility(View.GONE);
             mSearchOptionsLayout2.setVisibility(View.GONE);
 
 
         } else {
 
             mDisabledText.setVisibility(View.GONE);
-//            mSearchOptionsLayout1.setVisibility(View.VISIBLE);
             mSearchOptionsLayout2.setVisibility(View.VISIBLE);
 
 
@@ -235,12 +201,20 @@ public class SearchActivity<JR> extends LeafActivity {
                 public void onClick(View v) {
                     startAniCloseSearch();
                     mSearchText.setText("");
+
+                    for (Source source : SearchableSources) {
+                        int i = getTabIndex(source);
+                        mTabData[i] = null;
+                        mTabIsLoading[i] = false;
+                        mTabNextPage[i] = null;
+                        mTabError[i] = null;
+
+                        updateFragUI(source);
+                    }
+
+                    mSearchNum++; // increment num so we can ignore any pending requests
                     // TODO cancel queries
-                    mViewPagerAdapter.setResultAllCancelled();
-//                if (AUTO_SEARCH_DURING_TYPING && mhhh != null) {
-//                    mhhh.cancel();
-//                    mhhh = null;
-//                }
+
                 }
             });
 
@@ -297,14 +271,21 @@ public class SearchActivity<JR> extends LeafActivity {
     /** If a search is to be cancelled, until all APIs support cancelling requests (Spotify uses retrofit1 which doesn't)
      * then we use this to check if a new request was issued, and if a returning request doesn't match this, then ignore results.
      * Important since we may switch to a different Fragment type resulting in the app crashing otherwise*/
-    private int mSearchHash = 0;
-    private MusicLibType mSearchType = null;
+    private int mSearchNum = 0;
+    private MusicLibType mLibType = null;
 
     // TODO this concept will expand to inlcude the storage for the actual data we load,
     // so when 2 have 3+ frags in the tabs, we can search on all 3, and not worry about data loss or null fragments
     /** The suffix to add to end of tab title, "" means nothing, Set back to "" when a tab is selected*/
     private String[] mTabTitleSuffix = new String[]{"",""};
-    private Boolean[] mTabIsLoading = new Boolean[]{false,false}; // TODO doesnt work unless read from the frag when it is ready
+
+
+    private static final Source[] SearchableSources = new Source[] {Source.Spotify, Source.Soundcloud};
+    private Boolean[] mTabIsLoading = new Boolean[]{false, false};
+    private SearchResultFragment.SearchResultNextPage[] mTabNextPage = new SearchResultFragment.SearchResultNextPage[]{null, null};
+    private ArrayList[] mTabData = new ArrayList[]{null, null};
+    private String[] mTabError = new String[]{null, null};
+
 
 
 
@@ -315,7 +296,7 @@ public class SearchActivity<JR> extends LeafActivity {
             mSearchCancel.setVisibility(View.VISIBLE);
         }
 
-        mSearchHash++;
+        mSearchNum++;
 
         MusicLibType newSearchType;
 
@@ -329,30 +310,39 @@ public class SearchActivity<JR> extends LeafActivity {
             newSearchType = MusicLibType.Song;
         }
 
-        if (mSearchType != newSearchType) {
-            mSearchType = newSearchType;
-            Log.i("search", "Switching type of result fragment");
+
+
+        for (Source source : SearchableSources) {
+            int i = getTabIndex(source);
+            mTabData[i] = null;
+            mTabIsLoading[i] = false;
+            mTabNextPage[i] = null;
+            mTabError[i] = null;
+        }
+
+        if (mLibType != newSearchType) {
+            mLibType = newSearchType;
+            Log.i(TAG, "Switching type of result fragment");
             // so we need a new adapter:
             mViewPagerAdapter.notifyDataSetChanged();
             // notify plus overriding getItemPosition in the adapter allows us to change the fragments
-
-
+            // this often times blocks UI thread until it's done, resulting in the code below (calls to search, etc.)
+            // to be AFTER they switch, so we have to null everything first
         }
 
-        if (Source.Spotify.isPlaybackAuthed()) {
-            SearchResultFragment frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
-            if (frag != null) {
-                frag.setResultNewQuery();
-            }
-            searchSpotifyApi(mSearchType, query, mSearchHash, 0, 12);
-        }
 
-        if (Source.Soundcloud.isPlaybackAuthed()) {
-            SearchResultFragment frag = mViewPagerAdapter.getFragmentBySource(Source.Soundcloud);
-            if (frag != null) {
-                frag.setResultNewQuery();
+        for (Source source : SearchableSources) {
+            int i = getTabIndex(source);
+            mTabData[i] = null;
+            if (source.isPlaybackAuthed() && !(source == Source.Soundcloud && mLibType == MusicLibType.Album)) {
+                // TODO add check for SoundCloud albums here
+                mTabIsLoading[i] = true;
+                setTabSuffix(source, "...");
+                updateFragUI(source);
+
+                searchApi(source, mLibType, query, mSearchNum, 0, 12);
             }
-            searchSoundCloudApi(mSearchType, query, mSearchHash, 0, 12);
+
         }
 
     }
@@ -367,45 +357,26 @@ public class SearchActivity<JR> extends LeafActivity {
 
 
 
-//    private TextWatcher mTextWatcher = new TextWatcher() {
-//        @Override
-//        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-//
-//        @Override
-//        public void onTextChanged(CharSequence s, int start, int before, int count) {
-//            Log.i("FA", "onTextChanged: " + s);
-//            if (s.length() > 0) {
-////                startAniOpenSearch();
-////                searchSpotifyApi("" + mSearchText.getText());
-////
-////
-////                mFragResult.setResultNewQuery();
-////                // Nope.. NEED to use a search button since this isn't going to our API backend, its using Spotify's,
-//                // So we don't want to get our App throttled/banned from too much redundant activity.
-//
-//
-//            } else {
-//                mFragResult.setResultNewQuery();
-//                startAniCloseSearch();
-//            }
-//        }
-//
-//        @Override
-//        public void afterTextChanged(Editable s) {}
-//    };
-
-
-
+    private void searchApi(final Source source, final MusicLibType libType, final String query, final int hash, final int offset, final int limit) {
+        switch (source) {
+            case Spotify:
+                searchSpotifyApi(libType, query, hash, offset, limit);
+                break;
+            case Soundcloud:
+                searchSoundCloudApi(libType, query, hash, offset, limit);
+                break;
+        }
+    }
 
 
 
     /** Search through Soundcloud Api using some crazy type casting to keep code as dry as possible.
      * */
-    private void searchSoundCloudApi(final MusicLibType st, final String query, final int hash, final int offset, final int limit) {
+    private void searchSoundCloudApi(final MusicLibType libType, final String query, final int hash, final int offset, final int limit) {
         // Breaks with spaces.
         String q = query.replace(" ", "-");
         // limit max is 200, default is 10
-        setTabSuffix(Source.Soundcloud, "...");
+
 
         Map<String, String> options = new HashMap<>();
         options.put(SCRetrofitService.CLIENT_ID, SoundCloudApi.CLIENT_ID);
@@ -414,15 +385,14 @@ public class SearchActivity<JR> extends LeafActivity {
         options.put(SCRetrofitService.QUERY, query);
         options.put(SCRetrofitService.PAGINATE, ""+1);
 
-        mTabIsLoading[getTabIndex(Source.Soundcloud)] = true;
 
 
-        Call<JR> cc = null;
-        switch (st) {
+
+        Call<JR> cc;
+        switch (libType) {
             case Song:
                 cc = (Call<JR>) SoundCloudApi.getApiService().searchTracks(options);
                 break;
-            case Album:
             case Artist:
                 cc = (Call<JR>) SoundCloudApi.getApiService().searchUsers(options);
                 break;
@@ -430,21 +400,21 @@ public class SearchActivity<JR> extends LeafActivity {
                 options.put(SCRetrofitService.COMPACT, "compact");
                 cc = (Call<JR>) SoundCloudApi.getApiService().searchPlaylists(options);
                 break;
+            case Album: // Albums do not exit on SoundCloud, so this response is ignored.
+            default:
+                return;
 
         }
-
         // crazy casting time:
-        assert cc != null; // just to stop the annoying lint
         cc.enqueue(new retrofit2.Callback<JR>() {
 
             @Override
             public void onResponse(Call<JR> call, retrofit2.Response<JR> response) {
-                if (hash != mSearchHash) return;
-                // TODO for production, add try catch in case some errors happen with the 3rd party's side
-                Log.w("search", ""+response.body());
+                if (hash != mSearchNum) return;
+                // TODO for production, add try catch in case some errors happen with the 3rd party's side.  404 errors still result in onResponse getting called
 
                 ArrayList jrList = new ArrayList<>();
-                switch (st) {
+                switch (libType) {
                     case Song:
                         jrList =  new ArrayList<SngItem>();
                         for (SoundCloudApi.TrackJson t : ((SoundCloudApi.PagedTrackJson) response.body()).collection) {
@@ -471,43 +441,19 @@ public class SearchActivity<JR> extends LeafActivity {
                 }
 
 
-                setTabSuffix(Source.Soundcloud, jrList);
-                SearchResultFragment frag = mViewPagerAdapter.getFragmentBySource(Source.Soundcloud);
-                if (frag != null) {
-                    DynamicRecycleListFragment.SearchResultNextPage nextPage = null;
-                    if (jrList.size() >= limit) {
-                        nextPage = new DynamicRecycleListFragment.SearchResultNextPage() {
-                            @Override
-                            public void requestNextPage() {
-                                searchSoundCloudApi(st, query, hash, offset + limit, limit);
-                            }
-                        };
-                    }
-                    frag.setResult(jrList, nextPage, (offset > 0));
-                    mTabIsLoading[getTabIndex(Source.Soundcloud)] = false;
-                }
-                // TODO store data nstead of store inside frag.  This means setResult adding is deprecated
+                searchApiGot(Source.Soundcloud, libType, query, hash, offset, limit, jrList);
             }
 
             @Override
             public void onFailure(Call<JR> call, Throwable t) {
                 Log.e(TAG, "Server Error: " + t);
-                if (hash != mSearchHash) return;
-                setTabSuffix(Source.Soundcloud, "");
-                SearchResultFragment frag = mViewPagerAdapter.getFragmentBySource(Source.Soundcloud);
-                if (frag != null) {
-                    frag.setResultError("Server Error!");
-                    mTabIsLoading[getTabIndex(Source.Soundcloud)] = false;
-                }
+                searchApiError(hash, "Server Error", Source.Soundcloud);
             }
 
         });
     }
 
-
-
-
-    private void searchSpotifyApi(final MusicLibType st, final String query, final int hash, final int offset, final int limit) {
+    private void searchSpotifyApi(final MusicLibType libType, final String query, final int hash, final int offset, final int limit) {
         Log.i("createSearchResults", "Search Query: " + query);
 
         // TODO: since Spotify is retrofit1, didn't bother keeping code super dry here with casting...
@@ -516,27 +462,26 @@ public class SearchActivity<JR> extends LeafActivity {
         options.put(SCRetrofitService.OFFSET, ""+offset);
         options.put(SCRetrofitService.LIMIT, ""+limit);
         ////////
-        setTabSuffix(Source.Spotify, "...");
-        mTabIsLoading[getTabIndex(Source.Spotify)] = true;
 
-        switch (st) {
+        switch (libType) {
             case Song:
                 SpotifyApi.getTempApi().searchTracks(query, options, new Callback<TracksPager>() {
                     @Override
                     public void success(final TracksPager trackspager, Response response) {
-                        if (hash != mSearchHash) return;
+                        if (hash != mSearchNum) return;
 
                         ArrayList<SngItem> list = new ArrayList<>();
                         for (Track t : trackspager.tracks.items) {
                             list.add(new SngItem(new Sng(t), SngItem.Type.NotInQueue));
                         }
 
-                        searchSpotifyApiGot(st, query, hash, offset, limit, list);
+                        searchApiGot(Source.Spotify, libType, query, hash, offset, limit, list);
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
-                        searchSpotifyApiError(hash, error);
+                        Log.e(TAG, "Server Error: " + error);
+                        searchApiError(hash, "Server Error", Source.Spotify);
                     }
 
                 });
@@ -547,25 +492,26 @@ public class SearchActivity<JR> extends LeafActivity {
                 // API search albums returns albumssimple rather than Album, which doesnt contain Artist.  So
                 // to display artist, we would need to do a get on each ablum separately
 //                SpotifyApi.getTempApi().searchAlbums(query, options, new Callback<AlbumsPager>() {
-                break;
+                return;
 
             case Artist:
                 SpotifyApi.getTempApi().searchArtists(query, options, new Callback<ArtistsPager>() {
                     @Override
                     public void success(final ArtistsPager aaa, Response response) {
-                        if (hash != mSearchHash) return;
+                        if (hash != mSearchNum) return;
 
                         ArrayList<Artst> list = new ArrayList<>();
                         for (Artist t : aaa.artists.items) {
                             list.add(new Artst(t));
                         }
 
-                        searchSpotifyApiGot(st, query, hash, offset, limit, list);
+                        searchApiGot(Source.Spotify, libType, query, hash, offset, limit, list);
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
-                        searchSpotifyApiError(hash, error);
+                        Log.e(TAG, "Server Error: " + error);
+                        searchApiError(hash, "Server Error", Source.Spotify);
                     }
 
                 });
@@ -576,19 +522,20 @@ public class SearchActivity<JR> extends LeafActivity {
                 SpotifyApi.getTempApi().searchPlaylists(query, options, new Callback<PlaylistsPager>() {
                     @Override
                     public void success(final PlaylistsPager playlistsPager, Response response) {
-                        if (hash != mSearchHash) return;
+                        if (hash != mSearchNum) return;
 
                         ArrayList<Playlst> list = new ArrayList<>();
                         for (PlaylistSimple t : playlistsPager.playlists.items) {
                             list.add(new Playlst(t));
                         }
 
-                        searchSpotifyApiGot(st, query, hash, offset, limit, list);
+                        searchApiGot(Source.Spotify, libType, query, hash, offset, limit, list);
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
-                        searchSpotifyApiError(hash, error);
+                        Log.e(TAG, "Server Error: " + error);
+                        searchApiError(hash, "Server Error", Source.Spotify);
                     }
 
                 });
@@ -596,38 +543,54 @@ public class SearchActivity<JR> extends LeafActivity {
                 break;
 
         }
-
-
     }
 
-    private void searchSpotifyApiGot(final MusicLibType st, final String query, final int hash, final int offset, final int limit, ArrayList list) {
-        setTabSuffix(Source.Spotify, list);
-        SearchResultFragment frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
-        if (frag != null) {
-            DynamicRecycleListFragment.SearchResultNextPage nextPage = null;
-            if (list.size() >= limit) {
-                nextPage = new DynamicRecycleListFragment.SearchResultNextPage() {
-                    @Override
-                    public void requestNextPage() {
-                        searchSpotifyApi(st, query, hash, offset + limit, limit);
-                    }
-                };
-            }
-            frag.setResult(list, nextPage, (offset > 0));
-            mTabIsLoading[getTabIndex(Source.Spotify)] = false;
+    private void searchApiGot(final Source source, final MusicLibType libType, final String query, final int hash, final int offset, final int limit, ArrayList list) {
+        final int i = getTabIndex(source);
+        if (mTabData[i] != null) {
+            mTabData[i].addAll(list);
+        } else {
+            mTabData[i] = list;
         }
+        mTabError[i] = null;
+        mTabIsLoading[i] = false;
+        if (list.size() >= limit) {
+            // if we got all limit# items, then there is probably more loadable.
+            mTabNextPage[i] = new SearchResultFragment.SearchResultNextPage() {
+                @Override
+                public void requestNextPage() {
+                    // increment offset
+                    mTabIsLoading[i] = true;
+                    mTabNextPage[i] = null;
+                    updateFragUI(source);
 
+                    searchApi(source, libType, query, hash, offset + limit, limit);
+                }
+            };
+        } else {
+            mTabNextPage[i] = null;
+        }
+        if (list.size() > 0) {
+            setTabSuffix(source, list.size() + "+");
+        } else {
+            setTabSuffix(source, "0");
+        }
+        updateFragUI(source);
     }
-    private void searchSpotifyApiError(int hash, RetrofitError error) {
-        Log.e(TAG, "Server Error: " + error);
-        if (hash != mSearchHash) return;
-        setTabSuffix(Source.Spotify, "");
-        SearchResultFragment frag = mViewPagerAdapter.getFragmentBySource(Source.Spotify);
-        if (frag != null) {
-            frag.setResultError("Server Error!");
-            mTabIsLoading[getTabIndex(Source.Spotify)] = false;
-        }
 
+
+
+    private void searchApiError(int hash, String Error, Source source) {
+        if (hash != mSearchNum) return;
+        setTabSuffix(source, "");
+
+        int i = getTabIndex(source);
+        mTabData[i] = null;
+        mTabError[i] = "Server Error!";
+        mTabIsLoading[i] = false;
+        mTabNextPage[i] = null;
+
+        updateFragUI(source);
     }
 
 
@@ -668,14 +631,17 @@ public class SearchActivity<JR> extends LeafActivity {
                 source = Source.Soundcloud;
             }
             args.putString(SearchResultFragment.TAG_SOURCE_PREFIX, source.prefix);
-            args.putInt(SearchResultFragment.TAG_LIB_TYPE_ORDINAL, mSearchType.ordinal());
+            args.putInt(SearchResultFragment.TAG_LIB_TYPE_ORDINAL, mLibType.ordinal());
 
             frag.setArguments(args);
 
             // TODO, here read all the data into the frag when we store it in this activity instead
-            if (mTabIsLoading[getTabIndex(source)]) {
-                frag.setResultNewQuery();
-            }
+            // Setting here won't work
+            // NO, dont do that here, we havent' called onCreateView yet... lets have the frag call us!
+//            Log.e(TAG, "at getItem:  mTabIsLoading[getTabIndex(source): " + mTabIsLoading[getTabIndex(source)]);
+//            if (mTabIsLoading[getTabIndex(source)]) {
+//                frag.setResultNewQuery();
+//            }
             return frag;
         }
 
@@ -685,14 +651,14 @@ public class SearchActivity<JR> extends LeafActivity {
             // we dont lookup the item, since this is only assigned at items, creation, and when we want to check if we are to
             // create a new item, it checks if an item with this itemid exists.  To switch search Types, we need to invalidate
             // all ids that were created by using the universal search type in the itemid
-            return super.getItemId(position) + (mSearchType.ordinal()*100);
+            return super.getItemId(position) + (mLibType.ordinal()*100);
         }
 
         @Override
         public int getItemPosition(Object object) {
             SearchResultFragment frag = (SearchResultFragment) object;
 
-            if (mSearchType == frag.getMusicLibType()) {
+            if (mLibType == frag.getMusicLibType()) {
                 Log.e(TAG, "getItemPosition: same class");
                 return super.getItemPosition(object);
             } else {
@@ -748,20 +714,6 @@ public class SearchActivity<JR> extends LeafActivity {
             return instantiatedFrags[position];
         }
 
-        void setResultAllCancelled() {
-            for (Fragment f : instantiatedFrags) {
-                if (f != null) {
-                    ((SearchResultFragment) f).setResultCancelled();
-                }
-            }
-        }
-//        void setResultAllLoading() {
-//            for (Fragment f : instantiatedFrags) {
-//                if (f != null) {
-//                    ((SearchResultFragmentInterface) f).setResultNewQuery();
-//                }
-//            }
-//        }
 
         SearchResultFragment getFragmentBySource(Source s) {
             if (s == Source.Spotify) return (SearchResultFragment) instantiatedFrags[0];
@@ -771,13 +723,6 @@ public class SearchActivity<JR> extends LeafActivity {
 
     }
 
-    private void setTabSuffix(Source source, @NonNull List l) {
-        if (l.size() > 0) {
-            setTabSuffix(source, l.size() + "+");
-        } else {
-            setTabSuffix(source, "0");
-        }
-    }
 
     private int getTabIndex(Source source) {
         if (source == Source.Spotify) {
@@ -796,6 +741,27 @@ public class SearchActivity<JR> extends LeafActivity {
             mTabTitleSuffix[position] = s;
             mTabLayout.setupWithViewPager(mViewPager);
         }
+    }
+
+
+    private void updateFragUI(Source s) {
+        Log.i(TAG, "updateFragUI " + s);
+        SearchResultFragment f = mViewPagerAdapter.getFragmentBySource(s);
+        if (f != null) {
+            updateFragUI(f);
+        } else {
+            // Fragment doesn't exist yet.  No UI to update
+        }
+    }
+
+
+
+    /** Call to update when the frag is ready for it (such as recreated)*/
+    public void updateFragUI(SearchResultFragment f) {
+        int i = getTabIndex(f.getSource());
+        Log.w(TAG, "   updateFragUI " + i + ", " + mTabData[i] + ", " + mTabNextPage[i] + ", " + mTabIsLoading[i] + ", "  + mTabError[i]);
+        f.setResult(mTabData[i], mTabNextPage[i], mTabIsLoading[i], mTabError[i]);
+        .
     }
 
 

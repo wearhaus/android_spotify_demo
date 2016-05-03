@@ -2,8 +2,12 @@ package com.example.steven.spautify.Fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
+import com.example.steven.spautify.SearchActivity;
 import com.example.steven.spautify.musicplayer.Source;
 
 import java.util.ArrayList;
@@ -23,15 +27,22 @@ public class SearchResultFragment extends MusicLibFragment {
 
 
 
-    protected ArrayList<SngItem> resultingItems;
-    private DynamicRecycleListFragment.SearchResultNextPage mNextPage;
+
+
+    protected ArrayList resultingItems;
+    private SearchResultNextPage mNextPage;
     private String errorMsg;
     private Source mSource;
     private MusicLibType mLibType;
 
+
     @Override
     public MusicLibType getMusicLibType() {
         return mLibType;
+    }
+
+    public Source getSource() {
+        return mSource;
     }
 
     @Override
@@ -46,54 +57,36 @@ public class SearchResultFragment extends MusicLibFragment {
         mLibType = MusicLibType.values()[getArguments().getInt(TAG_LIB_TYPE_ORDINAL)];
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = super.onCreateView(inflater, container, savedInstanceState);
 
-    /** @param add if true, add the given items nstead of replace.  When true, r must not be null*/
-    public void setResult(@NonNull ArrayList<SngItem> r, DynamicRecycleListFragment.SearchResultNextPage srnp, boolean add) {
-        if (add && resultingItems != null) {
-            // extra null check in case async came back awkwardly
-            // TODO program in dynamic cancelling of the nextPage request (as in ignore result instead of calling this)
-            resultingItems.addAll(r);
-        } else {
-            resultingItems = r;
+        SearchActivity act = (SearchActivity) getActivity();
+        if (act != null) {
+            Log.i("onCreateView", "onCreateView");
+            act.updateFragUI(this);
         }
-        errorMsg = null;
+
+        return v;
+    }
+
+    /** send the ENTIRE list every time*/
+    public void setResult(ArrayList r, SearchResultNextPage srnp, boolean loading, String error) {
+        resultingItems = r;
+
+        errorMsg = error;
         mNextPage = srnp;
 
-        mPageLoadedCount = resultingItems.size();
-        mPageTotalAbleToBeLoaded =  mPageLoadedCount + (mNextPage != null ? 1 : 0); // if not null, at least 1 more thing loadable
-        setRefreshing(false);
+        if (r != null) {
+            mPageLoadedCount = resultingItems.size();
+            mPageTotalAbleToBeLoaded = mPageLoadedCount + (mNextPage != null ? 1 : 0); // if not null, at least 1 more thing loadable
+        } else {
+            mPageLoadedCount = 0;
+            mPageTotalAbleToBeLoaded = 0;
+        }
+        Log.e("YYYYY", "setRefreshing to " + loading);
+        setRefreshing(loading);
 
-        updateList();
-    }
-
-
-    public void setResultNewQuery() {
-        resultingItems = null;
-        errorMsg = null;
-        mNextPage = null;
-        setRefreshing(true);
-        mPageLoadedCount = 0;
-        mPageTotalAbleToBeLoaded = 0;
-        updateList();
-    }
-
-    public void setResultError(String e) {
-        resultingItems = null;
-        errorMsg = e;
-        mNextPage = null;
-        setRefreshing(false);
-        mPageLoadedCount = 0;
-        mPageTotalAbleToBeLoaded = 0;
-        updateList();
-    }
-
-    public void setResultCancelled() {
-        resultingItems = null;
-        errorMsg = null;
-        mNextPage = null;
-        setRefreshing(false);
-        mPageLoadedCount = 0;
-        mPageTotalAbleToBeLoaded = 0;
         updateList();
     }
 
@@ -101,23 +94,28 @@ public class SearchResultFragment extends MusicLibFragment {
 
 
     protected String checkIfBad() {
-        String badWhy = null;
-
-        //if (!HTTPController.isThereInternet()) {
-        //   badWhy = "Can't access servers";
-        //} else
         if (errorMsg != null) {
-            badWhy = errorMsg;
+            return errorMsg;
+
         } else if (mSource.isPlaybackAuthedErrorString() != null) {
-            badWhy = mSource.isPlaybackAuthedErrorString();
-        } else if (getList() == null) {
-            badWhy = "";
+            return mSource.isPlaybackAuthedErrorString();
+
+        } else if (mSource.equals(Source.Soundcloud) && mLibType == MusicLibType.Album) {
+            return "Search by Album not supported by SoundCloud";
+
+        } if (getList() == null) {
+            return "";
+
         } else if (getList().size() <= 0) {
-            badWhy = "No matches";
+            Log.e("YYYYY", "SETTTING FALSE");
             setRefreshing(false);
+            return "No matches";
+
+        } else {
+            // No errors
+            return null;
         }
 
-        return badWhy;
     }
 
 
@@ -131,10 +129,22 @@ public class SearchResultFragment extends MusicLibFragment {
     protected void loadData(int offset) {
         // we ignore offset, since thats already prepared outside of this fragment
         if (mNextPage != null) {
-            setRefreshing(true);
+//            errorMsg = null;
+//            mNextPage = null;
+//            setRefreshing(true);
+//            updateList();
             mNextPage.requestNextPage();
             mNextPage = null; // to prevent duplicate calls
         }
+    }
+
+
+    /** Interface class to be used if the fragment does not know how to loadData,
+     * but the caller activity does.*/
+    public interface SearchResultNextPage {
+        /** Must call setResult... eventually due to loading bar being present
+         * TODO how to handle cancelling due to another search sent.*/
+        void requestNextPage();
     }
 
 }

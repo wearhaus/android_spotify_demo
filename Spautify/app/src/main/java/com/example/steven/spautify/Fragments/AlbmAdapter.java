@@ -79,7 +79,11 @@ public class AlbmAdapter extends RecyclerView.Adapter<WPlayerViewHolder> impleme
 //            Picasso.with(holder.mContainer.getContext()).load(a.images.get(0).url).into(holder.mImageView);
 
         if (mFragment.showArtwork()) {
-            Picasso.with(holder.mContainer.getContext()).load(a.images.get(0).url).into(holder.mImageView);
+            Picasso.with(holder.mContainer.getContext())
+                    .load(a.images.get(0).url)
+                    .placeholder(R.drawable.cd_grey)
+                    .error(R.drawable.cd_grey)
+                    .into(holder.mImageView);
         } else {
             holder.mImageView.setVisibility(View.GONE);
             // this way goneSpace's bounds matter

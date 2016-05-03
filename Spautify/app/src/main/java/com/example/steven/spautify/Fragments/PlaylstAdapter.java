@@ -75,7 +75,11 @@ public class PlaylstAdapter extends RecyclerView.Adapter<WPlayerViewHolder> impl
 
 
         if (mFragment.showArtwork()) {
-            Picasso.with(holder.mContainer.getContext()).load(p.artworkUrl).into(holder.mImageView);
+            Picasso.with(holder.mContainer.getContext())
+                    .load(p.artworkUrl)
+                    .placeholder(R.drawable.playlist_grey)
+                    .error(R.drawable.playlist_grey)
+                    .into(holder.mImageView);
         } else {
             holder.mImageView.setVisibility(View.GONE);
             // this way goneSpace's bounds matter

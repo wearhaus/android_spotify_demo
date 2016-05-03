@@ -82,7 +82,11 @@ public class ArtstAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
 //        holder.mAuthorView.setText("" + p.); // field may not be present
 
         if (p.artworkUrl != null) {
-            Picasso.with(holder.mContainer.getContext()).load(p.artworkUrl).into(holder.mImageView);
+            Picasso.with(holder.mContainer.getContext())
+                    .load(p.artworkUrl)
+                    .placeholder(R.drawable.arc_guest_g)
+                    .error(R.drawable.arc_guest_g)
+                    .into(holder.mImageView);
         } else {
             holder.mImageView.setImageResource(0);
         }

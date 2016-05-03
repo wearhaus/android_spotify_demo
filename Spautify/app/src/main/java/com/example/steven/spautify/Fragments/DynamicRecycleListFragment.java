@@ -64,13 +64,7 @@ public abstract class DynamicRecycleListFragment<
     protected int mPageTotalAbleToBeLoaded = -1;
 
 
-    /** Interface class to be used if the fragment does not know how to loadData,
-     * but the caller activity does.*/
-    public interface SearchResultNextPage {
-        /** Must call setResult... eventually due to loading bar being present
-         * TODO how to handle cancelling due to another search sent.*/
-        void requestNextPage();
-    }
+
 
 
     @Override
@@ -113,10 +107,6 @@ public abstract class DynamicRecycleListFragment<
 
 
         mNoticeText = (TextView) view.findViewById(R.id.notice_text);
-
-//        mLoadingContainer = view.findViewById(R.id.loading_container);
-//        mLoadingContainer.setVisibility(View.GONE);
-
 
 
         mEverythingContainer = view.findViewById(R.id.everything_container);
@@ -183,9 +173,12 @@ public abstract class DynamicRecycleListFragment<
     protected void onSwipeRefresh() {};
 
     protected void setRefreshing(boolean b) {
+        Log.d("DynamicListFragment", "   setRefreshing: " + b);
         if (mSwipeRefresh != null) {
             mSwipeRefresh.setRefreshing(b);
+            Log.d("DynamicListFragment", "   actually changed");
         }
+
     }
 
     /** Regrab and rerender the entire list.*/

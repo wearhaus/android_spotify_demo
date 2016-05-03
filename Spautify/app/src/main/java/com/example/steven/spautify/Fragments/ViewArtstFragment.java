@@ -124,7 +124,11 @@ public class ViewArtstFragment extends MusicLibFragment {
 
             mArtistNameView.setText(mArtst.name);
             if (mArtst.artworkUrl != null) {
-                Picasso.with(getActivity()).load(mArtst.artworkUrl).into(mImageView);
+                Picasso.with(getActivity())
+                        .load(mArtst.artworkUrl)
+                        .placeholder(R.drawable.arc_guest_g)
+                        .error(R.drawable.arc_guest_g)
+                        .into(mImageView);
             } else {
                 mImageView.setImageResource(0);
             }
