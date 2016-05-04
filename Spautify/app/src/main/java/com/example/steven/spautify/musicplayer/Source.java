@@ -6,7 +6,7 @@ import com.example.steven.spautify.R;
  * Created by Steven on 4/21/2016.
  */
 public enum Source {
-    Spotify(SpotifyProvider.class, "sp", R.drawable.spotify_icon),
+    Spotify(SpotifyProvider.class, "sp", R.drawable.spotify_icon_64x64),
     Blank(BlankProvider.class, "bl", 0),
     /**Represents something unable to be loaded or is forbidden.*/
     Null(null, "nn", 0),
@@ -17,6 +17,7 @@ public enum Source {
     Class providerClass;
     public String prefix;
     public int sourceSplashRes;
+//    public int sourceSplashResLarge;
     Source(Class pc, String p, int ss) {
         providerClass = pc;
         prefix = p;

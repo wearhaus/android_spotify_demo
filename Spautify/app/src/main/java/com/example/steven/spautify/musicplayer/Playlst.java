@@ -22,7 +22,12 @@ public class Playlst {
     public String playlstId;
     public String name;
     public String creatorName;
+
+
+    /** Will probably be small resolution, such as 100x100, or even smaller*/
     public String artworkUrl;
+    /** If a higher res is available, this will be filled out, otherwise, it'll mirror artworkUrlHighRes*/
+    public String artworkUrlHighRes;
 
     // sometimes not visible
 
@@ -42,9 +47,11 @@ public class Playlst {
         spotifyObject = p;
         // some fields like owner may be null
 
-        try {
-            artworkUrl = p.images.get(0).url;
-        } catch (NullPointerException e) {}
+        if (p.images != null && !p.images.isEmpty()) {
+            // as of now, order is largest to smallest
+            artworkUrl = p.images.get(p.images.size()-1).url;
+            artworkUrlHighRes = p.images.get(0).url;
+        }
     }
 
 
@@ -54,12 +61,17 @@ public class Playlst {
 
         name = p.title;
         creatorName = p.user != null ? p.user.username : "";
+
         artworkUrl = p.artwork_url;
+        if (artworkUrl != null) {
+            // default is large, which is 100x100
+            artworkUrlHighRes = artworkUrl.replace("large.jpg", "t500x500.jpg");
+        } else {
+            artworkUrlHighRes = artworkUrl;
+        }
 
         // Note: it would be an error to have source marked but the corresponding object null
         soundcloudObject = p;
-//        Log.w("playlst", "soundcloudObject="+soundcloudObject);
-//        Log.w("playlst", "soundcloudObject="+soundcloudObject.tracks);
     }
 
 

@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.steven.spautify.R;
-import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SCRetrofitService;
 import com.example.steven.spautify.musicplayer.Sng;
@@ -18,7 +17,6 @@ import com.example.steven.spautify.musicplayer.Source;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -210,7 +208,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
             // Tracks, anytime, can be hidden or deleted or made private, so they may return a 403 error
             // This behavior here also assumes that we cant paginate playlist content.
 
-            setRefreshing(true);
+            setLoading(true);
             mPageIsLoading = true;
 
             Map<String, String> options = new HashMap<>();
@@ -240,7 +238,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
                     //TODO cache, also note that we are not going to cache the playlist obj with the song objects
 
 
-                    setRefreshing(false);
+                    setLoading(false);
                     mPageIsLoading = false;
 
                     mList.addAll(ss);
@@ -253,7 +251,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
                 @Override
                 public void onFailure(Call<SoundCloudApi.PlaylistJson> call, Throwable t) {
                     Log.e("failure", ""+t);
-                    setRefreshing(false);
+                    setLoading(false);
                     mPageIsLoading = false;
                 }
             });
@@ -274,7 +272,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
             mList.addAll(ss);
             mPageLoadedCount = mList.size();
             mPageTotalAbleToBeLoaded = mPlaylst.soundcloudObject.track_count;
-            setRefreshing(false);
+            setLoading(false);
             mPageIsLoading = false;
 
 
@@ -291,7 +289,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
 
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
 
 
@@ -318,7 +316,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
                 mPageLoadedCount = ptp.offset + ptp.limit;
                 mPageTotalAbleToBeLoaded = ptp.total;
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -332,7 +330,7 @@ public class ViewPlaylistFragment extends MusicLibFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });

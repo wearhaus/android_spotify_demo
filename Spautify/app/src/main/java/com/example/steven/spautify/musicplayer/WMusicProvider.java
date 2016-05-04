@@ -43,7 +43,7 @@ public abstract class WMusicProvider {
 
     /**
      * @param c must be the Application Context
-     * //@param wp must be the WPlayer that creates and holds this*/
+     */
     WMusicProvider(Context c/*, WPlayer wp*/) {
         //wplayer = wp;
     }

@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -104,7 +104,7 @@ public class MySavedAlbumsFragment extends MusicLibFragment {
 
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
 
 
@@ -126,7 +126,7 @@ public class MySavedAlbumsFragment extends MusicLibFragment {
                 mPageLoadedCount = psa.offset + psa.limit;
                 mPageTotalAbleToBeLoaded = psa.total;
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -140,7 +140,7 @@ public class MySavedAlbumsFragment extends MusicLibFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });

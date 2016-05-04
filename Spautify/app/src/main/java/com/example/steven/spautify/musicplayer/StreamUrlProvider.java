@@ -3,6 +3,7 @@ package com.example.steven.spautify.musicplayer;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ public abstract class StreamUrlProvider extends WMusicProvider {
     /** Only a temp var used for requestPositionUpdate when PlaybackCompleted or SkipToNext stopped*/
     private int mSongDuration;
     private boolean mReachEndOnce;
+    private Context mAppContext;
 
     /**
      * @param c must be the Application Context
@@ -40,6 +42,7 @@ public abstract class StreamUrlProvider extends WMusicProvider {
      */
     public StreamUrlProvider(Context c) {
         super(c);
+        mAppContext = c;
 
         // No auth states or anything; we just stream directly
         mPlayerSetupState = State.PlayerInited;
@@ -78,7 +81,7 @@ public abstract class StreamUrlProvider extends WMusicProvider {
             mUrl = getStreamUrl(song);
             mSongDuration = song.durationInMs;
             mReachEndOnce = false;
-            mMediaPlayer.setDataSource(mUrl);
+            mMediaPlayer.setDataSource(mAppContext, Uri.parse(mUrl));
             mMediaPlayer.prepareAsync();
 
             mPlayerSetupState = State.LoadingSong;

@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -14,7 +14,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -29,81 +28,62 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Random;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import jp.wasabeef.picasso.transformations.BlurTransformation;
+
 /**
  * Created by Steven on 2/9/2016.
+ *
+ * Relocated out of package until ButterKnife fixes it's issues with package class names: https://github.com/JakeWharton/butterknife/issues/507
  */
 public class CurrentSongFragment extends Fragment {
 
 
-    private SeekBar mSeekBar;
-    private View mNoPlaybackLayout;
-    private View mPlaybackLayout;
-    private View mLoading;
-    private TextView mNoPlaybackText;
-    private TextView mTrackTitle;
-    private TextView mTrackAuthor;
-    private TextView mTrackTime;
+    @BindView(R.id.seek_bar)             SeekBar mSeekBar;
+    @BindView(R.id.logged_out_layout)    View mNoPlaybackLayout;
+    @BindView(R.id.playback_layout)      View mPlaybackLayout;
+    @BindView(R.id.loading_container)    View mLoading;
+    @BindView(R.id.logged_out_text)      TextView mNoPlaybackText;
+    @BindView(R.id.track_title)          TextView mTrackTitle;
+    @BindView(R.id.track_author)         TextView mTrackAuthor;
+    @BindView(R.id.track_time)           TextView mTrackTime;
+    @BindView(R.id.track_time_max)       TextView mTrackTimeMax;
+
+    @BindView(R.id.img)                  ImageView mImageView;
+    @BindView(R.id.img_bg)               ImageView mImageBGView;
+
+    @BindView(R.id.skip_forward)         ImageButton mSkipForward;
+    @BindView(R.id.skip_back)            ImageButton mSkipBack;
+    @BindView(R.id.play_button)          PlayButtonView mPlayButton;
+    @BindView(R.id.shuffle)              ImageButton mShuffle;
+    @BindView(R.id.repeat)               ImageButton mRepeat;
+
+    @BindView(R.id.source_splash)        Button mSourceButton;
+
     private String mCurrentSngId;
-    //private ImageButton mPlayPause;
-    private ImageView mImageView;
-
-    private ImageButton mSkipForward;
-    private ImageButton mSkipBack;
-    private PlayButtonView mPlayButton;
-    private ImageButton mShuffle;
-    private ImageButton mRepeat;
-
-    private Button mSourceButton;
-
     private int randomCode;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.current_song_fragment, container, false);
 
-        // TODO
-        // TODO proper attribution to source of song AND for soundcloud, a web browser launcher for the song link
-        // TODO
+        ButterKnife.bind(this, view);
 
-        //mLikedTrue = (ImageView) findViewById(R.id.liked_true);
 
         Random rand = new Random();
         randomCode = rand.nextInt();
 
 
-        mPlaybackLayout = view.findViewById(R.id.playback_layout);
-        mNoPlaybackLayout = view.findViewById(R.id.logged_out_layout);
-        mLoading = view.findViewById(R.id.loading_container);
-        mSeekBar = (SeekBar) view.findViewById(R.id.seek_bar);
-        mNoPlaybackText = (TextView) view.findViewById(R.id.logged_out_text);
-
-        mPlayButton = (PlayButtonView) view.findViewById(R.id.play_button);
-        mSkipForward = (ImageButton) view.findViewById(R.id.skip_forward);
-        mSkipBack = (ImageButton) view.findViewById(R.id.skip_back);
-        mShuffle = (ImageButton) view.findViewById(R.id.shuffle);
-
-        mRepeat = (ImageButton) view.findViewById(R.id.repeat);
-        mSourceButton = (Button) view.findViewById(R.id.source_splash);
-
 
         mImageView = (ImageView) view.findViewById(R.id.img);
 
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(getScreenWidth(), getScreenWidth());
-        lp.setMargins(0, 0, 0, 0);
-        mImageView.setLayoutParams(lp);
-
-
-        mTrackTime = (TextView) view.findViewById(R.id.track_time);
-        mTrackTitle = (TextView) view.findViewById(R.id.track_title);
-        mTrackAuthor = (TextView) view.findViewById(R.id.track_author);
         mTrackTitle.setSelected(true);
         mTrackTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         mTrackTitle.setSingleLine(true);
         mTrackAuthor.setSelected(true);
         mTrackAuthor.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         mTrackAuthor.setSingleLine(true);
-
 
 
 
@@ -270,7 +250,8 @@ public class CurrentSongFragment extends Fragment {
 
                     int pos = WPlayer.getPositionInMs();
 
-                    mTrackTime.setText(MusicPlayerBar.formatMs(pos) + " / " + MusicPlayerBar.formatMs(sng.durationInMs) + "    (" + pos + "ms)");
+                    mTrackTime.setText(MusicPlayerBar.formatMs(pos));
+                    mTrackTimeMax.setText(MusicPlayerBar.formatMs(sng.durationInMs));
 
                     if (sng.sngId.equals(mCurrentSngId)) {
                         // Do nothing.  We don't want to setText again and reset the marquee
@@ -280,7 +261,7 @@ public class CurrentSongFragment extends Fragment {
                         mTrackAuthor.setText(sng.getFormattedArtistAlbumString());
 
                         if (sng.source == Source.Spotify) {
-                            mSourceButton.setCompoundDrawablesWithIntrinsicBounds(sng.source.sourceSplashRes, 0, 0, 0);
+                            mSourceButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.spotify_icon_64x64, 0, 0, 0);
                             mSourceButton.setText("View on Spotify");
                             mSourceButton.setVisibility(View.VISIBLE);
 
@@ -290,12 +271,17 @@ public class CurrentSongFragment extends Fragment {
                             mSourceButton.setVisibility(View.VISIBLE);
 
                         } else {
-                            //mSourceButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-                            //mSourceButton.setText("");
                             mSourceButton.setVisibility(View.GONE);
                         }
 
-                        Picasso.with(getActivity()).load(sng.artworkUrl).into(mImageView);
+                        Picasso.with(getActivity())
+                                .load(sng.artworkUrlHighRes)
+                                .into(mImageView);
+
+                        Picasso.with(getActivity())
+                                .load(sng.artworkUrl)
+                                .transform(new BlurTransformation(getActivity(), 50, 1))
+                                .into(mImageBGView);
                     }
 
                     break;

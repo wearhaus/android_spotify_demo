@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 /**
  * Created by Steven on 4/27/2016.

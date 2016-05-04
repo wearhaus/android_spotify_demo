@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

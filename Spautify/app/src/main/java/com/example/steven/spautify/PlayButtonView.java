@@ -13,8 +13,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.daasuu.ei.Ease;
-import com.daasuu.ei.EasingInterpolator;
 import com.example.Notifier;
 import com.example.steven.spautify.musicplayer.WPlayer;
 

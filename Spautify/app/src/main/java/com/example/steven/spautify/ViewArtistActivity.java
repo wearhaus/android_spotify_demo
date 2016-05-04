@@ -3,11 +3,9 @@ package com.example.steven.spautify;
 import android.app.Fragment;
 import android.os.Bundle;
 
-import com.example.steven.spautify.Fragments.MusicLibFragment;
-import com.example.steven.spautify.Fragments.ViewArtstFragment;
-import com.example.steven.spautify.Fragments.ViewPlaylistFragment;
+import com.example.steven.spautify.fragments.MusicLibFragment;
+import com.example.steven.spautify.fragments.ViewArtstFragment;
 import com.example.steven.spautify.musicplayer.Artst;
-import com.example.steven.spautify.musicplayer.Playlst;
 
 /**
  * Created by Steven on 2/10/2016.

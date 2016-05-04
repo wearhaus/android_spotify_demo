@@ -18,6 +18,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Random;
 
+import jp.wasabeef.picasso.transformations.BlurTransformation;
+
 /**
  * Created by Steven on 12/17/2015.
  *
@@ -53,9 +55,8 @@ public class MusicPlayerBar extends RelativeLayout {
     private TextView mTrackTime;
     private String mTrackUriDisplayed;
     private PlayButtonView mPlayButton;
-    private ImageButton mSkipForward;
-    private ImageButton mSkipBack;
     private ImageView mImageView;
+    private ImageView mImageBGView;
     private ImageView mSourceSplashView;
     //private ImageView mImageBGView;
 
@@ -76,21 +77,18 @@ public class MusicPlayerBar extends RelativeLayout {
         mPlaybackLayout = findViewById(R.id.playback_layout);
         mNoPlaybackLayout = findViewById(R.id.logged_out_layout);
         mLoading = findViewById(R.id.loading_container);
-        //mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
         mNoPlaybackText = (TextView) findViewById(R.id.logged_out_text);
 
         mPlayButton = (PlayButtonView) findViewById(R.id.play_button);
-        //mSkipForward = (ImageButton) findViewById(R.id.skip_forward);
-        //mSkipBack = (ImageButton) findViewById(R.id.skip_back);
 
         mImageView = (ImageView) findViewById(R.id.img);
+        mImageBGView = (ImageView) findViewById(R.id.img_bg);
         mSourceSplashView = (ImageView) findViewById(R.id.source_splash);
-        //mImageBGView = (ImageView) findViewById(R.id.img);
-
 
         mTrackTime = (TextView) findViewById(R.id.track_time);
         mTrackTitle = (TextView) findViewById(R.id.track_title);
         mTrackAuthor = (TextView) findViewById(R.id.track_author);
+
         mTrackTitle.setSelected(true);
         mTrackTitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         mTrackTitle.setSingleLine(true);
@@ -282,7 +280,16 @@ public class MusicPlayerBar extends RelativeLayout {
                         mTrackTitle.setText(sng.name);
                         mTrackAuthor.setText(sng.getFormattedArtistAlbumString());
 
-                        Picasso.with(getContext()).load(sng.artworkUrl).into(mImageView);
+                        Picasso.with(getContext())
+                                .load(sng.artworkUrl)
+                                .placeholder(R.drawable.track_grey6_256x256)
+                                .error(R.drawable.track_grey6_256x256)
+                                .into(mImageView);
+
+                        Picasso.with(getContext())
+                                .load(sng.artworkUrl)
+                                .transform(new BlurTransformation(getContext(), 25, 1))
+                                .into(mImageBGView);
 
                         mSourceSplashView.setImageResource(sng.source.sourceSplashRes);
                     }
@@ -313,6 +320,7 @@ public class MusicPlayerBar extends RelativeLayout {
 
 
 
+    /** Returns the string formatted in minutes:seconds.  Rounded to nearest second.*/
     public static String formatMs(int ms) {
         int sec = (int) Math.floor(ms * 0.001);
         int min = (int)  Math.floor(sec / 60);

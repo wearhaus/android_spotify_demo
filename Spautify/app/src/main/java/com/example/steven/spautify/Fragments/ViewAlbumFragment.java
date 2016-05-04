@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.steven.spautify.R;
-import com.example.steven.spautify.ViewAlbumActivity;
-import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
@@ -203,7 +201,7 @@ public class ViewAlbumFragment extends MusicLibFragment {
 
         // TODO this ought to cache the songs or something in case this is fragment is closed and reopened.
 
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
 
 
@@ -230,7 +228,7 @@ public class ViewAlbumFragment extends MusicLibFragment {
                 mPageLoadedCount = ptp.offset + ptp.limit;
                 mPageTotalAbleToBeLoaded = ptp.total;
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -244,7 +242,7 @@ public class ViewAlbumFragment extends MusicLibFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });

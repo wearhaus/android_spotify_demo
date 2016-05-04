@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -118,7 +118,7 @@ public class MyPlaylistsFragment extends MusicLibFragment {
             return;
         }
 
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
 
 
@@ -145,7 +145,7 @@ public class MyPlaylistsFragment extends MusicLibFragment {
                 mPageLoadedCount = psp.offset + psp.limit;
                 mPageTotalAbleToBeLoaded = psp.total;
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -159,7 +159,7 @@ public class MyPlaylistsFragment extends MusicLibFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });

@@ -8,6 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.steven.spautify"
+//        renderscriptSupportModeEnabled true
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
@@ -23,13 +24,13 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    // This library handles authentication and authorization
-    // This library handles music playback
-    // handles spotify web api, such as search
+
     compile project(':stevenlib')
-    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta12@aar'
-    compile 'com.spotify.sdk:spotify-player:1.0.0-beta12@aar'
-    compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
+
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta12@aar' // This library handles authentication and authorization
+    compile 'com.spotify.sdk:spotify-player:1.0.0-beta12@aar' // This library handles music playback
+    compile 'com.github.kaaes:spotify-web-api-android:0.4.1' // handles spotify web api, such as search
+
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:recyclerview-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
@@ -43,10 +44,13 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
 
     compile 'pl.tajchert:waitingdots:0.2.0'
-    compile 'com.daasuu:EasingInterpolator:1.0.0'
+//    compile 'com.github.ybq:Android-SpinKit:1.0.4'
+//    compile 'com.daasuu:EasingInterpolator:1.0.0'
 
     compile 'com.jakewharton:butterknife:8.0.1'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
+
+    compile 'jp.wasabeef:picasso-transformations:2.1.0' // for blur
 
     // This beta version causes OOM's when doing normal activities, removing for now.
 //    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'

@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -12,13 +12,11 @@ import android.widget.TextView;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.musicplayer.Artst;
-import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SCRetrofitService;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.SoundCloudApi;
 import com.example.steven.spautify.musicplayer.Source;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
-import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.example.steven.spautify.musicplayer.WPlayer;
 import com.squareup.picasso.Picasso;
 
@@ -27,10 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
@@ -219,7 +214,7 @@ public class ViewArtstFragment extends MusicLibFragment {
     }
 
     private void loadArtstSoundCloud() {
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
 
         Map<String, String> options = new HashMap<>();
@@ -240,7 +235,7 @@ public class ViewArtstFragment extends MusicLibFragment {
             @Override
             public void onFailure(Call<SoundCloudApi.UserJson> call, Throwable t) {
                 Log.e("failure", ""+t);
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });
@@ -248,7 +243,7 @@ public class ViewArtstFragment extends MusicLibFragment {
     }
 
     private void loadArtstSpotify() {
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
 
 
@@ -264,7 +259,7 @@ public class ViewArtstFragment extends MusicLibFragment {
             @Override
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });
@@ -274,7 +269,7 @@ public class ViewArtstFragment extends MusicLibFragment {
 
     private void loadDataSoundCloud(int offset) {
 
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
         // soundcloud offers a track_count int
 
@@ -296,7 +291,7 @@ public class ViewArtstFragment extends MusicLibFragment {
                 }
                 //TODO cache
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
 
                 mList.addAll(ss);
@@ -308,7 +303,7 @@ public class ViewArtstFragment extends MusicLibFragment {
             @Override
             public void onFailure(Call<SoundCloudApi.PagedTrackJson> call, Throwable t) {
                 Log.e("failure", ""+t);
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });
@@ -321,7 +316,7 @@ public class ViewArtstFragment extends MusicLibFragment {
     }
     private void loadDataSpotify(final int offset) {
 
-        setRefreshing(true);
+        setLoading(true);
         mPageIsLoading = true;
 
 
@@ -345,7 +340,7 @@ public class ViewArtstFragment extends MusicLibFragment {
                 mPageLoadedCount = offset + getPageSize();
                 mPageTotalAbleToBeLoaded = ts.tracks.size();
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
 
                 // TODO is it better to add to list then just 'change' list
@@ -359,7 +354,7 @@ public class ViewArtstFragment extends MusicLibFragment {
             public void failure(RetrofitError error) {
                 Log.e("failure", error.toString());
 
-                setRefreshing(false);
+                setLoading(false);
                 mPageIsLoading = false;
             }
         });

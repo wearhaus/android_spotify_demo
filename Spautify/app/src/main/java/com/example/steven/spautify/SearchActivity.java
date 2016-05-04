@@ -2,6 +2,7 @@ package com.example.steven.spautify;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,15 +11,18 @@ import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.steven.spautify.Fragments.MusicLibType;
-import com.example.steven.spautify.Fragments.SearchResultFragment;
-import com.example.steven.spautify.Fragments.SngItem;
+import com.example.steven.spautify.fragments.MusicLibType;
+import com.example.steven.spautify.fragments.SearchResultFragment;
+import com.example.steven.spautify.fragments.SngItem;
 import com.example.steven.spautify.musicplayer.Artst;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.example.steven.spautify.musicplayer.SCRetrofitService;
@@ -117,10 +121,19 @@ public class SearchActivity<JR> extends LeafActivity {
 
 
 
+        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    doSearch();
+                    return true;
+                }
+                return false;
+            }
+        });
 
 
 
-//        mSearchOptionsLayout1 = findViewById(R.id.search_options);
         mSearchOptionsLayout2 = findViewById(R.id.search_options_2);
 
         View.OnClickListener ccc = new View.OnClickListener() {
@@ -221,7 +234,9 @@ public class SearchActivity<JR> extends LeafActivity {
             mSearchStart.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    doSearch("" + mSearchText.getText());
+                    // Check if no view has focus:
+
+                    doSearch();
                 }
             });
 
@@ -289,8 +304,16 @@ public class SearchActivity<JR> extends LeafActivity {
 
 
 
-    private void doSearch(String query) {
-        if (query == null || query.length() <= 0) return;
+    private void doSearch() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        String query = "" + mSearchText.getText();
+        if (query == null || query.length() <= 0) {
+            return;
+        }
         if (!mSearchOpened) {
             mSearchOpened = true;
             mSearchCancel.setVisibility(View.VISIBLE);
@@ -342,6 +365,7 @@ public class SearchActivity<JR> extends LeafActivity {
 
                 searchApi(source, mLibType, query, mSearchNum, 0, 12);
             }
+
 
         }
 
@@ -411,6 +435,11 @@ public class SearchActivity<JR> extends LeafActivity {
             @Override
             public void onResponse(Call<JR> call, retrofit2.Response<JR> response) {
                 if (hash != mSearchNum) return;
+                if (response.code() != 200) {
+                    Log.e(TAG, "Server Error: " + response.raw());
+                    searchApiError(hash, "Server Error", Source.Soundcloud);
+                    return;
+                }
                 // TODO for production, add try catch in case some errors happen with the 3rd party's side.  404 errors still result in onResponse getting called
 
                 ArrayList jrList = new ArrayList<>();
@@ -761,7 +790,6 @@ public class SearchActivity<JR> extends LeafActivity {
         int i = getTabIndex(f.getSource());
         Log.w(TAG, "   updateFragUI " + i + ", " + mTabData[i] + ", " + mTabNextPage[i] + ", " + mTabIsLoading[i] + ", "  + mTabError[i]);
         f.setResult(mTabData[i], mTabNextPage[i], mTabIsLoading[i], mTabError[i]);
-        .
     }
 
 

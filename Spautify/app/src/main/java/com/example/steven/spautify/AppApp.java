@@ -1,6 +1,7 @@
 package com.example.steven.spautify;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.example.steven.spautify.musicplayer.WPlayer;
 
@@ -13,6 +14,7 @@ public class AppApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i("AppApp", "AppApp Starting upup");
 
         //LeakCanary.install(this);
 

@@ -26,12 +26,7 @@
 
 
 
-        <!--
-            Note: If possible, always use match_parent on ListViews to improve app speed
-
-            http://stackoverflow.com/questions/2618272/custom-listview-adapter-getview-method-being-called-multiple-times-and-in-no-co
-         -->
-        <android.support.v4.widget.SwipeRefreshLayout
+        <com.example.steven.spautify.BetterSwipeRefreshLayout
             android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -40,6 +35,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+                <!-- Frame layout needed so we can use the RecyclerViewHeader lib -->
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/recylcer_list"
@@ -49,12 +45,14 @@
 
                     />
 
+
             </FrameLayout>
 
 
             <!-- http://stackoverflow.com/questions/24618829/how-to-add-dividers-and-spaces-between-items-in-recyclerview -->
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+        </com.example.steven.spautify.BetterSwipeRefreshLayout>
+
 
 
     </RelativeLayout>

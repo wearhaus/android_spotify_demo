@@ -16,9 +16,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 
-import com.example.steven.spautify.Fragments.MyPlaylistsFragment;
-import com.example.steven.spautify.Fragments.MySavedAlbumsFragment;
-import com.example.steven.spautify.Fragments.QueueFragment;
+import com.example.steven.spautify.fragments.MyPlaylistsFragment;
+import com.example.steven.spautify.fragments.MySavedAlbumsFragment;
+import com.example.steven.spautify.fragments.QueueFragment;
 import com.example.steven.spautify.musicplayer.WPlayer;
 
 

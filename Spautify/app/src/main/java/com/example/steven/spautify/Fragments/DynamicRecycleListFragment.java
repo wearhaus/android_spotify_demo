@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -49,11 +49,12 @@ public abstract class DynamicRecycleListFragment<
 
 
     private TextView mNoticeText;
-    //protected View mLoadingContainer;
+//    protected View mLoadingContainer;
     protected View mEverythingContainer;
 
     //private RelativeLayout mLayout;
     private SwipeRefreshLayout mSwipeRefresh;
+//    private boolean mSwipeRefreshingPreMeasure = false;
 
     private ArrayList<I> mListCloned;
 
@@ -71,10 +72,7 @@ public abstract class DynamicRecycleListFragment<
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.mf_generic_list, container, false);
 
-
         mListCloned = new ArrayList<>();
-
-
 
         mRecyclerView = (RecyclerView)  view.findViewById(R.id.recylcer_list);
         //mRecyclerView.setHasFixedSize(true); we change list size, so can't use
@@ -107,9 +105,8 @@ public abstract class DynamicRecycleListFragment<
 
 
         mNoticeText = (TextView) view.findViewById(R.id.notice_text);
-
-
         mEverythingContainer = view.findViewById(R.id.everything_container);
+//        mLoadingContainer = view.findViewById(R.id.spin_kit);
 
         /*
             So every onResume, we regrab the list.  There is no other way to get any changes to the list.
@@ -142,6 +139,7 @@ public abstract class DynamicRecycleListFragment<
             mSwipeRefresh.setEnabled(false);
         }
 
+
         return view;
     }
 
@@ -170,13 +168,11 @@ public abstract class DynamicRecycleListFragment<
 
     protected abstract boolean canDragAndDrop();
 
-    protected void onSwipeRefresh() {};
+    protected void onSwipeRefresh() {}
 
-    protected void setRefreshing(boolean b) {
-        Log.d("DynamicListFragment", "   setRefreshing: " + b);
+    protected void setLoading(boolean b) {
         if (mSwipeRefresh != null) {
             mSwipeRefresh.setRefreshing(b);
-            Log.d("DynamicListFragment", "   actually changed");
         }
 
     }
@@ -266,7 +262,6 @@ public abstract class DynamicRecycleListFragment<
 
     private void loadNewPage() {
         if (mPageTotalAbleToBeLoaded == -1 || mPageLoadedCount >= mPageTotalAbleToBeLoaded) {
-            Log.d("ggg", "loadData  Nothing more to load  " + mPageLoadedCount + ", " + mPageTotalAbleToBeLoaded);
             return;
         }
         loadData(mPageLoadedCount);

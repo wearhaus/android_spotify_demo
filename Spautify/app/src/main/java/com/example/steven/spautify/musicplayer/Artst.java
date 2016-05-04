@@ -26,7 +26,10 @@ public class Artst {
     public Source source;
     public String name;
     /** may be null TODO for bot spotify and soundcloud the field is not loaded in the simple versions*/
+    /** Will probably be small resolution, such as 100x100, or even smaller*/
     public String artworkUrl;
+    /** If a higher res is available, this will be filled out, otherwise, it'll mirror artworkUrlHighRes*/
+    public String artworkUrlHighRes;
 
     // Fields available depending on source type
     public String spotifyId; // https://developer.spotify.com/web-api/user-guide/#spotify-uris-and-ids
@@ -57,7 +60,9 @@ public class Artst {
         name = as.name;
 
         if (as.images != null && !as.images.isEmpty()) {
-            artworkUrl = as.images.get(0).url;
+            // as of now, order is largest to smallest
+            artworkUrl = as.images.get(as.images.size()-1).url;
+            artworkUrlHighRes = as.images.get(0).url;
         }
 
         spotifyArtistFull = as;
@@ -69,7 +74,14 @@ public class Artst {
         artstId = source.prefix + t.id;
 
         name = t.username;
+
         artworkUrl = t.avatar_url;
+        if (artworkUrl != null) {
+            // default is large, which is 100x100
+            artworkUrlHighRes = artworkUrl.replace("large.jpg", "t500x500.jpg");
+        } else {
+            artworkUrlHighRes = artworkUrl;
+        }
 
         soundCloudJson = t;
     }

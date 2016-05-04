@@ -3,8 +3,8 @@ package com.example.steven.spautify;
 import android.app.Fragment;
 import android.os.Bundle;
 
-import com.example.steven.spautify.Fragments.MusicLibFragment;
-import com.example.steven.spautify.Fragments.ViewPlaylistFragment;
+import com.example.steven.spautify.fragments.MusicLibFragment;
+import com.example.steven.spautify.fragments.ViewPlaylistFragment;
 import com.example.steven.spautify.musicplayer.Playlst;
 
 /**

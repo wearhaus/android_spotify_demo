@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.steven.spautify.Fragments.SettingsFragment;
+import com.example.steven.spautify.fragments.SettingsFragment;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.example.steven.spautify.musicplayer.WMusicProvider;
 import com.spotify.sdk.android.authentication.AuthenticationClient;

@@ -1,4 +1,4 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,10 +11,8 @@ import android.view.ViewGroup;
 
 import com.example.steven.spautify.R;
 import com.example.steven.spautify.ViewArtistActivity;
-import com.example.steven.spautify.ViewPlaylistActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Artst;
-import com.example.steven.spautify.musicplayer.Playlst;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

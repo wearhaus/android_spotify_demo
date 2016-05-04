@@ -29,7 +29,12 @@ public class Sng {
     public String name;
     public String artistPrimaryName;
     public String albumName;
+
+    /** Will probably be small resolution, such as 100x100, or even smaller*/
     public String artworkUrl;
+    /** If a higher res is available, this will be filled out, otherwise, it'll mirror artworkUrlHighRes*/
+    public String artworkUrlHighRes;
+
     /* Shouldn't be null, but may possibly be... Lookup track on it's source to resolve*/
     public String artstId;
     public int durationInMs;
@@ -66,7 +71,9 @@ public class Sng {
         durationInMs = (int) t.duration_ms;
 
         if (t.album != null && t.album.images != null && !t.album.images.isEmpty()) {
-            artworkUrl = t.album.images.get(0).url;
+            // as of now, order is largest to smallest
+            artworkUrl = t.album.images.get(t.album.images.size()-1).url;
+            artworkUrlHighRes = t.album.images.get(0).url;
         }
 
         spotifyAlbumId = t.album.id;
@@ -87,7 +94,14 @@ public class Sng {
         artistPrimaryName = t.user.username;
         albumName = null;
         durationInMs = t.duration;
+
         artworkUrl = t.artwork_url;
+        if (artworkUrl != null) {
+            // default is large, which is 100x100
+            artworkUrlHighRes = artworkUrl.replace("large.jpg", "t500x500.jpg");
+        } else {
+            artworkUrlHighRes = artworkUrl;
+        }
 
         soundCloudJson = t;
         streamable = soundCloudJson.streamable;

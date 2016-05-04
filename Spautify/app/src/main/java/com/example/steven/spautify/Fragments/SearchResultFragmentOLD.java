@@ -82,7 +82,7 @@
 //
 //        mPageLoadedCount = resultingItems.size();
 //        mPageTotalAbleToBeLoaded =  mPageLoadedCount + (mNextPage != null ? 1 : 0); // if not null, at least 1 more thing loadable
-//        setRefreshing(false);
+//        setLoading(false);
 //
 //        updateList();
 //    }
@@ -93,7 +93,7 @@
 //        resultingItems = null;
 //        errorMsg = null;
 //        mNextPage = null;
-//        setRefreshing(true);
+//        setLoading(true);
 //        mPageLoadedCount = 0;
 //        mPageTotalAbleToBeLoaded = 0;
 //        updateList();
@@ -103,7 +103,7 @@
 //    public void setOnlyLoading() {
 //        errorMsg = null;
 //        mNextPage = null;
-//        setRefreshing(true);
+//        setLoading(true);
 //        updateList();
 //    }
 //
@@ -111,7 +111,7 @@
 //        resultingItems = null;
 //        errorMsg = e;
 //        mNextPage = null;
-//        setRefreshing(false);
+//        setLoading(false);
 //        mPageLoadedCount = 0;
 //        mPageTotalAbleToBeLoaded = 0;
 //        updateList();
@@ -121,7 +121,7 @@
 //        resultingItems = null;
 //        errorMsg = null;
 //        mNextPage = null;
-//        setRefreshing(false);
+//        setLoading(false);
 //        mPageLoadedCount = 0;
 //        mPageTotalAbleToBeLoaded = 0;
 //        updateList();
@@ -144,7 +144,7 @@
 //            badWhy = "";
 //        } else if (getList().size() <= 0) {
 //            badWhy = "No matches";
-//            setRefreshing(false);
+//            setLoading(false);
 //        }
 //
 //        return badWhy;

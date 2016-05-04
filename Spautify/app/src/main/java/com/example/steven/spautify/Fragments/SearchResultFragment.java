@@ -1,7 +1,6 @@
-package com.example.steven.spautify.Fragments;
+package com.example.steven.spautify.fragments;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,8 +83,8 @@ public class SearchResultFragment extends MusicLibFragment {
             mPageLoadedCount = 0;
             mPageTotalAbleToBeLoaded = 0;
         }
-        Log.e("YYYYY", "setRefreshing to " + loading);
-        setRefreshing(loading);
+        Log.e("YYYYY", "setLoading to " + loading);
+        setLoading(loading);
 
         updateList();
     }
@@ -108,7 +107,7 @@ public class SearchResultFragment extends MusicLibFragment {
 
         } else if (getList().size() <= 0) {
             Log.e("YYYYY", "SETTTING FALSE");
-            setRefreshing(false);
+            setLoading(false);
             return "No matches";
 
         } else {
@@ -131,7 +130,7 @@ public class SearchResultFragment extends MusicLibFragment {
         if (mNextPage != null) {
 //            errorMsg = null;
 //            mNextPage = null;
-//            setRefreshing(true);
+//            setLoading(true);
 //            updateList();
             mNextPage.requestNextPage();
             mNextPage = null; // to prevent duplicate calls

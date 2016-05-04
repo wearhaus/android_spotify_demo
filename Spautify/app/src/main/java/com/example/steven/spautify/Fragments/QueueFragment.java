@@ -1,6 +1,4 @@
-package com.example.steven.spautify.Fragments;
-
-import android.util.Log;
+package com.example.steven.spautify.fragments;
 
 import com.example.Notifier;
 import com.example.steven.spautify.musicplayer.Sng;
