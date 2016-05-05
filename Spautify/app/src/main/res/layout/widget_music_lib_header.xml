@@ -2,14 +2,14 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="155dp"
     android:background="@color/bg_black_really_dark_grey"
     >
 
     <ImageView
         android:id="@+id/img_bg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="155dp"
         android:scaleType="centerCrop"
         android:alpha="0.4"
         />
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
 
-            android:textColor="#aaeeeeee"
+            android:textColor="#aaffffff"
             android:textSize="13sp"
             android:layout_weight="1"
             android:singleLine="true"
@@ -55,7 +55,7 @@
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#ffeeeeee"
+            android:textColor="#ffffffff"
             android:textSize="21sp"
             android:layout_weight="1"
             android:singleLine="true"
@@ -68,7 +68,7 @@
         android:id="@+id/play_button"
 
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         android:background="@drawable/button_bg_cyan_rounder"
         style="@style/Text_Medium_White_Style"
         android:text="Play"

@@ -281,14 +281,14 @@ public class MusicPlayerBar extends RelativeLayout {
                         mTrackAuthor.setText(sng.getFormattedArtistAlbumString());
 
                         Picasso.with(getContext())
-                                .load(sng.artworkUrl)
+                                .load(sng.artworkUrlHighRes)
                                 .placeholder(R.drawable.track_grey6_256x256)
                                 .error(R.drawable.track_grey6_256x256)
                                 .into(mImageView);
 
                         Picasso.with(getContext())
                                 .load(sng.artworkUrl)
-                                .transform(new BlurTransformation(getContext(), 25, 1))
+                                .transform(new BlurTransformation(getContext(), 15, 1))
                                 .into(mImageBGView);
 
                         mSourceSplashView.setImageResource(sng.source.sourceSplashRes);

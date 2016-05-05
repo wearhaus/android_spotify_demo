@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.steven.spautify.R;
-import com.example.steven.spautify.ViewAlbumActivity;
+import com.example.steven.spautify.ViewSongsActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.SpotifyApi;
 import com.squareup.picasso.Picasso;
@@ -79,11 +79,18 @@ public class AlbmAdapter extends RecyclerView.Adapter<WPlayerViewHolder> impleme
 //            Picasso.with(holder.mContainer.getContext()).load(a.images.get(0).url).into(holder.mImageView);
 
         if (mFragment.showArtwork()) {
-            Picasso.with(holder.mContainer.getContext())
-                    .load(a.images.get(0).url)
-                    .placeholder(R.drawable.cd_grey)
-                    .error(R.drawable.cd_grey)
-                    .into(holder.mImageView);
+            if (a.images != null && !a.images.isEmpty()) {
+                Picasso.with(holder.mContainer.getContext())
+                        .load(a.images.get(0).url)
+                        .placeholder(R.drawable.cd_grey)
+                        .error(R.drawable.cd_grey)
+                        .into(holder.mImageView);
+            } else {
+                holder.mImageView.setImageResource(R.drawable.cd_grey);
+
+            }
+
+
         } else {
             holder.mImageView.setVisibility(View.GONE);
             // this way goneSpace's bounds matter
@@ -100,8 +107,9 @@ public class AlbmAdapter extends RecyclerView.Adapter<WPlayerViewHolder> impleme
 
                 Activity act = mFragment.getActivity();
                 if (act != null) {
-                    Intent intent = new Intent(act, ViewAlbumActivity.class);
+                    Intent intent = new Intent(act, ViewSongsActivity.class);
                     intent.putExtra(MusicLibFragment.TAG_ID, a.id);
+                    intent.putExtra(MusicLibFragment.TAG_TYPE_ORDINAL, MusicLibType.Album.ordinal());
                     act.startActivity(intent);
 
                 }

@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.steven.spautify.R;
-import com.example.steven.spautify.ViewArtistActivity;
+import com.example.steven.spautify.ViewSongsActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Artst;
 import com.squareup.picasso.Picasso;
@@ -95,20 +95,12 @@ public class ArtstAdapter extends RecyclerView.Adapter<WPlayerViewHolder>
             @Override
             public void onClick(View v) {
 
-//                Playlst.mPlaylstCache.put(p.playlstId, p);
-//
-//                Activity act = mFragment.getActivity();
-//                if (act != null) {
-//                    Intent intent = new Intent(act, ViewPlaylistActivity.class);
-//                    intent.putExtra(ViewPlaylistActivity.TAG_ID, p.playlstId);
-//                    act.startActivity(intent);
-//
-//                }
 
                 Activity act = mFragment.getActivity();
                 if (act != null) {
-                    Intent intent = new Intent(act, ViewArtistActivity.class);
+                    Intent intent = new Intent(act, ViewSongsActivity.class);
                     intent.putExtra(MusicLibFragment.TAG_ID, p.artstId);
+                    intent.putExtra(MusicLibFragment.TAG_TYPE_ORDINAL, MusicLibType.Artist.ordinal());
                     act.startActivity(intent);
                 }
             }

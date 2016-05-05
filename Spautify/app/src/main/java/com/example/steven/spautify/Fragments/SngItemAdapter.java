@@ -12,8 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.steven.spautify.R;
-import com.example.steven.spautify.ViewAlbumActivity;
-import com.example.steven.spautify.ViewArtistActivity;
+import com.example.steven.spautify.ViewSongsActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Sng;
 import com.example.steven.spautify.musicplayer.Source;
@@ -300,8 +299,9 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
     private void openSpotifyAlbumActivity(Sng song) {
         Activity act = mFragment.getActivity();
         if (act != null) {
-            Intent intent = new Intent(act, ViewAlbumActivity.class);
+            Intent intent = new Intent(act, ViewSongsActivity.class);
             intent.putExtra(MusicLibFragment.TAG_ID, song.spotifyAlbumId);
+            intent.putExtra(MusicLibFragment.TAG_TYPE_ORDINAL, MusicLibType.Album.ordinal());
             act.startActivity(intent);
         }
 
@@ -310,8 +310,9 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
     private void openArtistActivity(Sng song) {
         Activity act = mFragment.getActivity();
         if (act != null) {
-            Intent intent = new Intent(act, ViewArtistActivity.class);
+            Intent intent = new Intent(act, ViewSongsActivity.class);
             intent.putExtra(MusicLibFragment.TAG_ID, song.artstId);
+            intent.putExtra(MusicLibFragment.TAG_TYPE_ORDINAL, MusicLibType.Artist.ordinal());
             act.startActivity(intent);
         }
 

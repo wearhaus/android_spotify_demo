@@ -32,7 +32,7 @@ public class Sng {
 
     /** Will probably be small resolution, such as 100x100, or even smaller*/
     public String artworkUrl;
-    /** If a higher res is available, this will be filled out, otherwise, it'll mirror artworkUrlHighRes*/
+    /** If a higher res is available, this will be filled out, otherwise, it'll mirror artworkUrlMidRes*/
     public String artworkUrlHighRes;
 
     /* Shouldn't be null, but may possibly be... Lookup track on it's source to resolve*/
@@ -99,6 +99,7 @@ public class Sng {
         if (artworkUrl != null) {
             // default is large, which is 100x100
             artworkUrlHighRes = artworkUrl.replace("large.jpg", "t500x500.jpg");
+            //artworkUrlMidRes = artworkUrl.replace("large.jpg", "t300x300.jpg");
         } else {
             artworkUrlHighRes = artworkUrl;
         }

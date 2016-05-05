@@ -40,7 +40,7 @@
         </activity>
 
         <activity
-            android:name=".ViewPlaylistActivity"
+            android:name=".ViewSongsActivity"
             android:label="ViewPlaylistActivity"
             android:parentActivityName=".MusicActivity"
             >

@@ -30,7 +30,6 @@
 
         android:src="@drawable/ic_action_pause_w"
         android:scaleType="fitCenter"
-        android:background="@drawable/button_bg_transparent_tocyan"
 
 
         android:layout_centerInParent="true"
@@ -48,7 +47,6 @@
 
         android:src="@drawable/ic_action_play_w"
         android:scaleType="fitCenter"
-        android:background="@drawable/button_bg_transparent_tocyan"
 
         android:clickable="false"
         />

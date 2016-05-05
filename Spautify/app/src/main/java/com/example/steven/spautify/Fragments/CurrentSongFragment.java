@@ -30,6 +30,7 @@ import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import jp.wasabeef.picasso.transformations.BlurTransformation;
 
 /**
@@ -64,11 +65,13 @@ public class CurrentSongFragment extends Fragment {
     private String mCurrentSngId;
     private int randomCode;
 
+    private Unbinder mUnbinder;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.current_song_fragment, container, false);
 
-        ButterKnife.bind(this, view);
+        mUnbinder = ButterKnife.bind(this, view);
 
 
         Random rand = new Random();
@@ -135,6 +138,12 @@ public class CurrentSongFragment extends Fragment {
 
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUnbinder.unbind();
     }
 
 
@@ -280,7 +289,7 @@ public class CurrentSongFragment extends Fragment {
 
                         Picasso.with(getActivity())
                                 .load(sng.artworkUrl)
-                                .transform(new BlurTransformation(getActivity(), 50, 1))
+                                .transform(new BlurTransformation(getActivity(), 25, 2)) // 25 is max
                                 .into(mImageBGView);
                     }
 

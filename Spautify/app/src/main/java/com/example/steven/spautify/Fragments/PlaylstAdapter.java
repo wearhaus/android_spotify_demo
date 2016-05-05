@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.steven.spautify.R;
-import com.example.steven.spautify.ViewPlaylistActivity;
+import com.example.steven.spautify.ViewSongsActivity;
 import com.example.steven.spautify.WPlayerViewHolder;
 import com.example.steven.spautify.musicplayer.Playlst;
 import com.squareup.picasso.Picasso;
@@ -104,8 +104,11 @@ public class PlaylstAdapter extends RecyclerView.Adapter<WPlayerViewHolder> impl
 
                 Activity act = mFragment.getActivity();
                 if (act != null) {
-                    Intent intent = new Intent(act, ViewPlaylistActivity.class);
+                    Intent intent = new Intent(act, ViewSongsActivity.class);
                     intent.putExtra(MusicLibFragment.TAG_ID, p.playlstId);
+                    intent.putExtra(MusicLibFragment.TAG_TYPE_ORDINAL, MusicLibType.Playlist.ordinal());
+
+
                     act.startActivity(intent);
 
                 }

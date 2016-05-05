@@ -280,7 +280,7 @@ public class WPlayerService extends Service {
             }
             String title = WPlayer.getCurrentSng().name;
             String artist = WPlayer.getCurrentSng().artistPrimaryName;
-            String imgUrl = WPlayer.getCurrentSng().artworkUrl;
+            String imgUrl = WPlayer.getCurrentSng().artworkUrlHighRes;
             if (WPlayer.getState() == WPlayer.WPlayerState.LoadingProvider) {
                 setprogress = true;
             }

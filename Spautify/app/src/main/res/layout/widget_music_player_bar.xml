@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:alpha="0.3"
+        android:alpha="0.4"
         />
 
 
@@ -22,7 +22,6 @@
         android:id="@+id/playback_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="2dp"
         >
 
         <ImageView
@@ -30,6 +29,7 @@
 
             android:layout_width="60dp"
             android:layout_height="60dp"
+            android:layout_marginLeft="2dp"
 
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"

@@ -38,9 +38,22 @@ public class Playlst {
     public SoundCloudApi.PlaylistJson soundcloudObject;
 
 
+    /** To get a specfici playlist, we need both the user id and the spotify id.  We store
+     * both in our playlstId.  This extracts them*/
+    public static String getSpotifyUserId(String playlstId) {
+        if (playlstId.replace(Source.Spotify.prefix, "").split(":").length < 5) return null;
+        return playlstId.replace(Source.Spotify.prefix, "").split(":")[2];
+    }
+    public static String getSpotifyPlaylistId(String playlstId) {
+        if (playlstId.replace(Source.Spotify.prefix, "").split(":").length < 5) return null;
+        return playlstId.replace(Source.Spotify.prefix, "").split(":")[4];
+    }
+
+
     public Playlst(PlaylistSimple p) {
         source = Source.Spotify;
-        playlstId = source.prefix + p.id;
+        playlstId = source.prefix + p.uri; // "spspotify:user:12144049920:playlist:41qCjg2l5f7T8O32EbDwwB"
+        // uri encodes user id AND playlist, since to getPlaylist when we only have id, we need the user id.
         spotifyId = p.id;
         name = p.name;
         creatorName = "";
