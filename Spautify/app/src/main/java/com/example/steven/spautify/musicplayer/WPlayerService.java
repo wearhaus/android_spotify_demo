@@ -50,6 +50,7 @@ public class WPlayerService extends Service {
     public static final String ACTION_NEXT = "action_next";
     public static final String ACTION_PREVIOUS = "action_previous";
     public static final String ACTION_STOP = "action_stop";
+    public static final String ACTION_CANCEL = "action_cancel";
 
     //private MediaPlayer mMediaPlayer;
     private MediaSessionManager mManager;
@@ -164,6 +165,10 @@ public class WPlayerService extends Service {
         mSession.setActive(true);
 
 
+        buildNotification();
+        // create now instead of waiting until song is playing???
+
+
 
         checkHearbeat();
     }
@@ -236,6 +241,11 @@ public class WPlayerService extends Service {
             mController.getTransportControls().skipToNext();
         } else if( action.equalsIgnoreCase( ACTION_STOP ) ) {
             mController.getTransportControls().stop();
+
+        } else if( action.equalsIgnoreCase( ACTION_CANCEL ) ) {
+            Log.i(TAG, "Received user intent to cancel WPlayerService");
+            WPlayer.closePlayer();
+
         }
     }
 
@@ -314,10 +324,11 @@ public class WPlayerService extends Service {
                 builder.addAction(playpause);
 
                 builder.addAction(generateAction(android.R.drawable.ic_media_next, "Next", ACTION_NEXT));
+                builder.addAction(generateAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", ACTION_CANCEL));
                 if (playpause != null) {
-                    style.setShowActionsInCompactView(0, 1); // 2, 3, 4);
+                    style.setShowActionsInCompactView(0, 1, 2); // 2, 3, 4);
                 } else {
-                    style.setShowActionsInCompactView(0); // 2, 3, 4);
+                    style.setShowActionsInCompactView(0, 1); // 2, 3, 4);
                 }
                 builder.setStyle(style);
             } else {
@@ -359,7 +370,7 @@ public class WPlayerService extends Service {
         } else {
 
             // So service shouldn't exist when no player ready
-            stopSelf();
+            kill();
 
         }
     }
@@ -368,13 +379,13 @@ public class WPlayerService extends Service {
         //Log.i(TAG, "checkHeartbeat ");
         if (WPlayer.getState() != WPlayer.WPlayerState.Off) {
             if (mHeartbeat == null) {
-                ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-                mHeartbeat = service.scheduleWithFixedDelay(new Runnable() {
-                    @Override
-                    public void run() {
-                        checkHearbeat();
-                    }
-                }, 2, 2, TimeUnit.SECONDS);
+                    ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+                    mHeartbeat = service.scheduleWithFixedDelay(new Runnable() {
+                        @Override
+                        public void run() {
+                            checkHearbeat();
+                        }
+                    }, 2, 2, TimeUnit.SECONDS);
             }
 
             if (mListener == null) {
@@ -383,6 +394,7 @@ public class WPlayerService extends Service {
                     public void onChange(WPlayer.Notif type) {
                         switch (type) {
                             case PlaybackAndQueue:
+                            case Queue:
                             case Playback:
                                 buildNotification();
                                 // TODO make more efficient since we dont care for just position changes

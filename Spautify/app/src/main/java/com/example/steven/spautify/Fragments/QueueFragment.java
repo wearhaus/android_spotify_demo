@@ -64,7 +64,7 @@ public class QueueFragment extends MusicLibFragment {
     protected String checkIfBad() {
         if (WPlayer.getState() == WPlayer.WPlayerState.Off) {
             return "Player is off";
-        } else if (WPlayer.getCurrentSng() == null) {
+        } else if (getList() == null || getList().isEmpty()) {
             return "queue is empty";
         }
         return null;

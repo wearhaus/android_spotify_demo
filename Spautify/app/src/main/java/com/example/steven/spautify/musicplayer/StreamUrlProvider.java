@@ -81,7 +81,9 @@ public abstract class StreamUrlProvider extends WMusicProvider {
             mUrl = getStreamUrl(song);
             mSongDuration = song.durationInMs;
             mReachEndOnce = false;
-            mMediaPlayer.setDataSource(mAppContext, Uri.parse(mUrl));
+            // using Uri seems to take longer and cause Log.d FileNotFoundException no content provider
+//            mMediaPlayer.setDataSource(mAppContext, Uri.parse(mUrl));
+            mMediaPlayer.setDataSource(mUrl);
             mMediaPlayer.prepareAsync();
 
             mPlayerSetupState = State.LoadingSong;
@@ -110,6 +112,7 @@ public abstract class StreamUrlProvider extends WMusicProvider {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
                     Log.e(TAG, "onError");
+                    if (mMediaPlayer == null) return false;
                     mPlayerSetupState = State.ErrorWithCurrentSong;
                     WPlayer.fpProviderStateNotif(StreamUrlProvider.this);
                     mErrored = true;
@@ -124,6 +127,7 @@ public abstract class StreamUrlProvider extends WMusicProvider {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     Log.i(TAG, "onCompletion");
+                    if (mMediaPlayer == null) return;
 
                     mMediaPlayerStarted = false;
                     mReachEndOnce = true;
@@ -138,6 +142,7 @@ public abstract class StreamUrlProvider extends WMusicProvider {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     Log.i(TAG, "onPrepared");
+                    if (mMediaPlayer == null) return;
                     mPlayerSetupState = State.SongReady;
                     WPlayer.fpProviderStateNotif(StreamUrlProvider.this);
                     mMediaPlayer.start();

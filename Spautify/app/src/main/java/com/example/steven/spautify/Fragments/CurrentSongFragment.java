@@ -30,6 +30,7 @@ import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import jp.wasabeef.picasso.transformations.BlurTransformation;
 
@@ -61,6 +62,7 @@ public class CurrentSongFragment extends Fragment {
     @BindView(R.id.repeat)               ImageButton mRepeat;
 
     @BindView(R.id.source_splash)        Button mSourceButton;
+    @BindView(R.id.extended_menu_button) public ImageButton mExtendedMenuButton;
 
     private String mCurrentSngId;
     private int randomCode;
@@ -162,7 +164,13 @@ public class CurrentSongFragment extends Fragment {
     };
 
 
-
+    @OnClick( { R.id.extended_menu_button, R.id.img})
+    public void onMenuClicked(View v) {
+        Sng sng = WPlayer.getCurrentSng();
+        if (sng != null) {
+            SngItemAdapter.onCurrentSongMenuClicked(getActivity(), sng);
+        }
+    }
 
 
     private boolean attachedPosBar = false;

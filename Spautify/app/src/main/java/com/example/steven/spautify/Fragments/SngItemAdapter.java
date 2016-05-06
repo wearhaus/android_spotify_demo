@@ -134,7 +134,7 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
                     }
                 } else  {
 //                        WPlayer.playSingleClearQueue(s.sng);
-                    onItemMenuSelected(position, s.sng);
+                    onSongItemMenuClicked(mFragment.getActivity(), mLibType, position, s.sng);
                 }
             }
         });
@@ -143,7 +143,7 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
             holder.mExtendedMenuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemMenuSelected(position, s.sng);
+                    onSongItemMenuClicked(mFragment.getActivity(), mLibType, position, s.sng);
                 }
             });
         } else {
@@ -188,11 +188,16 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
     }
 
 
-    private void onItemMenuSelected(final int position, final Sng sng) {
+    /** ONLY called from CurentSongFrag, so no list or play options will be created*/
+    public static void onCurrentSongMenuClicked(final Activity context, final Sng sng) {
+        onSongItemMenuClicked(context, null, 0, sng);
+
+    }
+    public static void onSongItemMenuClicked(final Activity context, MusicLibType libType, final int position, final Sng sng) {
 
         ArrayList<DialogItem> dialogItems = new ArrayList<>();
 
-        if (mLibType == MusicLibType.SongInQueue) {
+        if (libType == MusicLibType.SongInQueue) {
 
             if (sng.streamable) {
                 dialogItems.add(DialogItem.PlayInQueue);
@@ -200,7 +205,8 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
             // TODO detect if current song or not by reading position
             dialogItems.add(DialogItem.RemoveFromQueue);
 
-        } else {
+        } else if (libType != null) {
+            // libType null refers to currentsong
             if (sng.streamable) {
                 dialogItems.add(DialogItem.PlayKeepQueueLib);
                 dialogItems.add(DialogItem.PlayNextLib);
@@ -210,14 +216,14 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
         }
 
         if (sng.source == Source.Spotify) {
-            if (mLibType != MusicLibType.SongInLibAlbum && sng.spotifyAlbumId != null) {
+            if (libType != MusicLibType.SongInLibAlbum && sng.spotifyAlbumId != null) {
                 dialogItems.add(DialogItem.OpenSpotifyAlbum);
             }
         } else if (sng.source == Source.Soundcloud) {
             //dialogItems.add(DialogItem.OpenInSoundCloud);
         }
 
-        if (mLibType != MusicLibType.SongInLibArtst && sng.artstId != null) {
+        if (libType != MusicLibType.SongInLibArtst && sng.artstId != null) {
             dialogItems.add(DialogItem.OpenArtist);
         }
 
@@ -234,7 +240,7 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
 
         // Null here means we end up ignoring the root's layout width and height attr, so we
         // need to manually specify it here, unless we figure out how to properly get a ViewGroup it inflate with
-        View titleView = LayoutInflater.from(mFragment.getActivity()).inflate(R.layout.recycler_queue_item_dialog_title, null);
+        View titleView = LayoutInflater.from(context).inflate(R.layout.recycler_queue_item_dialog_title, null);
         {
             WPlayerViewHolder vh = new WPlayerViewHolder(titleView);
             vh.setMarquee(true);
@@ -252,7 +258,7 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
 
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mFragment.getActivity())
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setCustomTitle(titleView)
                 .setItems(dialogNames, new DialogInterface.OnClickListener() {
                     @Override
@@ -276,10 +282,10 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
                                 WPlayer.removeFromQueue(position, sng); break;
 
                             case OpenSpotifyAlbum:
-                                openSpotifyAlbumActivity(sng); break;
+                                openSpotifyAlbumActivity(context, sng); break;
 
                             case OpenArtist:
-                                openArtistActivity(sng); break;
+                                openArtistActivity(context, sng); break;
 
                             case Back:
                                 break; // do nothing
@@ -296,8 +302,7 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
     }
 
 
-    private void openSpotifyAlbumActivity(Sng song) {
-        Activity act = mFragment.getActivity();
+    private static void openSpotifyAlbumActivity(Activity act, Sng song) {
         if (act != null) {
             Intent intent = new Intent(act, ViewSongsActivity.class);
             intent.putExtra(MusicLibFragment.TAG_ID, song.spotifyAlbumId);
@@ -307,8 +312,7 @@ class SngItemAdapter extends RecyclerView.Adapter<WPlayerViewHolder> implements 
 
     }
 
-    private void openArtistActivity(Sng song) {
-        Activity act = mFragment.getActivity();
+    private static void openArtistActivity(Activity act, Sng song) {
         if (act != null) {
             Intent intent = new Intent(act, ViewSongsActivity.class);
             intent.putExtra(MusicLibFragment.TAG_ID, song.artstId);

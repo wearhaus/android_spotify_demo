@@ -117,6 +117,8 @@ public class WPlayer {
         mCurrentSng = null;
 
         mProviders = new Hashtable<>();
+        mCurrentProvider = null;
+        mCurrentProviderClass = null;
         mScheduledHash = new Hashtable<>();
         mWPlayerState = WPlayerState.Initialized;
 
@@ -125,7 +127,7 @@ public class WPlayer {
         i.setAction(WPlayerService.ACTION_PLAY);
         mApp.startService(i);
 
-        mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+        notifyListeners(Notif.PlaybackAndQueue);
 
     }
 
@@ -157,10 +159,13 @@ public class WPlayer {
         mScheduledHash = null;
         mWPlayerState = WPlayerState.Off;
         mCurrentProvider = null;
+        mCurrentProviderClass = null;
         mCurrentSng = null;
         mCurrentErrorSng = null;
         mQueue = null;
         mQueueBack = null;
+
+        notifyListeners(Notif.PlaybackAndQueue);
 
     }
 
@@ -271,6 +276,10 @@ public class WPlayer {
 
     }
 
+    private static void notifyListeners(Notif n) {
+        if (n != null) mNotifier.notifyListeners(n);
+    }
+
     //private static boolean mPlaying;
     private static PlaybackState mPlaybackState;
     private static boolean mShuffling;
@@ -325,8 +334,8 @@ public class WPlayer {
 
     /** Returns true if mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerInited*/
     private static boolean checkProviderReady() {
-//        Log.v(TAG, "mCurrentProvider: " + mCurrentProvider);
-//        if (mCurrentProvider != null) Log.v(TAG, "     checkProviderReady: " + (mCurrentProvider.getProviderState()));
+        Log.v(TAG, "mCurrentProvider: " + mCurrentProvider);
+        if (mCurrentProvider != null) Log.v(TAG, "     checkProviderReady: " + (mCurrentProvider.getProviderState()));
         return mCurrentProvider != null &&
                 (mCurrentProvider.getProviderState() == WMusicProvider.State.PlayerInited
                         || mCurrentProvider.getProviderState() == WMusicProvider.State.LoadingSong
@@ -353,6 +362,21 @@ public class WPlayer {
         Log.d(TAG, "internalPlay " + Thread.currentThread().getId());
 
         synchronized (sInternalPlayLock) {
+            // this synchronized is probably useless
+            if (mCurrentSng == null) {
+                Log.d(TAG, "no current song; setting everything to standby");
+                if (mCurrentProvider != null) {
+                    mCurrentProvider.standby();
+                }
+                mWPlayerState = WPlayerState.Ready;
+                //mPlaybackState set during fp notif
+                mCurrentErrorSng = null;
+                return;
+            }
+
+            Log.d(TAG, "mCurrentProvider " + mCurrentProvider);
+
+
             if (mCurrentSng.source.providerClass != mCurrentProviderClass) {
                 Log.d(TAG, "switching providers");
 
@@ -360,6 +384,9 @@ public class WPlayer {
                 if (mCurrentProvider != null) {
                     mCurrentProvider.standby();
                 }
+
+                Log.d(TAG, "wp " + wp);
+
 
                 if (wp == null) {
 
@@ -395,10 +422,13 @@ public class WPlayer {
                     mCurrentProvider = wp;
                     mCurrentProviderClass = mCurrentSng.source.providerClass;
 
+
+
                 }
 
             }
 
+            Log.d(TAG, "mCurrentProvider " + mCurrentProvider);
 
             // now wp is set to the correct version and hopefully is ready
 
@@ -513,7 +543,7 @@ public class WPlayer {
             // So we don't actually use the success param; that info is already encoded into the provider state...
 
             internalPlay(true);
-            mNotifier.notifyListeners(Notif.Playback);
+            notifyListeners(Notif.Playback);
 
         }
         // Else do nothing, we switched providers, so we don't care about this right now.
@@ -534,7 +564,7 @@ public class WPlayer {
                 mCurrentProvider.resume();
             }
 
-            mNotifier.notifyListeners(Notif.Playback);
+            notifyListeners(Notif.Playback);
             checkScheduled();
         } else {
             // Do nothing, play/pause undefined while loading the song
@@ -546,12 +576,12 @@ public class WPlayer {
         mShuffling = b;
         // shuffling is considered a playback setting, like playpause state.
         // We still need to notify since playback UI's may have a Shuffle button that needs to reflect the correct state.
-        mNotifier.notifyListeners(Notif.Playback);
+        notifyListeners(Notif.Playback);
     }
 
     public static void setRepeating(boolean b) {
         mRepeating = b;
-        mNotifier.notifyListeners(Notif.Playback);
+        notifyListeners(Notif.Playback);
     }
 
     public static void skipToNext() {
@@ -578,14 +608,14 @@ public class WPlayer {
             }
             mCurrentSng = mQueueBack.remove(mQueueBack.size() - 1);
             internalPlay();
-            mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+            notifyListeners(Notif.PlaybackAndQueue);
         } else {
             if (checkProviderReady()) {
                 mPlaybackState = PlaybackState.Playing;
                 mCurrentProvider.setPosition(0);
             }
             // pause and setpos to 0 for current song, which spotify com.example.steven.spautify.player does automatically
-            mNotifier.notifyListeners(Notif.Playback);
+            notifyListeners(Notif.Playback);
         }
 
 
@@ -600,7 +630,7 @@ public class WPlayer {
         if (checkProviderReady()) {
             mCurrentProvider.pause();
             mPlaybackState = PlaybackState.NotPlaying;
-            mNotifier.notifyListeners(Notif.Playback);
+            notifyListeners(Notif.Playback);
             checkScheduled(); // check after changing mPlaying
         }
     }
@@ -610,7 +640,7 @@ public class WPlayer {
         if (checkProviderReady()) {
             mPlaybackState = PlaybackState.Playing;
             mCurrentProvider.setPosition(newpos);
-            mNotifier.notifyListeners(Notif.Playback);
+            notifyListeners(Notif.Playback);
             checkScheduled(); // check after changing mPlaying
         }
     }
@@ -689,7 +719,7 @@ public class WPlayer {
 
         internalPlay();
 
-        mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+        notifyListeners(Notif.PlaybackAndQueue);
     }
 
 
@@ -702,13 +732,13 @@ public class WPlayer {
         mAutoplayQueueAdditions = false;
         internalPlay();
 
-        mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+        notifyListeners(Notif.PlaybackAndQueue);
     }
 
 
     public static void playSingleKeepQueue(@NonNull Sng sng) {
         if (mCurrentSng != null) {
-            // is null at start
+            // is null at start, or after cleared
             mQueueBack.add(mCurrentSng);
         }
 
@@ -716,7 +746,7 @@ public class WPlayer {
         mAutoplayQueueAdditions = false;
         internalPlay();
 
-        mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+        notifyListeners(Notif.PlaybackAndQueue);
     }
 
     public static void addtoEndOfQueue(@NonNull Sng sng) {
@@ -729,10 +759,10 @@ public class WPlayer {
             mCurrentSng = sng;
             mAutoplayQueueAdditions = false;
             internalPlay();
-            mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+            notifyListeners(Notif.PlaybackAndQueue);
         } else {
             mQueue.add(sng);
-            mNotifier.notifyListeners(Notif.Queue);
+            notifyListeners(Notif.Queue);
         }
     }
 
@@ -740,7 +770,7 @@ public class WPlayer {
      * so that way this song is played right after CurrentSng finishes/skips*/
     public static void addToFrontOfQueue(@NonNull Sng sng) {
         mQueue.add(0, sng);
-        mNotifier.notifyListeners(Notif.Queue);
+        notifyListeners(Notif.Queue);
     }
 
     /** position is 0 indexed and includes the current playing one*/
@@ -776,13 +806,12 @@ public class WPlayer {
             mQueueBack = new ArrayList<>( mQueueBack.subList(0, pos) );
 
             internalPlay();
-            mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+            notifyListeners(Notif.PlaybackAndQueue);
 
         } else if (pos == mQueueBack.size()) {
             // so basically they chose mCurrentSng again
 
             if (mCurrentSng != null) {
-//                if (!mCurrentSng.spotifyUri.equals(sng.spotifyUri)) {
                 if (!mCurrentSng.equalsId(sng)) {
                     Log.e(TAG, "Error with playItemInQueue.  Mismatched sng");
                     return;
@@ -790,7 +819,7 @@ public class WPlayer {
 
                 internalPlay();
                 // start current song over again from 0
-                mNotifier.notifyListeners(Notif.Playback);
+                notifyListeners(Notif.Playback);
             }
 
 
@@ -814,7 +843,7 @@ public class WPlayer {
 
 
             internalPlay();
-            mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+            notifyListeners(Notif.PlaybackAndQueue);
 
 
 
@@ -832,7 +861,7 @@ public class WPlayer {
     /** pos includes queueback.*/
     public static void removeFromQueue(int pos, @NonNull Sng sng) {
         Notif n = removeFromQueueInternal(pos, sng);
-        mNotifier.notifyListeners(n);
+        notifyListeners(n);
     }
 
     /** Does not call any Notifiers */
@@ -851,10 +880,12 @@ public class WPlayer {
 
 
         } else if (pos == mQueueBack.size()) {
-            // if null, then good
+            // REMOVE current playing song
+            Log.e(TAG, "mCurrentSng " + mCurrentSng + ", mQueueBack  " + mQueueBack);
 
             mCurrentSng = null;
             mCurrentProvider.skipToNext();
+            // skipToNext may not notify provider to stop song if no new one
             return null;
             // convenient way to erase current and start next song, nulls are dropped from list when found
             // No notif since the skip event will trigger EndOfSong's notif
@@ -884,18 +915,18 @@ public class WPlayer {
         if (pos < mQueueBack.size()) {
 
             mQueueBack.add(pos, sng);
-            mNotifier.notifyListeners(Notif.Queue);
+            notifyListeners(Notif.Queue);
 
         } else if (pos == mQueueBack.size()) {
 
             mQueueBack.add(pos, sng);
-            mNotifier.notifyListeners(Notif.Queue);
+            notifyListeners(Notif.Queue);
 
         } else if (pos < mQueueBack.size() + 1 + mQueue.size()) {
             int newpos = pos - (mQueueBack.size() + 1);
 
             mQueue.add(newpos, sng);
-            mNotifier.notifyListeners(Notif.Queue);
+            notifyListeners(Notif.Queue);
         } else {
             // if inserted at end of list, use this method again
             addtoEndOfQueue(sng);
@@ -911,22 +942,22 @@ public class WPlayer {
         if (newPos < mQueueBack.size()) {
 
             mQueueBack.add(newPos, draggedSng);
-            mNotifier.notifyListeners(Notif.fuseNotifs(n, Notif.Queue));
+            notifyListeners(Notif.fuseNotifs(n, Notif.Queue));
 
         } else if (newPos == mQueueBack.size()) {
 
             mQueueBack.add(newPos, draggedSng);
-            mNotifier.notifyListeners(Notif.fuseNotifs(n, Notif.Queue));
+            notifyListeners(Notif.fuseNotifs(n, Notif.Queue));
 
         } else if (newPos < mQueueBack.size() + 1 + mQueue.size()) {
             int newpos = newPos - (mQueueBack.size() + 1);
 
             mQueue.add(newpos, draggedSng);
-            mNotifier.notifyListeners(Notif.fuseNotifs(n, Notif.Queue));
+            notifyListeners(Notif.fuseNotifs(n, Notif.Queue));
         } else {
             // if inserted at end of list, use this method again
             addtoEndOfQueue(draggedSng);
-            mNotifier.notifyListeners(n); // too lazy...
+            notifyListeners(n); // too lazy...
         }
 
 
@@ -944,7 +975,7 @@ public class WPlayer {
         if (provider == mCurrentProvider) {
             //Log.v(TAG, "song pos: " + pos);
             positionInMs = pos;
-            mNotifier.notifyListeners(Notif.PlaybackJustPosition);
+            notifyListeners(Notif.PlaybackJustPosition);
         }
     }
 
@@ -953,8 +984,9 @@ public class WPlayer {
     static void fpEndOfSong(WMusicProvider provider) {
         if (provider == mCurrentProvider) {
 
+            Log.e(TAG, "fpEndOfSong   mCurrentSng " + mCurrentSng + ", mQueueBack  " + mQueueBack);
+
             if (mQueue.size() > 0) {
-                // only do this if we pop more off the current queue.
                 if (mCurrentSng != null) {
                     mQueueBack.add(mCurrentSng);
                 }
@@ -963,17 +995,24 @@ public class WPlayer {
                 mAutoplayQueueAdditions = false;
 
                 internalPlay();
-                mNotifier.notifyListeners(Notif.PlaybackAndQueue);
+                notifyListeners(Notif.PlaybackAndQueue);
 
 
             } else {
                 // finished!  leave current song as is,
                 // TODO or set it to beginning of queueBack.
 
+                if (mCurrentSng == null) {
+                    // When queue is empty and current song was cleared, this'll get triggered via the clear method.  Now we need to tell
+                    // the provider to standy
+                    if (mCurrentProvider != null) mCurrentProvider.standby();
+                }
+
                 mAutoplayQueueAdditions = true;
 
                 mPlaybackState = PlaybackState.NotPlaying;
-                mNotifier.notifyListeners(Notif.Playback);
+                notifyListeners(Notif.PlaybackAndQueue); // added queue so removal of current song when its also last results in a queue update.  Also
+                // since this may change, its good to let listeners know that a big change happened.  The Queue finished
 
             }
         }
